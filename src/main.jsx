@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowRightLeft, RefreshCw, Settings as SettingsIcon, Sunrise, Sunset } from 'lucide-react';
-import { CITIES, cityById, cityDate, cityName, clock, dateKey, forecastDay, fullDate, normalizeSettings, numberText, readStored, refreshSlot, sunTime, validWeather, weatherDescription, weatherUpdateSummary, writeStored } from './model';
+import { ArrowRightLeft, Settings as SettingsIcon } from 'lucide-react';
+import { CITIES, cityById, cityDate, cityName, clock, currentWeather, dateKey, fullDate, normalizeSettings, readStored, refreshSlot, validWeather, weatherUpdateSummary, writeStored } from './model';
 import { fetchWeather } from './weather';
 import { solarTermName } from './solarTerms';
-import WeatherIcon from './WeatherIcon';
 import IconButton from './IconButton';
 import DigitalClock from './DigitalClock';
-import WeatherChart from './WeatherChart';
+import CityHeading from './CityHeading';
 import { viewportLayout } from './layout';
+import TrendingFeed from './TrendingFeed';
 import '@fontsource/roboto-condensed/latin-600.css';
 import './styles.css';
 
@@ -16,13 +16,14 @@ const TEXT = {
   zh: {
     primary: '主城市', secondary: '第二城市', today: '今天', swap: '交换城市', settings: '设置',
     sunrise: '日出', sunset: '日落', polarDay: '极昼 · 全天日照', polarNight: '极夜 · 今日无日出',
-    forecast: '今日预报', rain: '降水概率', loading: '正在获取天气…', empty: '暂无天气数据',
+    forecast: '今日预报', empty: '暂无天气数据',
+    current: '当前气温（最近更新时）',
     unavailable: '当天预报不可用', failed: '更新失败，请检查网络', stale: '缓存数据 · 可能已过期',
-    updated: '更新于', refresh: '刷新天气', close: '完成', language: '语言', format: '时间格式',
+    updated: '更新于', close: '完成', language: '语言', format: '时间格式',
     hour12: '12 小时', hour24: '24 小时', rotation: '页面方向', auto: '自动横向', none: '不旋转', cw: '顺时针 90°', ccw: '逆时针 90°',
-    note: '天气按赫尔辛基时间 06:00 / 12:00 / 18:00 更新。休眠时暂停，恢复后补查。',
+    note: '天气按赫尔辛基时间每 2 小时更新（00:00、02:00、04:00…）。休眠时暂停，恢复后补查。',
     lofoten: '罗弗敦群岛以斯沃尔韦尔坐标为代表。', source: '天气数据：Open-Meteo',
-    forecastTemp: '预报温度', fetching: '更新中…', solarTerm: '当前节气（北京时间）',
+    fetching: '更新中…', solarTerm: '当前节气（北京时间）', feedsArea: '资讯区域',
     partialFailed: '部分更新失败', partial: '部分天气未更新', updateNote: '两地天气均至少更新至此时（主城市时间）',
     displayReference: '适配参考：Kindle 1072 × 1448（横向 1448 × 1072）',
     viewport: '浏览器视口', layout: '页面布局', pixelRatio: '像素比',
@@ -30,13 +31,14 @@ const TEXT = {
   en: {
     primary: 'PRIMARY CITY', secondary: 'SECOND CITY', today: 'Today', swap: 'Swap cities', settings: 'Settings',
     sunrise: 'Sunrise', sunset: 'Sunset', polarDay: 'Polar day · sun stays up', polarNight: 'Polar night · no sunrise',
-    forecast: 'TODAY’S FORECAST', rain: 'Rain chance', loading: 'Fetching weather…', empty: 'No weather data yet',
+    forecast: 'TODAY’S FORECAST', empty: 'No weather data yet',
+    current: 'Current temperature at last update',
     unavailable: 'Today’s forecast unavailable', failed: 'Update failed. Check connection.', stale: 'Cached forecast · may be outdated',
-    updated: 'Updated', refresh: 'Refresh weather', close: 'Done', language: 'Language', format: 'Time format',
+    updated: 'Updated', close: 'Done', language: 'Language', format: 'Time format',
     hour12: '12 hour', hour24: '24 hour', rotation: 'Page orientation', auto: 'Auto landscape', none: 'No rotation', cw: 'Clockwise 90°', ccw: 'Counterclockwise 90°',
-    note: 'Weather updates at 06:00 / 12:00 / 18:00 Helsinki time. It catches up when the page resumes.',
+    note: 'Weather updates every 2 hours in Helsinki time (00:00, 02:00, 04:00…). It catches up when the page resumes.',
     lofoten: 'Lofoten uses the coordinates of Svolvær.', source: 'Weather data: Open-Meteo',
-    forecastTemp: 'Forecast temp.', fetching: 'Updating…', solarTerm: 'Current solar term (China Standard Time)',
+    fetching: 'Updating…', solarTerm: 'Current solar term (China Standard Time)', feedsArea: 'Feeds',
     partialFailed: 'Some updates failed', partial: 'Some weather is unavailable', updateNote: 'Older of the two weather updates, in the primary city’s time',
     displayReference: 'Reference: Kindle 1072 × 1448 (landscape 1448 × 1072)',
     viewport: 'Browser viewport', layout: 'Page layout', pixelRatio: 'Pixel ratio',
@@ -70,14 +72,14 @@ function useWeather(primary, secondary) {
   const failures = useRef({});
   const mounted = useRef(false);
 
-  const update = (force = false) => {
+  const update = () => {
     [primary, secondary].forEach((id) => {
       const now = new Date();
       const cached = entriesRef.current[id];
       if (inflight.current[id]) return;
-      if (!force && cached && cached.slot === refreshSlot(now)) return;
+      if (cached && cached.slot === refreshSlot(now) && currentWeather(cached.data)) return;
       // Back off after failure rather than making a request every clock tick.
-      if (!force && failures.current[id] && now.getTime() - failures.current[id] < 15 * 60000) return;
+      if (failures.current[id] && now.getTime() - failures.current[id] < 15 * 60000) return;
       inflight.current[id] = true;
       setStatus((old) => ({ ...old, [id]: 'loading' }));
       fetchWeather(cityById(id)).then((entry) => {
@@ -108,28 +110,7 @@ function useWeather(primary, secondary) {
       document.removeEventListener('visibilitychange', resume);
     };
   }, [primary, secondary]);
-  return { entries, status, refresh: () => update(true) };
-}
-
-function WeatherCard({ city, entry, state, now, language, t }) {
-  const day = forecastDay(entry && entry.data, city, now);
-  const cityNow = cityDate(city, now);
-  const current = entry && entry.data.current;
-  const currentIsRecent = current && now.getTime() - entry.fetchedAt < 90 * 60000;
-  const point = day && day.points.find((item) => item.hour === cityNow.getUTCHours());
-  const temperature = currentIsRecent ? current.temperature_2m : point && point.temperature;
-  const code = currentIsRecent ? current.weather_code : day && day.code;
-  return <section className="weather-card" aria-label={`${cityName(city, language)} ${t.forecast}`}>
-    <div className="weather-heading"><h2>{cityName(city, language)}</h2><span className="eyebrow">{t.forecast}</span></div>
-    {day ? <>
-      <div className="weather-summary">
-        <WeatherIcon code={code} />
-        <strong>{numberText(temperature)}<span>°C</span></strong>
-        <div><span>{weatherDescription(code, language)}</span><small>{numberText(day.min)}° / {numberText(day.max)}°</small></div>
-      </div>
-      <WeatherChart points={day.points} t={t} nowHour={cityNow.getUTCHours()} />
-    </> : <div className="weather-placeholder"><span>{state === 'loading' ? t.loading : state === 'error' ? t.failed : entry ? t.unavailable : t.empty}</span><span className="placeholder-rule" /></div>}
-  </section>;
+  return { entries, status };
 }
 
 function Settings({ settings, setSettings, close, viewport, t }) {
@@ -174,17 +155,16 @@ function App() {
   const [now, setNow] = useState(new Date());
   const [showSettings, setShowSettings] = useState(false);
   const viewport = useViewport(settings.rotation);
-  const { entries, status, refresh } = useWeather(settings.primary, settings.secondary);
+  const { entries, status } = useWeather(settings.primary, settings.secondary);
   const t = TEXT[settings.language];
   const primary = cityById(settings.primary), secondary = cityById(settings.secondary);
   const primaryDate = cityDate(primary, now), secondaryDate = cityDate(secondary, now);
   const primaryTime = clock(primaryDate, settings.format), secondaryTime = clock(secondaryDate, settings.format);
-  const day = forecastDay(entries[primary.id] && entries[primary.id].data, primary, now);
   const sameDay = dateKey(primaryDate) === dateKey(secondaryDate);
   const updateSummary = weatherUpdateSummary([entries[primary.id], entries[secondary.id]], [status[primary.id], status[secondary.id]], now);
   const updatedDate = updateSummary.updatedAt === null ? null : cityDate(primary, new Date(updateSummary.updatedAt));
   const updatedTime = updatedDate ? `${dateKey(updatedDate) === dateKey(primaryDate) ? '' : `${dateKey(updatedDate)} `}${clock(updatedDate, '24').digits}` : '—';
-  const updateNotice = ['ready', 'loading'].includes(updateSummary.state) ? '' : t[updateSummary.state];
+  const updateNotice = updateSummary.state === 'loading' ? t.fetching : updateSummary.state === 'ready' ? '' : t[updateSummary.state];
 
   useEffect(() => {
     writeStored('kindle-settings-v1', settings);
@@ -209,32 +189,22 @@ function App() {
       <section className="clock-panel">
         <header className="date-header"><span>{fullDate(primaryDate, settings.language)}</span><span className="solar-term" lang="zh-CN" title={t.solarTerm}>· {solarTermName(now)}</span></header>
         <div className="primary-clock">
-          <div className="city-label"><span className="eyebrow">{t.primary}</span><h1>{cityName(primary, settings.language)}</h1></div>
+          <CityHeading city={primary} entry={entries[primary.id]} now={now} language={settings.language} format={settings.format} label={t.primary} primary t={t} />
           <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={Math.min(viewport.width * 0.176, viewport.height * 0.30)} />
           <div className="second-clock">
-            <div className="second-city-label"><span className="eyebrow">{t.secondary}</span><span className="second-city">{cityName(secondary, settings.language)}</span></div>
+            <CityHeading city={secondary} entry={entries[secondary.id]} now={now} language={settings.language} format={settings.format} label={t.secondary} t={t} />
             <div className="second-time-row"><strong>{secondaryTime.digits}<small>{secondaryTime.period}</small></strong><span className="second-date">{sameDay ? t.today : dateKey(secondaryDate)}</span></div>
           </div>
         </div>
         <footer className="clock-footer">
-          <div className="sun-times">{day && day.daylight >= 86300 ? <span>{t.polarDay}</span> : day && day.daylight === 0 ? <span>{t.polarNight}</span> : <>
-            <div><Sunrise className="sun-symbol" strokeWidth={1.8} aria-hidden="true" /><span>{t.sunrise}</span><strong>{sunTime(day && day.sunrise, settings.format)}</strong></div>
-            <div><Sunset className="sun-symbol" strokeWidth={1.8} aria-hidden="true" /><span>{t.sunset}</span><strong>{sunTime(day && day.sunset, settings.format)}</strong></div>
-          </>}</div>
           <div className="actions">
             <IconButton icon={ArrowRightLeft} label={t.swap} onClick={() => setSettings((old) => ({ ...old, primary: old.secondary, secondary: old.primary }))} />
             <IconButton icon={SettingsIcon} label={t.settings} onClick={() => setShowSettings(true)} />
+            <div className="weather-status" aria-live="polite"><span className="updated-time" title={t.updateNote}>{t.updated} {updatedTime}</span>{updateNotice && <small className="update-notice">{updateNotice}</small>}</div>
           </div>
         </footer>
       </section>
-      <aside className="weather-panel">
-        <WeatherCard city={primary} entry={entries[primary.id]} state={status[primary.id]} now={now} language={settings.language} t={t} />
-        <WeatherCard city={secondary} entry={entries[secondary.id]} state={status[secondary.id]} now={now} language={settings.language} t={t} />
-        <footer className="weather-footer">
-          <IconButton icon={RefreshCw} label={updateSummary.state === 'loading' ? t.fetching : t.refresh} onClick={refresh} busy={updateSummary.state === 'loading'} />
-          <div className="weather-status" aria-live="polite"><span className="updated-time" title={t.updateNote}>{t.updated} {updatedTime}</span>{updateNotice && <small className="update-notice">{updateNotice}</small>}</div>
-        </footer>
-      </aside>
+      <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingFeed language={settings.language} city={primary} now={now} /></aside>
     </div>
     {showSettings && <Settings settings={settings} setSettings={setSettings} close={() => setShowSettings(false)} viewport={viewport} t={t} />}
   </main>;

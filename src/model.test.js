@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CITIES, DEFAULT_SETTINGS, cityById, cityDate, clock, dateKey, forecastDay, fullDate, normalizeSettings, numberText, readStored, refreshSlot, sunTime, validWeather, weatherDescription, writeStored } from './model';
+import { CITIES, DEFAULT_SETTINGS, cityById, cityDate, clock, currentWeather, dateKey, forecastDay, fullDate, normalizeSettings, numberText, readStored, refreshSlot, sunTime, validWeather, weatherDescription, writeStored } from './model';
 import { fetchWeather, weatherURL } from './weather';
 
 const helsinki = cityById('helsinki');
 const xian = cityById('xian');
 const fixture = () => ({
+  current: { temperature_2m: 4, weather_code: 3 },
   daily: { time: ['2026-11-06', '2026-11-07'], temperature_2m_min: [2, 3], temperature_2m_max: [6, 7], weather_code: [3, 2], sunrise: ['2026-11-06T07:52', null], sunset: ['2026-11-06T16:18', null], daylight_duration: [30360, 0] },
   hourly: { time: ['2026-11-06T00:00', '2026-11-06T12:00', '2026-11-07T00:00'], temperature_2m: [2, 6, 3], precipitation_probability: [0, 20, null] },
 });
@@ -40,18 +41,23 @@ describe('city clocks', () => {
   });
 });
 
-describe('three daily refresh slots', () => {
-  it('does not add a fourth midnight slot', () => {
-    expect(refreshSlot(new Date('2026-11-06T03:59Z'))).toBe('2026-11-05-18');
+describe('two-hour weather refresh slots', () => {
+  it('moves to a new slot every two Helsinki hours', () => {
+    expect(refreshSlot(new Date('2026-11-06T03:59Z'))).toBe('2026-11-06-04');
     expect(refreshSlot(new Date('2026-11-06T04:00Z'))).toBe('2026-11-06-06');
-    expect(refreshSlot(new Date('2026-11-06T09:59Z'))).toBe('2026-11-06-06');
+    expect(refreshSlot(new Date('2026-11-06T09:59Z'))).toBe('2026-11-06-10');
     expect(refreshSlot(new Date('2026-11-06T10:00Z'))).toBe('2026-11-06-12');
     expect(refreshSlot(new Date('2026-11-06T16:00Z'))).toBe('2026-11-06-18');
-    expect(refreshSlot(new Date('2026-11-06T22:00Z'))).toBe('2026-11-06-18');
+    expect(refreshSlot(new Date('2026-11-06T22:00Z'))).toBe('2026-11-07-00');
   });
   it('handles year rollover and summer time', () => {
-    expect(refreshSlot(new Date('2027-01-01T00:00Z'))).toBe('2026-12-31-18');
+    expect(refreshSlot(new Date('2027-01-01T00:00Z'))).toBe('2027-01-01-02');
     expect(refreshSlot(new Date('2026-07-06T03:00Z'))).toBe('2026-07-06-06');
+  });
+  it('has twelve regular two-hour slots in a winter calendar day', () => {
+    const slots = Array.from({ length: 24 }, (_, hour) => refreshSlot(new Date(Date.UTC(2026, 10, 6, hour - 2))));
+    expect(new Set(slots).size).toBe(12);
+    for (let hour = 0; hour < 24; hour++) expect(slots[hour]).toBe(`2026-11-06-${String(Math.floor(hour / 2) * 2).padStart(2, '0')}`);
   });
 });
 
@@ -79,6 +85,22 @@ describe('settings and cache resilience', () => {
 });
 
 describe('forecast presentation', () => {
+  it('keeps current temperature separate from the daily range, including zero and negative values', () => {
+    expect(currentWeather(fixture()).temperature_2m).toBe(4);
+    expect(currentWeather({ current: { temperature_2m: 0, weather_code: 0 } }).temperature_2m).toBe(0);
+    expect(currentWeather({ current: { temperature_2m: -5, weather_code: 3 } }).temperature_2m).toBe(-5);
+    expect(currentWeather({ daily: fixture().daily })).toBeNull();
+    expect(currentWeather({ current: { temperature_2m: null, weather_code: 3 } })).toBeNull();
+  });
+  it('accepts daily-only forecasts and keeps older hourly caches compatible', () => {
+    const dailyOnly = { daily: fixture().daily };
+    expect(validWeather(dailyOnly)).toBe(true);
+    expect(validWeather(fixture())).toBe(true);
+    const day = forecastDay(dailyOnly, helsinki, new Date('2026-11-06T12:00Z'));
+    expect(day.min).toBe(2);
+    expect(day.max).toBe(6);
+    expect(day.points).toEqual([]);
+  });
   it('selects each city’s own calendar day', () => {
     const now = new Date('2026-11-06T18:00Z');
     expect(forecastDay(fixture(), helsinki, now).points).toHaveLength(2);
@@ -112,6 +134,8 @@ describe('weather API', () => {
     expect(url.protocol).toBe('https:');
     expect(url.searchParams.get('timezone')).toBe('Asia/Shanghai');
     expect(url.searchParams.get('forecast_days')).toBe('2');
+    expect(url.searchParams.has('hourly')).toBe(false);
+    expect(url.searchParams.get('current')).toBe('temperature_2m,weather_code');
     expect(url.searchParams.has('apikey')).toBe(false);
   });
   function xhr(response, status = 200, event = 'onload') {
@@ -126,7 +150,7 @@ describe('weather API', () => {
     xhr(fixture());
     const entry = await fetchWeather(helsinki);
     expect(entry.data).toEqual(fixture());
-    expect(entry.slot).toBe('2026-11-06-12');
+    expect(entry.slot).toBe('2026-11-06-14');
   });
   it('rejects HTTP errors, timeouts and malformed data', async () => {
     xhr({}, 429);
@@ -134,6 +158,8 @@ describe('weather API', () => {
     xhr({}, 200, 'ontimeout');
     await expect(fetchWeather(helsinki)).rejects.toThrow('Request timeout');
     xhr({});
+    await expect(fetchWeather(helsinki)).rejects.toThrow('Incomplete weather data');
+    xhr({ daily: fixture().daily });
     await expect(fetchWeather(helsinki)).rejects.toThrow('Incomplete weather data');
   });
 });

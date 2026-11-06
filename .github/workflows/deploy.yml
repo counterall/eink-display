@@ -2,19 +2,23 @@ name: Deploy static page
 
 on:
   push:
-    branches: [main]
+    branches: [main, top-feeds]
   workflow_dispatch:
+  schedule:
+    - cron: '17 6 * * *'
 
 permissions:
   contents: read
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.1
@@ -23,12 +27,23 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm refresh:trending
       - run: pnpm test
       - run: pnpm build
+      - name: Persist the last successful Trending snapshot
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git add public/data/github-trending.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'chore: refresh weekly Trending snapshot'
+          git push origin HEAD:main
       - uses: actions/upload-pages-artifact@v5.0.0
         with:
           path: dist
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     permissions:
