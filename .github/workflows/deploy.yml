@@ -2,7 +2,7 @@ name: Deploy static page
 
 on:
   push:
-    branches: [main, top-feeds]
+    branches: [main, top-feeds, fullscreen-time]
   workflow_dispatch:
   schedule:
     - cron: '17 6 * * *'

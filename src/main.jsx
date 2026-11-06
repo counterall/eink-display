@@ -6,9 +6,12 @@ import { fetchWeather } from './weather';
 import { solarTermName } from './solarTerms';
 import IconButton from './IconButton';
 import DigitalClock from './DigitalClock';
+import TimeDigits from './TimeDigits';
 import CityHeading from './CityHeading';
-import { viewportLayout } from './layout';
+import { primaryTimeFontSize, viewportLayout } from './layout';
 import TrendingFeed from './TrendingFeed';
+import WorkdayBlock from './WorkdayBlock';
+import DisplayModeToggle from './DisplayModeToggle';
 import '@fontsource/roboto-condensed/latin-600.css';
 import './styles.css';
 
@@ -27,6 +30,7 @@ const TEXT = {
     partialFailed: '部分更新失败', partial: '部分天气未更新', updateNote: '两地天气均至少更新至此时（主城市时间）',
     displayReference: '适配参考：Kindle 1072 × 1448（横向 1448 × 1072）',
     viewport: '浏览器视口', layout: '页面布局', pixelRatio: '像素比',
+    rightColumn: '右侧资讯栏', show: '显示', hide: '隐藏（全屏时间）',
   },
   en: {
     primary: 'PRIMARY CITY', secondary: 'SECOND CITY', today: 'Today', swap: 'Swap cities', settings: 'Settings',
@@ -42,10 +46,11 @@ const TEXT = {
     partialFailed: 'Some updates failed', partial: 'Some weather is unavailable', updateNote: 'Older of the two weather updates, in the primary city’s time',
     displayReference: 'Reference: Kindle 1072 × 1448 (landscape 1448 × 1072)',
     viewport: 'Browser viewport', layout: 'Page layout', pixelRatio: 'Pixel ratio',
+    rightColumn: 'Right-hand feeds', show: 'Show', hide: 'Hide (fullscreen time)',
   },
 };
 
-function useViewport(rotation) {
+function useViewport(rotation, showFeeds) {
   const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   useEffect(() => {
     const resize = () => setSize({ width: window.innerWidth, height: window.innerHeight });
@@ -53,7 +58,7 @@ function useViewport(rotation) {
     window.addEventListener('orientationchange', resize);
     return () => { window.removeEventListener('resize', resize); window.removeEventListener('orientationchange', resize); };
   }, []);
-  return viewportLayout(size.width, size.height, rotation);
+  return viewportLayout(size.width, size.height, rotation, showFeeds);
 }
 
 function useWeather(primary, secondary) {
@@ -141,7 +146,8 @@ function Settings({ settings, setSettings, close, viewport, t }) {
         {['primary', 'secondary'].map((key) => <label key={key}>{t[key]}<select ref={key === 'primary' ? first : undefined} value={settings[key]} onChange={(event) => change(key, event.target.value)}>{CITIES.map((city) => <option key={city.id} value={city.id}>{cityName(city, settings.language)}</option>)}</select></label>)}
         <label>{t.language}<select value={settings.language} onChange={(event) => change('language', event.target.value)}><option value="zh">中文</option><option value="en">English</option></select></label>
         <label>{t.format}<select value={settings.format} onChange={(event) => change('format', event.target.value)}><option value="24">{t.hour24}</option><option value="12">{t.hour12}</option></select></label>
-        <label className="wide-field">{t.rotation}<select value={settings.rotation} onChange={(event) => change('rotation', event.target.value)}>{['auto', 'none', 'cw', 'ccw'].map((key) => <option key={key} value={key}>{t[key]}</option>)}</select></label>
+        <label>{t.rotation}<select value={settings.rotation} onChange={(event) => change('rotation', event.target.value)}>{['auto', 'none', 'cw', 'ccw'].map((key) => <option key={key} value={key}>{t[key]}</option>)}</select></label>
+        <label>{t.rightColumn}<select value={settings.showFeeds ? 'show' : 'hide'} onChange={(event) => change('showFeeds', event.target.value === 'show')}><option value="show">{t.show}</option><option value="hide">{t.hide}</option></select></label>
       </div>
       <p>{t.note}</p><p>{t.lofoten}</p>
       <p className="display-info">{t.displayReference}<br />{t.viewport}: {Math.round(viewport.viewportWidth)} × {Math.round(viewport.viewportHeight)} CSS px · {t.layout}: {Math.round(viewport.width)} × {Math.round(viewport.height)} · {t.pixelRatio}: {window.devicePixelRatio || 1}</p>
@@ -154,7 +160,7 @@ function App() {
   const [settings, setSettings] = useState(() => normalizeSettings(readStored('kindle-settings-v1')));
   const [now, setNow] = useState(new Date());
   const [showSettings, setShowSettings] = useState(false);
-  const viewport = useViewport(settings.rotation);
+  const viewport = useViewport(settings.rotation, settings.showFeeds);
   const { entries, status } = useWeather(settings.primary, settings.secondary);
   const t = TEXT[settings.language];
   const primary = cityById(settings.primary), secondary = cityById(settings.secondary);
@@ -169,6 +175,11 @@ function App() {
   useEffect(() => {
     writeStored('kindle-settings-v1', settings);
     document.documentElement.lang = settings.language === 'zh' ? 'zh-CN' : 'en';
+    const dark = settings.theme === 'dark';
+    if (dark) document.documentElement.classList.add('theme--dark');
+    else document.documentElement.classList.remove('theme--dark');
+    const colorMeta = document.querySelector('meta[name="theme-color"]');
+    if (colorMeta) colorMeta.setAttribute('content', dark ? '#000000' : '#ffffff');
   }, [settings]);
   useEffect(() => {
     let timer;
@@ -184,17 +195,24 @@ function App() {
     return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', resume); window.removeEventListener('focus', resume); };
   }, []);
 
-  return <main className={`stage ${viewport.width < 650 ? 'compact' : ''}`} style={viewport.style}>
+  return <main className={`stage ${viewport.width < 650 ? 'compact' : ''} ${settings.showFeeds ? '' : 'stage--fullscreen'} ${settings.theme === 'dark' ? 'theme--dark' : ''}`} style={viewport.style}>
     <div className="dashboard" aria-hidden={showSettings ? 'true' : undefined}>
       <section className="clock-panel">
         <header className="date-header"><span>{fullDate(primaryDate, settings.language)}</span><span className="solar-term" lang="zh-CN" title={t.solarTerm}>· {solarTermName(now)}</span></header>
         <div className="primary-clock">
           <CityHeading city={primary} entry={entries[primary.id]} now={now} language={settings.language} format={settings.format} label={t.primary} primary t={t} />
-          <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={Math.min(viewport.width * 0.176, viewport.height * 0.30)} />
+          <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, settings.showFeeds)} />
           <div className="second-clock">
             <CityHeading city={secondary} entry={entries[secondary.id]} now={now} language={settings.language} format={settings.format} label={t.secondary} t={t} />
-            <div className="second-time-row"><strong>{secondaryTime.digits}<small>{secondaryTime.period}</small></strong><span className="second-date">{sameDay ? t.today : dateKey(secondaryDate)}</span></div>
+            <div className="second-time-row">
+              <strong role="img" aria-label={`${cityName(secondary, settings.language)} ${secondaryTime.digits}${secondaryTime.period ? ` ${secondaryTime.period}` : ''}`}>
+                <TimeDigits digits={secondaryTime.digits} />
+                {secondaryTime.period && <small aria-hidden="true">{secondaryTime.period}</small>}
+              </strong>
+              <span className="second-date">{sameDay ? t.today : dateKey(secondaryDate)}</span>
+            </div>
           </div>
+          <WorkdayBlock city={primary} now={now} language={settings.language} />
         </div>
         <footer className="clock-footer">
           <div className="actions">
@@ -204,8 +222,9 @@ function App() {
           </div>
         </footer>
       </section>
-      <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingFeed language={settings.language} city={primary} now={now} /></aside>
+      {settings.showFeeds && <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingFeed language={settings.language} city={primary} now={now} /></aside>}
     </div>
+    {!showSettings && <DisplayModeToggle theme={settings.theme} language={settings.language} onToggle={() => setSettings((old) => ({ ...old, theme: old.theme === 'dark' ? 'light' : 'dark' }))} />}
     {showSettings && <Settings settings={settings} setSettings={setSettings} close={() => setShowSettings(false)} viewport={viewport} t={t} />}
   </main>;
 }
