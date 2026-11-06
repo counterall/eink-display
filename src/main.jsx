@@ -7,6 +7,7 @@ import { solarTermName } from './solarTerms';
 import WeatherIcon from './WeatherIcon';
 import IconButton from './IconButton';
 import DigitalClock from './DigitalClock';
+import WeatherChart from './WeatherChart';
 import './styles.css';
 
 const TEXT = {
@@ -116,41 +117,6 @@ function useWeather(primary, secondary) {
   return { entries, status, refresh: () => update(true) };
 }
 
-function WeatherChart({ points, t, nowHour }) {
-  const valid = points.filter((point) => typeof point.temperature === 'number' && Number.isFinite(point.temperature));
-  if (!valid.length) return <div className="chart-empty">{t.unavailable}</div>;
-  const min = Math.floor(Math.min(...valid.map((point) => point.temperature)) / 5) * 5;
-  const max = Math.max(min + 5, Math.ceil(Math.max(...valid.map((point) => point.temperature)) / 5) * 5);
-  const x = (hour) => 28 + hour / 23 * 260;
-  const y = (temperature) => 65 - (temperature - min) / (max - min) * 47;
-  const lines = [];
-  let segment = [];
-  points.forEach((point) => {
-    if (typeof point.temperature === 'number' && Number.isFinite(point.temperature)) segment.push(`${x(point.hour)},${y(point.temperature)}`);
-    else if (segment.length) { lines.push(segment.join(' ')); segment = []; }
-  });
-  if (segment.length) lines.push(segment.join(' '));
-  const current = valid.find((point) => point.hour === nowHour);
-  return <div className="chart-wrap">
-    <svg className="weather-chart" viewBox="0 0 306 91" role="img" aria-label={`${t.forecastTemp}: ${min}–${max}°C`}>
-      {[min, max].map((value) => <g key={value}>
-        <line x1="28" y1={y(value)} x2="288" y2={y(value)} stroke="#d3d3d3" />
-        <text x="0" y={y(value) + 4}>{value}°</text>
-      </g>)}
-      {[0, 6, 12, 18, 23].map((hour) => <g key={hour}>
-        <line x1={x(hour)} y1="18" x2={x(hour)} y2="68" stroke="#e4e4e4" />
-        <text x={x(hour)} y="86" textAnchor="middle">{String(hour).padStart(2, '0')}</text>
-      </g>)}
-      {lines.map((line, i) => <polyline key={i} points={line} fill="none" stroke="#111" strokeWidth="2.6" strokeLinejoin="round" />)}
-      {current && <circle cx={x(current.hour)} cy={y(current.temperature)} r="3.8" fill="#111" />}
-    </svg>
-    <div className="rain-row"><span>{t.rain}</span>{[0, 6, 12, 18, 23].map((hour) => {
-      const point = points.find((item) => item.hour === hour);
-      return <span key={hour} style={{ left: `${(28 + hour / 23 * 260) / 306 * 100}%` }}>{point && typeof point.rain === 'number' ? `${numberText(point.rain)}%` : '—'}</span>;
-    })}</div>
-  </div>;
-}
-
 function WeatherCard({ city, entry, state, now, language, t }) {
   const day = forecastDay(entry && entry.data, city, now);
   const cityNow = cityDate(city, now);
@@ -250,7 +216,10 @@ function App() {
         <div className="primary-clock">
           <div className="city-label"><span className="eyebrow">{t.primary}</span><h1>{cityName(primary, settings.language)}</h1></div>
           <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={Math.min(viewport.width * 0.154, viewport.height * 0.33)} />
-          <div className="second-clock"><div><span className="eyebrow">{t.secondary}</span><span className="second-city">{cityName(secondary, settings.language)}</span></div><strong>{secondaryTime.digits}<small>{secondaryTime.period}</small></strong><span className="second-date">{sameDay ? t.today : dateKey(secondaryDate)}</span></div>
+          <div className="second-clock">
+            <div className="second-city-label"><span className="eyebrow">{t.secondary}</span><span className="second-city">{cityName(secondary, settings.language)}</span></div>
+            <div className="second-time-row"><strong>{secondaryTime.digits}<small>{secondaryTime.period}</small></strong><span className="second-date">{sameDay ? t.today : dateKey(secondaryDate)}</span></div>
+          </div>
         </div>
         <footer className="clock-footer">
           <div className="sun-times">{day && day.daylight >= 86300 ? <span>{t.polarDay}</span> : day && day.daylight === 0 ? <span>{t.polarNight}</span> : <>

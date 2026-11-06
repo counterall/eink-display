@@ -19,10 +19,10 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid
 .time-hours, .time-minutes { letter-spacing: .015em; flex-shrink: 0; }
 .time-colon { margin: 0 .06em; flex-shrink: 0; }
 .time-period { display: block; font-size: .15em; font-weight: 600; letter-spacing: .08em; line-height: 1.2; text-align: right; margin-top: .15em; }
-.second-clock { display: flex; align-items: center; flex-wrap: wrap; }
-.second-clock > div { margin-right: 1.5em; }
+.second-clock { display: flex; flex-direction: column; align-items: flex-start; margin-top: .5em; flex-shrink: 0; }
 .second-city { display: block; margin-top: .22em; font-size: 1.1em; }
-.second-clock > strong { font-size: 2em; font-weight: 500; font-variant-numeric: tabular-nums; }
+.second-time-row { display: flex; align-items: baseline; flex-wrap: wrap; margin-top: .3em; }
+.second-time-row > strong { font-size: 2.6em; line-height: 1.15; font-weight: 500; font-variant-numeric: tabular-nums; }
 .second-clock strong small { font-size: .43em; margin-left: .35em; }
 .second-date { font-size: .8em; margin-left: 1em; }
 .clock-footer { border-top: 1px solid #111; padding-top: 1.1em; }
@@ -78,4 +78,3 @@ button:disabled { cursor: default; opacity: .6; }
 .compact .primary-clock { padding: 1em 0; }
 .compact .weather-heading .eyebrow { display: none; }
 .compact .sun-times > div { margin-right: .8em; font-size: .8em; }
-.compact .second-clock > div { margin-right: .8em; }

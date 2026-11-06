@@ -150,6 +150,20 @@ export function forecastDay(data, city, now) {
   };
 }
 
+// Keep the current hour as the baseline, then only the remaining hours of the
+// city's day. Select up to five ticks from those same points so temperature,
+// axis labels and rain probabilities always share one timeline.
+export function forecastTimeline(points, nowHour) {
+  const remaining = points.filter((point) => point.hour >= nowHour).map((point, index) => ({ ...point, index }));
+  const count = Math.min(5, remaining.length);
+  const ticks = [];
+  for (let i = 0; i < count; i++) {
+    const index = count === 1 ? 0 : Math.round(i * (remaining.length - 1) / (count - 1));
+    ticks.push(remaining[index]);
+  }
+  return { points: remaining, ticks };
+}
+
 export function sunTime(value, format) {
   if (!value || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value)) return '—';
   // Open-Meteo can use 00:00 as a missing polar event sentinel.
