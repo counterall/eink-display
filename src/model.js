@@ -45,16 +45,12 @@ export function fullDate(date, language) {
   return `${days[date.getUTCDay()]}, ${d} ${months[m]} ${y}`;
 }
 
-// Three schedule slots per Helsinki calendar day. Before 06:00, the active
-// slot is yesterday at 18:00, not an extra fourth midnight refresh.
+// Two-hour schedule slots in Helsinki time. City swapping does not change the
+// schedule, and missed slots are caught up when the browser resumes.
 export function refreshSlot(now = new Date()) {
   const date = cityDate(CITIES[0], now);
   const hour = date.getUTCHours();
-  if (hour < 6) {
-    date.setUTCDate(date.getUTCDate() - 1);
-    return `${dateKey(date)}-18`;
-  }
-  return `${dateKey(date)}-${hour < 12 ? '06' : hour < 18 ? '12' : '18'}`;
+  return `${dateKey(date)}-${pad(Math.floor(hour / 2) * 2)}`;
 }
 
 export function normalizeSettings(value) {
@@ -124,10 +120,15 @@ export function weatherUpdateSummary(entries, states, now = new Date()) {
 
 export const numberText = (value) => typeof value === 'number' && Number.isFinite(value) ? String(Math.round(value)) : '—';
 
+export function currentWeather(data) {
+  const current = data && data.current;
+  return current && Number.isFinite(current.temperature_2m) && Number.isFinite(current.weather_code) ? current : null;
+}
+
 export function validWeather(data) {
-  return Boolean(data && data.daily && data.hourly && Array.isArray(data.daily.time) && Array.isArray(data.hourly.time)
+  return Boolean(data && data.daily && Array.isArray(data.daily.time)
     && ['temperature_2m_min', 'temperature_2m_max', 'weather_code', 'sunrise', 'sunset', 'daylight_duration'].every((key) => Array.isArray(data.daily[key]))
-    && ['temperature_2m', 'precipitation_probability'].every((key) => Array.isArray(data.hourly[key])));
+    && (!data.hourly || (Array.isArray(data.hourly.time) && ['temperature_2m', 'precipitation_probability'].every((key) => Array.isArray(data.hourly[key])))));
 }
 
 export function forecastDay(data, city, now) {
@@ -135,14 +136,14 @@ export function forecastDay(data, city, now) {
   const key = dateKey(cityDate(city, now));
   const index = data.daily.time.indexOf(key);
   if (index < 0) return null;
-  const points = data.hourly.time.reduce((result, time, i) => {
+  const points = data.hourly ? data.hourly.time.reduce((result, time, i) => {
     if (time.slice(0, 10) === key) result.push({
       hour: Number(time.slice(11, 13)), time,
       temperature: data.hourly.temperature_2m[i],
       rain: data.hourly.precipitation_probability[i],
     });
     return result;
-  }, []);
+  }, []) : [];
   return {
     points, min: data.daily.temperature_2m_min[index], max: data.daily.temperature_2m_max[index],
     code: data.daily.weather_code[index], sunrise: data.daily.sunrise[index], sunset: data.daily.sunset[index],
