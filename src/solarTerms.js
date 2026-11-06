@@ -1,14 +1,5 @@
 import { Solar } from 'lunar-javascript';
 
-const ENGLISH_NAMES = {
-  立春: 'Start of Spring', 雨水: 'Rain Water', 惊蛰: 'Waking of Insects', 春分: 'Spring Equinox',
-  清明: 'Pure Brightness', 谷雨: 'Grain Rain', 立夏: 'Start of Summer', 小满: 'Grain Buds',
-  芒种: 'Grain in Ear', 夏至: 'Summer Solstice', 小暑: 'Minor Heat', 大暑: 'Major Heat',
-  立秋: 'Start of Autumn', 处暑: 'End of Heat', 白露: 'White Dew', 秋分: 'Autumn Equinox',
-  寒露: 'Cold Dew', 霜降: 'Frost’s Descent', 立冬: 'Start of Winter', 小雪: 'Minor Snow',
-  大雪: 'Major Snow', 冬至: 'Winter Solstice', 小寒: 'Minor Cold', 大寒: 'Major Cold',
-};
-
 let cachedTerm = null;
 
 // The calendar library returns solar-term instants in China Standard Time.
@@ -36,8 +27,8 @@ export function currentSolarTerm(now = new Date()) {
   return cachedTerm;
 }
 
-export function solarTermName(now, language) {
+export function solarTermName(now) {
   const term = currentSolarTerm(now);
   if (!term) return '—';
-  return language === 'en' ? ENGLISH_NAMES[term.name] || term.name : term.name;
+  return term.name;
 }

@@ -47,12 +47,12 @@ describe('remaining hourly forecast', () => {
     expect(markup).not.toContain('>06</text>');
     expect(markup).toContain('>11%</span>');
     expect(markup).not.toContain('>6%</span>');
-    expect(markup).toContain('points="28,');
+    expect(markup).toContain('points="40,');
   });
   it('renders the final hour as a centered point, without invalid coordinates', () => {
     const markup = renderToStaticMarkup(<WeatherChart points={points} nowHour={23} t={t} />);
     expect(markup).toContain('23:00–23:00');
-    expect(markup).toContain('cx="158"');
+    expect(markup).toContain('cx="164"');
     expect(markup).not.toContain('NaN');
     expect(markup).not.toContain('Infinity');
     expect(markup).toContain('>23%</span>');

@@ -8,6 +8,7 @@ import WeatherIcon from './WeatherIcon';
 import IconButton from './IconButton';
 import DigitalClock from './DigitalClock';
 import WeatherChart from './WeatherChart';
+import '@fontsource/roboto-condensed/latin-600.css';
 import './styles.css';
 
 const TEXT = {
@@ -212,10 +213,10 @@ function App() {
   return <main className={`stage ${viewport.width < 650 ? 'compact' : ''}`} style={viewport.style}>
     <div className="dashboard" aria-hidden={showSettings ? 'true' : undefined}>
       <section className="clock-panel">
-        <header className="date-header"><span>{fullDate(primaryDate, settings.language)}</span><span className="solar-term" title={t.solarTerm}>· {solarTermName(now, settings.language)}</span></header>
+        <header className="date-header"><span>{fullDate(primaryDate, settings.language)}</span><span className="solar-term" lang="zh-CN" title={t.solarTerm}>· {solarTermName(now)}</span></header>
         <div className="primary-clock">
           <div className="city-label"><span className="eyebrow">{t.primary}</span><h1>{cityName(primary, settings.language)}</h1></div>
-          <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={Math.min(viewport.width * 0.154, viewport.height * 0.33)} />
+          <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={Math.min(viewport.width * 0.176, viewport.height * 0.30)} />
           <div className="second-clock">
             <div className="second-city-label"><span className="eyebrow">{t.secondary}</span><span className="second-city">{cityName(secondary, settings.language)}</span></div>
             <div className="second-time-row"><strong>{secondaryTime.digits}<small>{secondaryTime.period}</small></strong><span className="second-date">{sameDay ? t.today : dateKey(secondaryDate)}</span></div>
