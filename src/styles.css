@@ -32,8 +32,8 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid
 .sun-symbol { width: 1.7em; height: 1.7em; margin-right: .4em; flex-shrink: 0; }
 .actions { display: flex; }
 .actions button + button { margin-left: .8em; }
-.icon-button { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-height: 44px; padding: 0; flex-shrink: 0; }
-.icon-button svg { width: 22px; height: 22px; }
+.icon-button { display: inline-flex; align-items: center; justify-content: center; width: 3.4em; height: 3.4em; min-width: 44px; min-height: 44px; padding: 0; flex-shrink: 0; }
+.icon-button svg { width: 1.7em; height: 1.7em; min-width: 22px; min-height: 22px; }
 .weather-panel { width: 40%; min-width: 0; border-left: 1px solid #111; padding-left: 2em; display: flex; flex-direction: column; }
 .weather-card { flex: 1; display: flex; flex-direction: column; min-height: 0; }
 .weather-card + .weather-card { border-top: 1px solid #111; padding-top: 1.3em; margin-top: 1.15em; }
@@ -69,6 +69,7 @@ button:disabled { cursor: default; opacity: .6; }
 .settings-fields select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; }
 .settings-fields .wide-field { width: 100%; }
 .settings-panel p { font-size: .75em; line-height: 1.6; margin: .65em 0; }
+.settings-panel .display-info { border-top: 1px solid #111; padding-top: .65em; }
 .settings-panel footer { display: flex; align-items: center; justify-content: space-between; margin-top: 1em; }
 .filled-button { background: #111; color: #fff; }
 .settings-panel a { color: #111; font-size: .7em; margin-left: 1em; }

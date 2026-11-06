@@ -8,6 +8,7 @@ import WeatherIcon from './WeatherIcon';
 import IconButton from './IconButton';
 import DigitalClock from './DigitalClock';
 import WeatherChart from './WeatherChart';
+import { viewportLayout } from './layout';
 import '@fontsource/roboto-condensed/latin-600.css';
 import './styles.css';
 
@@ -23,6 +24,8 @@ const TEXT = {
     lofoten: '罗弗敦群岛以斯沃尔韦尔坐标为代表。', source: '天气数据：Open-Meteo',
     forecastTemp: '预报温度', fetching: '更新中…', solarTerm: '当前节气（北京时间）',
     partialFailed: '部分更新失败', partial: '部分天气未更新', updateNote: '两地天气均至少更新至此时（主城市时间）',
+    displayReference: '适配参考：Kindle 1072 × 1448（横向 1448 × 1072）',
+    viewport: '浏览器视口', layout: '页面布局', pixelRatio: '像素比',
   },
   en: {
     primary: 'PRIMARY CITY', secondary: 'SECOND CITY', today: 'Today', swap: 'Swap cities', settings: 'Settings',
@@ -35,6 +38,8 @@ const TEXT = {
     lofoten: 'Lofoten uses the coordinates of Svolvær.', source: 'Weather data: Open-Meteo',
     forecastTemp: 'Forecast temp.', fetching: 'Updating…', solarTerm: 'Current solar term (China Standard Time)',
     partialFailed: 'Some updates failed', partial: 'Some weather is unavailable', updateNote: 'Older of the two weather updates, in the primary city’s time',
+    displayReference: 'Reference: Kindle 1072 × 1448 (landscape 1448 × 1072)',
+    viewport: 'Browser viewport', layout: 'Page layout', pixelRatio: 'Pixel ratio',
   },
 };
 
@@ -46,19 +51,7 @@ function useViewport(rotation) {
     window.addEventListener('orientationchange', resize);
     return () => { window.removeEventListener('resize', resize); window.removeEventListener('orientationchange', resize); };
   }, []);
-  const direction = rotation === 'auto' ? (size.height > size.width ? 'cw' : 'none') : rotation;
-  const rotated = direction === 'cw' || direction === 'ccw';
-  const width = rotated ? size.height : size.width;
-  const height = rotated ? size.width : size.height;
-  return {
-    width, height,
-    style: {
-      width, height, fontSize: Math.max(11, Math.min(width / 65, height / 38, 19)),
-      left: direction === 'cw' ? size.width : 0,
-      top: direction === 'ccw' ? size.height : 0,
-      transform: direction === 'cw' ? 'rotate(90deg)' : direction === 'ccw' ? 'rotate(-90deg)' : 'none',
-    },
-  };
+  return viewportLayout(size.width, size.height, rotation);
 }
 
 function useWeather(primary, secondary) {
@@ -139,7 +132,7 @@ function WeatherCard({ city, entry, state, now, language, t }) {
   </section>;
 }
 
-function Settings({ settings, setSettings, close, t }) {
+function Settings({ settings, setSettings, close, viewport, t }) {
   const first = useRef(null);
   useEffect(() => {
     const previous = document.activeElement;
@@ -170,6 +163,7 @@ function Settings({ settings, setSettings, close, t }) {
         <label className="wide-field">{t.rotation}<select value={settings.rotation} onChange={(event) => change('rotation', event.target.value)}>{['auto', 'none', 'cw', 'ccw'].map((key) => <option key={key} value={key}>{t[key]}</option>)}</select></label>
       </div>
       <p>{t.note}</p><p>{t.lofoten}</p>
+      <p className="display-info">{t.displayReference}<br />{t.viewport}: {Math.round(viewport.viewportWidth)} × {Math.round(viewport.viewportHeight)} CSS px · {t.layout}: {Math.round(viewport.width)} × {Math.round(viewport.height)} · {t.pixelRatio}: {window.devicePixelRatio || 1}</p>
       <footer><button className="filled-button" onClick={close}>{t.close}</button><a href="https://open-meteo.com/" target="_blank" rel="noreferrer">{t.source}</a></footer>
     </section>
   </div>;
@@ -242,7 +236,7 @@ function App() {
         </footer>
       </aside>
     </div>
-    {showSettings && <Settings settings={settings} setSettings={setSettings} close={() => setShowSettings(false)} t={t} />}
+    {showSettings && <Settings settings={settings} setSettings={setSettings} close={() => setShowSettings(false)} viewport={viewport} t={t} />}
   </main>;
 }
 
