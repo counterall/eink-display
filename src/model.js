@@ -6,7 +6,7 @@ export const CITIES = [
   { id: 'osaka', zh: '大阪', en: 'Osaka', lat: 34.6937, lon: 135.5023, zone: 'Asia/Tokyo', offset: 9 },
 ];
 
-export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', rotation: 'auto' };
+export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', rotation: 'auto', showFeeds: true, theme: 'light' };
 export const cityById = (id) => CITIES.find((city) => city.id === id) || CITIES[0];
 export const cityName = (city, language) => city[language === 'zh' ? 'zh' : 'en'];
 export const pad = (n) => String(n).padStart(2, '0');
@@ -65,6 +65,8 @@ export function normalizeSettings(value) {
   if (['zh', 'en'].includes(value.language)) settings.language = value.language;
   if (['12', '24'].includes(value.format)) settings.format = value.format;
   if (['auto', 'none', 'cw', 'ccw'].includes(value.rotation)) settings.rotation = value.rotation;
+  if (typeof value.showFeeds === 'boolean') settings.showFeeds = value.showFeeds;
+  if (['light', 'dark'].includes(value.theme)) settings.theme = value.theme;
   return settings;
 }
 

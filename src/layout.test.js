@@ -1,7 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { KINDLE_REFERENCE, viewportLayout } from './layout';
+import { KINDLE_REFERENCE, primaryTimeFontSize, viewportLayout } from './layout';
 
 describe('1072 × 1448 Kindle layout', () => {
+  it('enlarges fullscreen typography without changing rotation or viewport dimensions', () => {
+    const split = viewportLayout(1072, 1448, 'cw', true);
+    const full = viewportLayout(1072, 1448, 'cw', false);
+    expect(full.width).toBe(split.width);
+    expect(full.height).toBe(split.height);
+    expect(full.style.transform).toBe(split.style.transform);
+    expect(full.style.fontSize).toBe(26);
+    expect(full.style.fontSize).toBeGreaterThan(split.style.fontSize);
+  });
+  it.each([[1448, 1072], [724, 536], [483, 357], [1121, 743]])('makes the primary clock larger in fullscreen at %s × %s', (width, height) => {
+    expect(primaryTimeFontSize(width, height, false)).toBeGreaterThan(primaryTimeFontSize(width, height, true));
+    expect(viewportLayout(width, height, 'none', false).style.fontSize).toBeGreaterThan(viewportLayout(width, height, 'none', true).style.fontSize);
+  });
   it('uses the native landscape size as its typography reference', () => {
     const layout = viewportLayout(1448, 1072);
     expect(layout.width).toBe(KINDLE_REFERENCE.width);

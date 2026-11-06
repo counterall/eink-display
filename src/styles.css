@@ -1,4 +1,5 @@
 :root { font-family: Arial, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif; color: #111; background: #fff; font-synthesis: none; }
+:root.theme--dark { color: #fff; background: #000; color-scheme: dark; }
 * { box-sizing: border-box; }
 html, body, #root { width: 100%; height: 100%; margin: 0; overflow: hidden; }
 button, select { font: inherit; color: #111; background: white; border: 0; border-radius: 0; }
@@ -6,13 +7,15 @@ button { min-height: 3em; padding: .6em 1.15em; cursor: pointer; }
 button:active { color: white; background: #111; }
 button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashed #111; outline-offset: 3px; }
 .stage { position: absolute; transform-origin: 0 0; background: #fff; overflow: hidden; }
+.theme-toggle { position: absolute; top: .65em; right: .65em; z-index: 2; }
+.theme-toggle .icon-button { width: 2.4em; height: 2.4em; }
 .dashboard { height: 100%; padding: 2.1em 2.3em; display: flex; }
 .clock-panel { width: 50%; min-width: 0; padding-right: 2em; display: flex; flex-direction: column; }
 .date-header { display: flex; align-items: baseline; flex-wrap: wrap; padding-bottom: 1.4em; font-size: 1.02em; line-height: 1.6; }
 .date-header > span { white-space: nowrap; }
 .solar-term { margin-left: .6em; }
 .eyebrow { display: block; font-size: .7em; letter-spacing: .12em; line-height: 1.4; }
-.primary-clock { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: 1.05em 0; }
+.primary-clock { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: .5em 0; }
 .city-heading { width: 100%; flex-shrink: 0; }
 .city-heading-row { display: flex; align-items: center; position: relative; margin-top: .28em; min-height: 1.9em; }
 .city-name { font-size: 1.55em; font-weight: 500; line-height: 1.2; margin: 0; white-space: nowrap; }
@@ -26,16 +29,35 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .city-temperatures { text-align: right; }
 .city-weather strong { display: block; font-size: 1.2em; line-height: 1.1; font-weight: 500; }
 .daily-temperature-range { display: block; font-size: .8em; line-height: 1.3; margin-top: .15em; }
-.time-display { font-family: 'Roboto Condensed', Arial, sans-serif; font-weight: 600; line-height: .98; padding: .06em 0; white-space: nowrap; flex-shrink: 0; align-self: flex-start; max-width: 100%; }
+.time-display { font-family: 'Roboto Condensed', Arial, sans-serif; font-weight: 600; line-height: .8; padding: .04em 0; white-space: nowrap; flex-shrink: 0; align-self: flex-start; max-width: 100%; }
 .time-digits { display: flex; align-items: baseline; justify-content: flex-start; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
-.time-hours, .time-minutes { letter-spacing: .01em; flex-shrink: 0; }
-.time-colon { margin: 0 .08em; flex-shrink: 0; }
+.time-hours, .time-minutes { letter-spacing: 0; flex-shrink: 0; }
+.time-colon { margin: 0 .05em; flex-shrink: 0; }
 .time-period { display: block; font-size: .13em; font-weight: 600; letter-spacing: .08em; line-height: 1.2; text-align: right; margin-top: .15em; }
 .second-clock { display: flex; flex-direction: column; align-items: flex-start; width: 100%; margin-top: .35em; flex-shrink: 0; }
 .second-time-row { display: flex; align-items: baseline; flex-wrap: wrap; margin-top: .3em; }
-.second-time-row > strong { font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 4.8em; line-height: 1.05; font-weight: 600; font-variant-numeric: tabular-nums; }
+.second-time-row > strong { display: inline-flex; align-items: baseline; font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 4.8em; line-height: 1.05; font-weight: 600; font-variant-numeric: tabular-nums; }
 .second-clock strong small { font-size: .3em; margin-left: .35em; }
 .second-date { font-size: .8em; margin-left: 1em; }
+.workday-block { width: 100%; margin-top: 1em; flex-shrink: 0; }
+.work-meta { display: flex; align-items: baseline; flex-wrap: wrap; font-size: .9em; line-height: 1.2; }
+.work-meta-detail { margin-left: .6em; }
+.work-active { display: flex; align-items: center; margin-top: .1em; }
+.work-caption { font-size: 1.4em; margin-right: .55em; }
+.work-countdown { display: flex; align-items: baseline; font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 4.8em; font-weight: 600; line-height: 1.05; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.work-message { font-size: 2.8em; font-weight: 500; line-height: 1.15; margin: .2em 0 0; }
+.work-message:lang(en) { font-size: 2em; line-height: 1.2; }
+.stage--fullscreen .clock-panel { width: 100%; padding-right: 0; }
+.stage--fullscreen .primary-clock { padding: .3em 0; }
+.stage--fullscreen .time-display { display: flex; align-items: baseline; align-self: center; line-height: .8; padding: .04em 0; }
+.stage--fullscreen .time-period { margin: 0 0 0 .45em; }
+.stage--fullscreen .second-clock { margin-top: .15em; }
+.stage--fullscreen .second-time-row { align-self: center; }
+.stage--fullscreen .work-meta, .stage--fullscreen .work-active { justify-content: center; }
+.stage--fullscreen .work-message { text-align: center; }
+.stage--fullscreen .date-header { min-height: 2.8em; padding-right: 17em; padding-bottom: .4em; }
+.stage--fullscreen .clock-footer { position: absolute; top: 2.1em; right: calc(44px + 2.4em); padding-top: 0; }
+.stage--fullscreen .clock-footer .icon-button { width: 2.5em; height: 2.5em; }
 .clock-footer { padding-top: 1.1em; }
 .actions { display: flex; align-items: center; flex-wrap: wrap; }
 .actions button + button { margin-left: .8em; }
@@ -43,7 +65,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .icon-button svg { width: 1.7em; height: 1.7em; min-width: 22px; min-height: 22px; }
 .feeds-panel { width: 50%; min-width: 0; padding-left: 1.6em; }
 .trending-feed { height: 100%; display: flex; flex-direction: column; min-height: 0; }
-.trending-header { flex-shrink: 0; margin-bottom: .65em; }
+.trending-header { flex-shrink: 0; margin-bottom: .65em; padding-right: calc(44px + .8em); }
 .trending-header h2 { font-size: 1.2em; font-weight: 500; line-height: 1.3; margin: 0 0 .4em; }
 .trending-status { font-size: .72em; line-height: 1.4; }
 .trending-status strong { display: block; font-size: 1em; margin-top: .2em; }
@@ -88,4 +110,20 @@ button:disabled { cursor: default; opacity: .6; }
 .settings-panel a { color: #111; font-size: .7em; margin-left: 1em; }
 .compact .dashboard { padding: 1.4em 1.6em; }
 .compact .clock-panel { padding-right: 1.5em; }
-.compact .primary-clock { padding: 1em 0; }
+.compact .primary-clock { padding: .3em 0; }
+.compact .workday-block { margin-top: .8em; }
+.compact.stage--fullscreen .primary-clock { padding: .3em 0; }
+.compact.stage--fullscreen .date-header { min-height: 3.6em; }
+.compact.stage--fullscreen .clock-footer { top: 1.4em; }
+.stage.theme--dark { color: #fff; background: #000; }
+.stage.theme--dark button, .stage.theme--dark select { color: #fff; background: #000; }
+.stage.theme--dark button:active { color: #000; background: #fff; }
+.stage.theme--dark button:focus-visible, .stage.theme--dark select:focus-visible, .stage.theme--dark a:focus-visible { outline-color: #fff; }
+.stage.theme--dark .repo-link, .stage.theme--dark .trending-footer a, .stage.theme--dark .settings-panel a { color: #fff; }
+.stage.theme--dark .settings-layer { background: rgba(0,0,0,.96); }
+.stage.theme--dark .settings-panel { background: #000; border-color: #fff; }
+.stage.theme--dark .settings-panel header, .stage.theme--dark .settings-panel .display-info, .stage.theme--dark .settings-panel button, .stage.theme--dark .settings-fields select { border-color: #fff; }
+.stage.theme--dark .filled-button { color: #000; background: #fff; }
+.stage.theme--dark .weather-chart text { fill: #fff; }
+.stage.theme--dark .weather-chart [stroke="#111"] { stroke: #fff; }
+.stage.theme--dark .weather-chart [fill="#111"] { fill: #fff; }

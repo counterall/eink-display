@@ -62,6 +62,19 @@ describe('two-hour weather refresh slots', () => {
 });
 
 describe('settings and cache resilience', () => {
+  it('defaults to light mode and keeps theme separate from the feed visibility preference', () => {
+    expect(normalizeSettings({}).theme).toBe('light');
+    expect(normalizeSettings({ theme: 'dark', showFeeds: false })).toMatchObject({ theme: 'dark', showFeeds: false });
+    expect(normalizeSettings({ theme: 'light', showFeeds: true })).toMatchObject({ theme: 'light', showFeeds: true });
+    expect(normalizeSettings({ theme: true }).theme).toBe('light');
+    expect(normalizeSettings({ theme: 'system' }).theme).toBe('light');
+  });
+  it('keeps feeds visible for existing settings and remembers an explicit hide preference', () => {
+    expect(normalizeSettings({ language: 'en' }).showFeeds).toBe(true);
+    expect(normalizeSettings({ showFeeds: false }).showFeeds).toBe(false);
+    expect(normalizeSettings({ showFeeds: true }).showFeeds).toBe(true);
+    expect(normalizeSettings({ showFeeds: 'false' }).showFeeds).toBe(true);
+  });
   it('replaces Beijing with Xi’an while preserving saved city order', () => {
     expect(CITIES.some((city) => city.id === 'beijing')).toBe(false);
     expect(xian.lat).toBe(34.3416);

@@ -5,6 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#ffffff" />
     <meta name="description" content="A quiet, bilingual clock and weather display for Kindle." />
+    <script>
+      (function () {
+        try {
+          var savedSettings = JSON.parse(localStorage.getItem('kindle-settings-v1'));
+          if (savedSettings && savedSettings.theme === 'dark') {
+            document.documentElement.className += ' theme--dark';
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000000');
+          }
+        } catch (error) {}
+      })();
+    </script>
     <title>Kindle · Clock & Weather</title>
   </head>
   <body>
