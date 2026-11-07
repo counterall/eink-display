@@ -129,8 +129,7 @@ export function currentWeather(data) {
 
 export function validWeather(data) {
   return Boolean(data && data.daily && Array.isArray(data.daily.time)
-    && ['temperature_2m_min', 'temperature_2m_max', 'weather_code', 'sunrise', 'sunset', 'daylight_duration'].every((key) => Array.isArray(data.daily[key]))
-    && (!data.hourly || (Array.isArray(data.hourly.time) && ['temperature_2m', 'precipitation_probability'].every((key) => Array.isArray(data.hourly[key])))));
+    && ['temperature_2m_min', 'temperature_2m_max', 'weather_code', 'sunrise', 'sunset', 'daylight_duration'].every((key) => Array.isArray(data.daily[key])));
 }
 
 export function forecastDay(data, city, now) {
@@ -138,33 +137,11 @@ export function forecastDay(data, city, now) {
   const key = dateKey(cityDate(city, now));
   const index = data.daily.time.indexOf(key);
   if (index < 0) return null;
-  const points = data.hourly ? data.hourly.time.reduce((result, time, i) => {
-    if (time.slice(0, 10) === key) result.push({
-      hour: Number(time.slice(11, 13)), time,
-      temperature: data.hourly.temperature_2m[i],
-      rain: data.hourly.precipitation_probability[i],
-    });
-    return result;
-  }, []) : [];
   return {
-    points, min: data.daily.temperature_2m_min[index], max: data.daily.temperature_2m_max[index],
+    min: data.daily.temperature_2m_min[index], max: data.daily.temperature_2m_max[index],
     code: data.daily.weather_code[index], sunrise: data.daily.sunrise[index], sunset: data.daily.sunset[index],
     daylight: data.daily.daylight_duration[index],
   };
-}
-
-// Keep the current hour as the baseline, then only the remaining hours of the
-// city's day. Select up to five ticks from those same points so temperature,
-// axis labels and rain probabilities always share one timeline.
-export function forecastTimeline(points, nowHour) {
-  const remaining = points.filter((point) => point.hour >= nowHour).map((point, index) => ({ ...point, index }));
-  const count = Math.min(5, remaining.length);
-  const ticks = [];
-  for (let i = 0; i < count; i++) {
-    const index = count === 1 ? 0 : Math.round(i * (remaining.length - 1) / (count - 1));
-    ticks.push(remaining[index]);
-  }
-  return { points: remaining, ticks };
 }
 
 export function sunTime(value, format) {

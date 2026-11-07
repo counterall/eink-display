@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { trendingData } from '../tests/trending-fixtures';
-import { formatStars, isTrendingData, newerTrending, repositoryURL } from './trendingData';
+import { formatStars, isTrendingData, newerTrending, repositoryURL, shouldResumeTrending, TRENDING_POLL_MS, TRENDING_RETRY_MS } from './trendingData';
 
 describe('Trending snapshot validation', () => {
   it('accepts the exact five-repository weekly schema', () => {
@@ -56,5 +56,21 @@ describe('Trending snapshot validation', () => {
     expect(formatStars(0)).toBe('0');
     expect(formatStars(12345)).toBe('12,345');
     expect(formatStars(null)).toBe('—');
+  });
+});
+
+describe('Trending resume decision', () => {
+  const now = 10 * TRENDING_POLL_MS;
+  it('catches up a missed hourly check when the page returns', () => {
+    expect(shouldResumeTrending({ lastAttempt: now - TRENDING_POLL_MS, failed: false }, now)).toBe(true);
+    expect(shouldResumeTrending({ lastAttempt: now - TRENDING_POLL_MS + 1, failed: false }, now)).toBe(false);
+  });
+  it('retries sooner only after a failure', () => {
+    expect(shouldResumeTrending({ lastAttempt: now - TRENDING_RETRY_MS, failed: true }, now)).toBe(true);
+    expect(shouldResumeTrending({ lastAttempt: now - TRENDING_RETRY_MS + 1, failed: true }, now)).toBe(false);
+    expect(shouldResumeTrending({ lastAttempt: now - TRENDING_RETRY_MS, failed: false }, now)).toBe(false);
+  });
+  it('never fetches while the page is hidden', () => {
+    expect(shouldResumeTrending({ lastAttempt: 0, failed: true, hidden: true }, now)).toBe(false);
   });
 });

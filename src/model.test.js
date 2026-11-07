@@ -105,19 +105,18 @@ describe('forecast presentation', () => {
     expect(currentWeather({ daily: fixture().daily })).toBeNull();
     expect(currentWeather({ current: { temperature_2m: null, weather_code: 3 } })).toBeNull();
   });
-  it('accepts daily-only forecasts and keeps older hourly caches compatible', () => {
+  it('accepts daily-only forecasts and ignores hourly data left in older caches', () => {
     const dailyOnly = { daily: fixture().daily };
     expect(validWeather(dailyOnly)).toBe(true);
     expect(validWeather(fixture())).toBe(true);
     const day = forecastDay(dailyOnly, helsinki, new Date('2026-11-06T12:00Z'));
     expect(day.min).toBe(2);
     expect(day.max).toBe(6);
-    expect(day.points).toEqual([]);
+    expect(day).not.toHaveProperty('points');
   });
   it('selects each city’s own calendar day', () => {
     const now = new Date('2026-11-06T18:00Z');
-    expect(forecastDay(fixture(), helsinki, now).points).toHaveLength(2);
-    expect(forecastDay(fixture(), xian, now).points).toHaveLength(1);
+    expect(forecastDay(fixture(), helsinki, now).min).toBe(2);
     expect(forecastDay(fixture(), xian, now).min).toBe(3);
   });
   it('returns no forecast for old or broken data', () => {

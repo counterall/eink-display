@@ -12,13 +12,16 @@ permissions:
 
 concurrency:
   group: pages-${{ github.ref }}
-  cancel-in-progress: true
+  # Feature branch runs may be superseded, but never interrupt a main run while
+  # it is committing the snapshot or deploying Pages.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Dependency install scripts and the scraper run here, so this job only reads.
     permissions:
-      contents: write
+      contents: read
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.1
@@ -29,20 +32,56 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm refresh:trending
       - run: pnpm test
+      - run: pnpm lint:css
       - run: pnpm build
-      - name: Persist the last successful Trending snapshot
+      - run: pnpm check:legacy
+      - uses: actions/upload-artifact@v4
         if: github.ref == 'refs/heads/main'
+        with:
+          name: trending-snapshot
+          path: public/data/github-trending.json
+          if-no-files-found: error
+          retention-days: 1
+      - uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: dist
+
+  persist:
+    # Only this small job can push, and it runs no project or dependency code.
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          name: trending-snapshot
+          path: snapshot
+      - name: Persist the last successful Trending snapshot
         run: |
+          cp snapshot/github-trending.json public/data/github-trending.json
+          rm -rf snapshot
           git add public/data/github-trending.json
           if git diff --cached --quiet; then
             exit 0
           fi
           git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'chore: refresh weekly Trending snapshot'
-          git push origin HEAD:main
-      - uses: actions/upload-pages-artifact@v5.0.0
-        with:
-          path: dist
+          # Someone may have pushed to main while this run was building.
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            git pull --rebase origin main
+          done
+          echo '::error::Could not push the Trending snapshot after 3 attempts.'
+          exit 1
+
   deploy:
+    # A failed snapshot push does not block publishing the already-built site.
     if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest

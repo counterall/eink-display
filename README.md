@@ -41,7 +41,9 @@ pnpm dev
 
 ```sh
 pnpm test
+pnpm lint:css
 pnpm build
+pnpm check:legacy
 pnpm preview
 ```
 
@@ -124,7 +126,13 @@ GitHub Actions / 本地 pnpm refresh:trending
 
 ## 文件
 
-- `src/main.jsx`：界面、设置、旋转、时钟与缓存刷新调度。
+- `src/main.jsx`：入口，仅挂载 `src/App.jsx`。
+- `src/App.jsx`：主界面、设置保存、主题与每分钟时钟（同时驱动天气检查）。
+- `src/Settings.jsx`、`src/useViewport.js`：设置窗口与视口尺寸监听。
+- `src/useWeather.js`：天气缓存读取、按时段请求和失败退避（判断逻辑为可测试的纯函数）。
+- `src/i18n.js`：全部中英文界面文字，测试保证两种语言的键一致。
+- `scripts/check-legacy.mjs`：构建后检查旧版浏览器代码块中没有 Safari 9 / Chrome 49 不支持的语法（`pnpm check:legacy`）。
+- `.stylelintrc.json`：按 `package.json` 的 browserslist 检查 CSS 兼容性，并禁止动画、过渡和滤镜（`pnpm lint:css`）。
 - `src/styles.css`：黑白看板和六寸屏紧凑样式。
 - `src/CityHeading.jsx`：两地城市名称、居中日出日落及右对齐的当前气温与日温度范围。
 - `src/CityHeading.test.jsx`：名称行排列、当前气温、12/24 小时日照事件及极昼极夜测试。
