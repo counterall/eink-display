@@ -2,6 +2,15 @@ export const TRENDING_SOURCE = 'https://github.com/trending?since=weekly';
 export const TRENDING_LIMIT = 5;
 export const TRENDING_POLL_MS = 60 * 60 * 1000;
 export const TRENDING_STALE_MS = 48 * 60 * 60 * 1000;
+export const TRENDING_RETRY_MS = 5 * 60 * 1000;
+
+// On focus / visibility / reconnect: catch up a missed hourly check, or retry
+// sooner after a failure, without refetching on every wake-up.
+export function shouldResumeTrending({ lastAttempt, failed, hidden }, nowMs) {
+  if (hidden) return false;
+  const age = nowMs - lastAttempt;
+  return age >= TRENDING_POLL_MS || (failed && age >= TRENDING_RETRY_MS);
+}
 
 export function repositoryURL(owner, name) {
   if (typeof owner !== 'string' || typeof name !== 'string'

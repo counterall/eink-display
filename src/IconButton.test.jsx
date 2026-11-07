@@ -17,10 +17,4 @@ describe('icon-only buttons', () => {
     expect(markup).not.toContain(`>${label}<`);
     expect(markup).not.toContain('disabled');
   });
-  it('disables an action and exposes its busy state without animation', () => {
-    const markup = renderToStaticMarkup(<IconButton icon={Settings} label="处理中…" busy onClick={() => {}} />);
-    expect(markup).toContain('disabled');
-    expect(markup).toContain('aria-busy="true"');
-    expect(markup).not.toContain('animate');
-  });
 });

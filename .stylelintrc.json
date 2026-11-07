@@ -1,0 +1,14 @@
+{
+  "plugins": ["stylelint-no-unsupported-browser-features"],
+  "rules": {
+    "plugin/no-unsupported-browser-features": [true, {
+      "severity": "error",
+      "ignorePartialSupport": true,
+      "ignore": ["css-focus-visible", "font-variant-numeric", "font-feature", "mdn-text-decoration-shorthand"]
+    }],
+    "property-disallowed-list": [
+      ["/^animation/", "/^transition/", "filter", "backdrop-filter"],
+      { "message": "Avoid animations, transitions and filters: they ghost or flash on e-ink and break the class-based dark theme." }
+    ]
+  }
+}

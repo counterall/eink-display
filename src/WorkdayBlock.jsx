@@ -1,14 +1,10 @@
 import { cityDate, cityName, pad } from './model';
 import { workdayState } from './workday';
 import TimeDigits from './TimeDigits';
-
-const TEXT = {
-  zh: { title: '工作时间', until: '离下班还有', rest: '下班啦 好好休息！', weekend: '周末啦 不用上班！' },
-  en: { title: 'Work hours', until: 'Off work in', rest: 'Work is over. Enjoy your rest!', weekend: 'It’s the weekend. No work today!' },
-};
+import { WORKDAY_TEXT, pick } from './i18n';
 
 export default function WorkdayBlock({ city, now, language }) {
-  const t = TEXT[language === 'zh' ? 'zh' : 'en'];
+  const t = pick(WORKDAY_TEXT, language);
   const state = workdayState(cityDate(city, now));
   const remaining = state.type === 'working' ? `${pad(state.hours)}:${pad(state.minutes)}` : '';
   return <section className="workday-block" aria-label={t.title}>

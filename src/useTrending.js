@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { readStored, writeStored } from './model';
 import { fetchTrending } from './trending';
-import { isTrendingData, newerTrending, TRENDING_POLL_MS } from './trendingData';
+import { isTrendingData, newerTrending, shouldResumeTrending, TRENDING_POLL_MS } from './trendingData';
 
 const CACHE_KEY = 'kindle-trending-weekly-v1';
 
@@ -34,8 +34,7 @@ export default function useTrending() {
       }).finally(() => { inflight = false; });
     };
     const resume = () => {
-      const age = Date.now() - lastAttempt;
-      if (!document.hidden && (age >= TRENDING_POLL_MS || (failed && age >= 5 * 60000))) load();
+      if (shouldResumeTrending({ lastAttempt, failed, hidden: document.hidden }, Date.now())) load();
     };
     load();
     const interval = setInterval(load, TRENDING_POLL_MS);
