@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CITIES, DEFAULT_SETTINGS, cityById, cityDate, clock, currentWeather, dateKey, forecastDay, fullDate, normalizeSettings, numberText, readStored, refreshSlot, sunTime, validWeather, weatherDescription, writeStored } from './model';
+import { CITIES, DEFAULT_SETTINGS, cityById, cityDate, clock, currentWeather, dateKey, dateParts, forecastDay, normalizeSettings, numberText, readStored, refreshSlot, sunTime, validWeather, weatherDescription, writeStored } from './model';
 import { fetchWeather, weatherURL } from './weather';
 
 const helsinki = cityById('helsinki');
@@ -36,8 +36,8 @@ describe('city clocks', () => {
   });
   it('includes year and weekday in both languages', () => {
     const now = new Date('2026-11-06T12:00Z');
-    expect(fullDate(now, 'zh')).toBe('2026年11月6日 · 星期五');
-    expect(fullDate(now, 'en')).toBe('Fri, 6 Nov 2026');
+    expect(dateParts(now, 'zh')).toEqual({ date: '2026年11月6日', weekday: '星期五', weekdayFirst: false });
+    expect(dateParts(now, 'en')).toEqual({ date: '6 Nov 2026', weekday: 'Fri', weekdayFirst: true });
   });
 });
 

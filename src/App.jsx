@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowRightLeft, Settings as SettingsIcon } from 'lucide-react';
-import { cityById, cityDate, cityName, clock, dateKey, fullDate, normalizeSettings, readStored, weatherUpdateSummary, writeStored } from './model';
-import { solarTermName } from './solarTerms';
+import { cityById, cityDate, cityName, clock, dateKey, dateParts, normalizeSettings, readStored, weatherUpdateSummary, writeStored } from './model';
+import { lunarDateName, solarTermName } from './solarTerms';
 import { primaryTimeFontSize } from './layout';
 import { APP_TEXT, pick } from './i18n';
 import useViewport from './useViewport';
@@ -28,6 +28,7 @@ export default function App() {
   const primaryDate = cityDate(primary, now), secondaryDate = cityDate(secondary, now);
   const primaryTime = clock(primaryDate, settings.format), secondaryTime = clock(secondaryDate, settings.format);
   const sameDay = dateKey(primaryDate) === dateKey(secondaryDate);
+  const dateText = dateParts(primaryDate, settings.language);
   const updateSummary = weatherUpdateSummary([entries[primary.id], entries[secondary.id]], [status[primary.id], status[secondary.id]], now);
   const updatedDate = updateSummary.updatedAt === null ? null : cityDate(primary, new Date(updateSummary.updatedAt));
   const updatedTime = updatedDate ? `${dateKey(updatedDate) === dateKey(primaryDate) ? '' : `${dateKey(updatedDate)} `}${clock(updatedDate, '24').digits}` : '—';
@@ -59,7 +60,12 @@ export default function App() {
   return <main className={`stage ${viewport.width < 650 ? 'compact' : ''} ${settings.showFeeds ? '' : 'stage--fullscreen'} ${settings.theme === 'dark' ? 'theme--dark' : ''}`} style={viewport.style}>
     <div className="dashboard" aria-hidden={showSettings ? 'true' : undefined}>
       <section className="clock-panel">
-        <header className="date-header"><span>{fullDate(primaryDate, settings.language)}</span><span className="solar-term" lang="zh-CN" title={t.solarTerm}>· {solarTermName(now)}</span></header>
+        <header className="date-header">
+          <span>{dateText.weekdayFirst ? dateText.weekday : dateText.date}</span>
+          <span className="lunar-date" lang="zh-CN" title={t.lunarDate}>· {lunarDateName(primaryDate)}</span>
+          <span className="date-after-lunar">· {dateText.weekdayFirst ? dateText.date : dateText.weekday}</span>
+          <span className="solar-term" lang="zh-CN" title={t.solarTerm}>· {solarTermName(now)}</span>
+        </header>
         <div className="primary-clock">
           <CityHeading city={primary} entry={entries[primary.id]} now={now} language={settings.language} format={settings.format} label={t.primary} primary t={t} />
           <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, settings.showFeeds)} />

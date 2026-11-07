@@ -27,6 +27,23 @@ export function currentSolarTerm(now = new Date()) {
   return cachedTerm;
 }
 
+let cachedLunar = null;
+
+// Chinese lunar date for the calendar day shown in the header, always in
+// Chinese, e.g. 农历九月廿八, 农历闰六月初一, 农历腊月廿三. `localDate` is the
+// shifted UTC date used for the primary city's clock, so the lunar date
+// changes at the primary city's midnight together with the Gregorian date.
+export function lunarDateName(localDate) {
+  const time = localDate && localDate.getTime();
+  if (!Number.isFinite(time)) return '—';
+  const year = localDate.getUTCFullYear(), month = localDate.getUTCMonth() + 1, day = localDate.getUTCDate();
+  const key = `${year}-${month}-${day}`;
+  if (cachedLunar && cachedLunar.key === key) return cachedLunar.name;
+  const lunar = Solar.fromYmd(year, month, day).getLunar();
+  cachedLunar = { key, name: `农历${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}` };
+  return cachedLunar.name;
+}
+
 export function solarTermName(now) {
   const term = currentSolarTerm(now);
   if (!term) return '—';

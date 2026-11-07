@@ -13,6 +13,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .clock-panel { width: 50%; min-width: 0; padding-right: 2em; display: flex; flex-direction: column; }
 .date-header { display: flex; align-items: baseline; flex-wrap: wrap; padding-bottom: 1.4em; font-size: 1.02em; line-height: 1.6; }
 .date-header > span { white-space: nowrap; }
+.lunar-date, .date-after-lunar { margin-left: .35em; }
 .solar-term { margin-left: .6em; }
 .eyebrow { display: block; font-size: .7em; letter-spacing: .12em; line-height: 1.4; }
 .primary-clock { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: .5em 0; }

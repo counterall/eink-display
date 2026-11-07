@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { currentSolarTerm, solarTermName } from './solarTerms';
+import { currentSolarTerm, lunarDateName, solarTermName } from './solarTerms';
+import { cityById, cityDate } from './model';
 
 describe('Chinese solar terms', () => {
   it('keeps the active term in Chinese even for callers requesting English', () => {
@@ -40,5 +41,29 @@ describe('Chinese solar terms', () => {
   });
   it('handles invalid timestamps', () => {
     expect(solarTermName(new Date(NaN), 'zh')).toBe('—');
+  });
+});
+
+describe('Chinese lunar date', () => {
+  // Takes the shifted UTC date used for a city's clock.
+  const local = (ymd) => new Date(`${ymd}T12:00:00Z`);
+  it.each([
+    ['2026-11-06', '农历九月廿八'],
+    ['2026-02-17', '农历正月初一'],
+    ['2025-07-25', '农历闰六月初一'],
+    ['2025-12-20', '农历冬月初一'],
+    ['2026-01-01', '农历冬月十三'],
+    ['2026-02-10', '农历腊月廿三'],
+    ['2026-03-03', '农历正月十五'],
+  ])('%s is %s', (ymd, name) => {
+    expect(lunarDateName(local(ymd))).toBe(name);
+  });
+  it('follows the primary city\'s calendar day, not Beijing time', () => {
+    const now = new Date('2026-11-06T20:00:00Z'); // 22:00 Helsinki, 04:00 next day in Xi'an
+    expect(lunarDateName(cityDate(cityById('helsinki'), now))).toBe('农历九月廿八');
+    expect(lunarDateName(cityDate(cityById('xian'), now))).toBe('农历九月廿九');
+  });
+  it('returns a placeholder for an invalid date', () => {
+    expect(lunarDateName(new Date(NaN))).toBe('—');
   });
 });
