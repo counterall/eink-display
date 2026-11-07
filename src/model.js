@@ -35,14 +35,16 @@ export function clock(date, format) {
   };
 }
 
-export function fullDate(date, language) {
+// Date and weekday as separate parts, in reading order for the language, so
+// the header can place the Chinese lunar date between them.
+export function dateParts(date, language) {
   const y = date.getUTCFullYear();
   const m = date.getUTCMonth();
   const d = date.getUTCDate();
-  if (language === 'zh') return `${y}年${m + 1}月${d}日 · 星期${'日一二三四五六'[date.getUTCDay()]}`;
+  if (language === 'zh') return { date: `${y}年${m + 1}月${d}日`, weekday: `星期${'日一二三四五六'[date.getUTCDay()]}`, weekdayFirst: false };
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${days[date.getUTCDay()]}, ${d} ${months[m]} ${y}`;
+  return { date: `${d} ${months[m]} ${y}`, weekday: days[date.getUTCDay()], weekdayFirst: true };
 }
 
 // Two-hour schedule slots in Helsinki time. City swapping does not change the
