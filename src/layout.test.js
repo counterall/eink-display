@@ -2,13 +2,23 @@ import { describe, expect, it } from 'vitest';
 import { KINDLE_REFERENCE, primaryTimeFontSize, viewportLayout } from './layout';
 
 describe('1072 × 1448 Kindle layout', () => {
+  it.each([[70, .7], [100, 1], [130, 1.3], [150, 1.5]])('applies %s%% zoom to base and clock typography without changing dimensions', (zoom, factor) => {
+    for (const showFeeds of [true, false]) {
+      const base = viewportLayout(1072, 1448, 'cw', showFeeds);
+      const zoomed = viewportLayout(1072, 1448, 'cw', showFeeds, zoom);
+      expect(zoomed.style.fontSize).toBeCloseTo(base.style.fontSize * factor);
+      expect(zoomed.style.width).toBe(base.style.width);
+      expect(zoomed.style.transform).toBe(base.style.transform);
+      expect(primaryTimeFontSize(1448, 1072, showFeeds, zoom)).toBeCloseTo(primaryTimeFontSize(1448, 1072, showFeeds) * factor);
+    }
+  });
   it('enlarges fullscreen typography without changing rotation or viewport dimensions', () => {
     const split = viewportLayout(1072, 1448, 'cw', true);
     const full = viewportLayout(1072, 1448, 'cw', false);
     expect(full.width).toBe(split.width);
     expect(full.height).toBe(split.height);
     expect(full.style.transform).toBe(split.style.transform);
-    expect(full.style.fontSize).toBe(26);
+    expect(full.style.fontSize).toBe(29);
     expect(full.style.fontSize).toBeGreaterThan(split.style.fontSize);
   });
   it.each([[1448, 1072], [724, 536], [483, 357], [1121, 743]])('makes the primary clock larger in fullscreen at %s × %s', (width, height) => {

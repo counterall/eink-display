@@ -6,7 +6,9 @@ export const CITIES = [
   { id: 'osaka', zh: '大阪', en: 'Osaka', lat: 34.6937, lon: 135.5023, zone: 'Asia/Tokyo', offset: 9 },
 ];
 
-export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', rotation: 'auto', showFeeds: true, theme: 'light' };
+export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', rotation: 'auto', showFeeds: true, theme: 'light', zoom: 100 };
+export const ZOOM_MIN = 70, ZOOM_MAX = 150, ZOOM_STEP = 10;
+export const clampZoom = (zoom) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(zoom / ZOOM_STEP) * ZOOM_STEP));
 export const cityById = (id) => CITIES.find((city) => city.id === id) || CITIES[0];
 export const cityName = (city, language) => city[language === 'zh' ? 'zh' : 'en'];
 export const pad = (n) => String(n).padStart(2, '0');
@@ -69,6 +71,7 @@ export function normalizeSettings(value) {
   if (['auto', 'none', 'cw', 'ccw'].includes(value.rotation)) settings.rotation = value.rotation;
   if (typeof value.showFeeds === 'boolean') settings.showFeeds = value.showFeeds;
   if (['light', 'dark'].includes(value.theme)) settings.theme = value.theme;
+  if (Number.isFinite(value.zoom)) settings.zoom = clampZoom(value.zoom);
   return settings;
 }
 

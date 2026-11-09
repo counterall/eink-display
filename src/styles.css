@@ -56,6 +56,13 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage--fullscreen .second-time-row { align-self: center; }
 .stage--fullscreen .work-meta, .stage--fullscreen .work-active { justify-content: center; }
 .stage--fullscreen .work-message { text-align: center; }
+.stage--fullscreen .workday-block { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; margin-top: .6em; }
+.stage--fullscreen .work-meta { font-size: 1em; }
+.stage--fullscreen .work-active { align-items: baseline; margin-top: .1em; }
+.stage--fullscreen .work-caption { font-size: 2em; margin-right: .5em; }
+.stage--fullscreen .work-countdown { font-size: 5.4em; line-height: .9; }
+.stage--fullscreen .work-message { font-size: 3.6em; margin-top: .3em; }
+.stage--fullscreen .work-message:lang(en) { font-size: 2.6em; }
 .stage--fullscreen .date-header { min-height: 2.8em; padding-right: 17em; padding-bottom: .4em; }
 .stage--fullscreen .clock-footer { position: absolute; top: 2.1em; right: calc(44px + 2.4em); padding-top: 0; }
 .stage--fullscreen .clock-footer .icon-button { width: 2.5em; height: 2.5em; }
@@ -106,7 +113,8 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .compact .primary-clock { padding: .3em 0; }
 .compact .workday-block { margin-top: .8em; }
 .compact.stage--fullscreen .primary-clock { padding: .3em 0; }
-.compact.stage--fullscreen .date-header { min-height: 3.6em; }
+.compact.stage--fullscreen .date-header { min-height: calc(44px + .9em); padding-right: calc(5 * 44px + 3 * .8em + 9em); }
+.stage--fullscreen .actions { flex-wrap: nowrap; }
 .compact.stage--fullscreen .clock-footer { top: 1.4em; }
 .stage.theme--dark { color: #fff; background: #000; }
 .stage.theme--dark button, .stage.theme--dark select { color: #fff; background: #000; }

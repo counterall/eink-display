@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { ArrowRightLeft, Settings as SettingsIcon } from 'lucide-react';
-import { cityById, cityDate, cityName, clock, dateKey, dateParts, normalizeSettings, readStored, weatherUpdateSummary, writeStored } from './model';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { ArrowRightLeft, Settings as SettingsIcon, ZoomIn, ZoomOut } from 'lucide-react';
+import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, clampZoom, cityById, cityDate, cityName, clock, dateKey, dateParts, normalizeSettings, readStored, weatherUpdateSummary, writeStored } from './model';
 import { lunarDateName, solarTermName } from './solarTerms';
 import { primaryTimeFontSize } from './layout';
 import { APP_TEXT, pick } from './i18n';
@@ -17,11 +17,35 @@ import Settings from './Settings';
 
 export const SETTINGS_KEY = 'kindle-settings-v1';
 
+export function stageOverflows(stage) {
+  const bounds = stage.getBoundingClientRect();
+  const nodes = stage.querySelectorAll('.dashboard *');
+  for (let i = 0; i < nodes.length; i++) {
+    const box = nodes[i].getBoundingClientRect();
+    if (box.width && (box.right > bounds.right + 1 || box.bottom > bounds.bottom + 1)) return true;
+  }
+  return false;
+}
+
 export default function App() {
   const [settings, setSettings] = useState(() => normalizeSettings(readStored(SETTINGS_KEY)));
   const [now, setNow] = useState(new Date());
   const [showSettings, setShowSettings] = useState(false);
-  const viewport = useViewport(settings.rotation, settings.showFeeds);
+  const viewport = useViewport(settings.rotation, settings.showFeeds, settings.zoom);
+  const zoomBy = (step) => setSettings((old) => ({ ...old, zoom: clampZoom(old.zoom + step) }));
+  // Largest zoom that fit this layout; reset whenever the available space or content shape changes.
+  const [zoomLimit, setZoomLimit] = useState(null);
+  const stageRef = useRef(null);
+  const layoutKey = [viewport.width, viewport.height, settings.showFeeds, settings.language, settings.format].join('|');
+  useEffect(() => { setZoomLimit(null); }, [layoutKey]);
+  // Runs before paint, so an oversized zoom is never shown (and never leaves the controls off-screen).
+  useLayoutEffect(() => {
+    if (settings.zoom <= ZOOM_MIN || !stageRef.current) return;
+    if (!stageOverflows(stageRef.current)) return;
+    const fitted = clampZoom(settings.zoom - ZOOM_STEP);
+    setZoomLimit(fitted);
+    setSettings((old) => ({ ...old, zoom: Math.min(old.zoom, fitted) }));
+  });
   const { entries, status } = useWeather(settings.primary, settings.secondary, now);
   const t = pick(APP_TEXT, settings.language);
   const primary = cityById(settings.primary), secondary = cityById(settings.secondary);
@@ -57,7 +81,7 @@ export default function App() {
     return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', resume); window.removeEventListener('focus', resume); };
   }, []);
 
-  return <main className={`stage ${viewport.width < 650 ? 'compact' : ''} ${settings.showFeeds ? '' : 'stage--fullscreen'} ${settings.theme === 'dark' ? 'theme--dark' : ''}`} style={viewport.style}>
+  return <main ref={stageRef} className={`stage ${viewport.width < 650 ? 'compact' : ''} ${settings.showFeeds ? '' : 'stage--fullscreen'} ${settings.theme === 'dark' ? 'theme--dark' : ''}`} style={viewport.style}>
     <div className="dashboard" aria-hidden={showSettings ? 'true' : undefined}>
       <section className="clock-panel">
         <header className="date-header">
@@ -68,7 +92,7 @@ export default function App() {
         </header>
         <div className="primary-clock">
           <CityHeading city={primary} entry={entries[primary.id]} now={now} language={settings.language} format={settings.format} label={t.primary} primary t={t} />
-          <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, settings.showFeeds)} />
+          <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, settings.showFeeds, settings.zoom)} />
           <div className="second-clock">
             <CityHeading city={secondary} entry={entries[secondary.id]} now={now} language={settings.language} format={settings.format} label={t.secondary} t={t} />
             <div className="second-time-row">
@@ -85,6 +109,8 @@ export default function App() {
           <div className="actions">
             <IconButton icon={ArrowRightLeft} label={t.swap} onClick={() => setSettings((old) => ({ ...old, primary: old.secondary, secondary: old.primary }))} />
             <IconButton icon={SettingsIcon} label={t.settings} onClick={() => setShowSettings(true)} />
+            <IconButton icon={ZoomOut} label={t.zoomOut} title={`${t.zoomOut} · ${settings.zoom}%`} disabled={settings.zoom <= ZOOM_MIN} onClick={() => zoomBy(-ZOOM_STEP)} />
+            <IconButton icon={ZoomIn} label={t.zoomIn} title={`${t.zoomIn} · ${settings.zoom}%`} disabled={settings.zoom >= Math.min(ZOOM_MAX, zoomLimit === null ? ZOOM_MAX : zoomLimit)} onClick={() => zoomBy(ZOOM_STEP)} />
             <div className="weather-status" aria-live="polite"><span className="updated-time" title={t.updateNote}>{t.updated} {updatedTime}</span>{updateNotice && <small className="update-notice">{updateNotice}</small>}</div>
           </div>
         </footer>
