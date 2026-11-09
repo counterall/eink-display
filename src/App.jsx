@@ -14,6 +14,8 @@ import TrendingFeed from './TrendingFeed';
 import WorkdayBlock from './WorkdayBlock';
 import DisplayModeToggle from './DisplayModeToggle';
 import Settings from './Settings';
+import BreakDialog from './BreakDialog';
+import useBreakReminder from './useBreakReminder';
 
 export const SETTINGS_KEY = 'kindle-settings-v1';
 
@@ -49,6 +51,8 @@ export default function App() {
   const { entries, status } = useWeather(settings.primary, settings.secondary, now);
   const t = pick(APP_TEXT, settings.language);
   const primary = cityById(settings.primary), secondary = cityById(settings.secondary);
+  const breakReminder = useBreakReminder(settings.breakReminder, primary, now);
+  const breakOpen = !showSettings && breakReminder.mode !== null;
   const primaryDate = cityDate(primary, now), secondaryDate = cityDate(secondary, now);
   const primaryTime = clock(primaryDate, settings.format), secondaryTime = clock(secondaryDate, settings.format);
   const sameDay = dateKey(primaryDate) === dateKey(secondaryDate);
@@ -82,7 +86,7 @@ export default function App() {
   }, []);
 
   return <main ref={stageRef} className={`stage ${viewport.width < 650 ? 'compact' : ''} ${settings.showFeeds ? '' : 'stage--fullscreen'} ${settings.theme === 'dark' ? 'theme--dark' : ''}`} style={viewport.style}>
-    <div className="dashboard" aria-hidden={showSettings ? 'true' : undefined}>
+    <div className="dashboard" aria-hidden={showSettings || breakOpen ? 'true' : undefined}>
       <section className="clock-panel">
         <header className="date-header">
           <span>{dateText.weekdayFirst ? dateText.weekday : dateText.date}</span>
@@ -117,7 +121,8 @@ export default function App() {
       </section>
       {settings.showFeeds && <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingFeed language={settings.language} city={primary} now={now} /></aside>}
     </div>
-    {!showSettings && <DisplayModeToggle theme={settings.theme} language={settings.language} onToggle={() => setSettings((old) => ({ ...old, theme: old.theme === 'dark' ? 'light' : 'dark' }))} />}
-    {showSettings && <Settings settings={settings} setSettings={setSettings} close={() => setShowSettings(false)} viewport={viewport} t={t} />}
+    {!showSettings && !breakOpen && <DisplayModeToggle theme={settings.theme} language={settings.language} onToggle={() => setSettings((old) => ({ ...old, theme: old.theme === 'dark' ? 'light' : 'dark' }))} />}
+    {showSettings && <Settings settings={settings} setSettings={setSettings} close={(options) => { setShowSettings(false); if (options && options.breakNow) breakReminder.openNow(); }} viewport={viewport} t={t} />}
+    {breakOpen && <BreakDialog mode={breakReminder.mode} minutesLeft={breakReminder.minutesLeft} elapsed={breakReminder.elapsed} language={settings.language} onDismiss={breakReminder.dismiss} onStart={breakReminder.start} />}
   </main>;
 }

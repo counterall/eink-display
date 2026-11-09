@@ -107,6 +107,19 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .settings-panel .display-info { border-top: 1px solid #111; padding-top: .65em; }
 .settings-panel footer { display: flex; align-items: center; justify-content: space-between; margin-top: 1em; }
 .filled-button { background: #111; color: #fff; }
+.break-panel { position: relative; width: 28em; padding-top: 1.2em; }
+.break-panel header { padding-right: 3em; }
+.break-panel h2 { display: flex; align-items: center; }
+.break-icon { width: 1.1em; height: 1.1em; margin-left: .4em; }
+.break-panel .break-close { position: absolute; top: .4em; right: .4em; display: inline-flex; align-items: center; justify-content: center; width: 2.6em; height: 2.6em; min-width: 44px; min-height: 44px; padding: 0; border: 0; }
+.break-close svg { width: 1.5em; height: 1.5em; }
+.break-field { display: block; padding-top: 1.1em; font-size: .9em; }
+.break-field select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; border: 1px solid #111; background: #fff; }
+.break-actions { margin-top: 1.4em; }
+.break-actions button { min-width: 7em; }
+.break-running { text-align: center; padding: 1.4em 2em .8em; }
+.break-panel .break-caption { display: block; font-size: 1.6em; }
+.break-panel .break-countdown { font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 4.5em; font-weight: 600; line-height: 1.1; margin: .2em 0 0; font-variant-numeric: tabular-nums; }
 .settings-panel a { color: #111; font-size: .7em; margin-left: 1em; }
 .compact .dashboard { padding: 1.4em 1.6em; }
 .compact .clock-panel { padding-right: 1.5em; }
@@ -121,7 +134,11 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.theme--dark button:active { color: #000; background: #fff; }
 .stage.theme--dark button:focus-visible, .stage.theme--dark select:focus-visible, .stage.theme--dark a:focus-visible { outline-color: #fff; }
 .stage.theme--dark .repo-link, .stage.theme--dark .trending-footer a, .stage.theme--dark .settings-panel a { color: #fff; }
+.break-progress { height: .9em; margin: 1em auto 0; border: 2px solid #111; background: #fff; overflow: hidden; }
+.break-progress-fill { height: 100%; background: #111; }
+.stage.theme--dark .break-progress { border-color: #fff; background: #000; }
+.stage.theme--dark .break-progress-fill { background: #fff; }
 .stage.theme--dark .settings-layer { background: rgba(0,0,0,.96); }
 .stage.theme--dark .settings-panel { background: #000; border-color: #fff; }
-.stage.theme--dark .settings-panel header, .stage.theme--dark .settings-panel .display-info, .stage.theme--dark .settings-panel button, .stage.theme--dark .settings-fields select { border-color: #fff; }
+.stage.theme--dark .settings-panel header, .stage.theme--dark .settings-panel .display-info, .stage.theme--dark .settings-panel button, .stage.theme--dark .settings-fields select, .stage.theme--dark .break-field select { border-color: #fff; }
 .stage.theme--dark .filled-button { color: #000; background: #fff; }
