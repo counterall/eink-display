@@ -54,4 +54,8 @@ describe('settings dialog', () => {
     expect(markup).toContain('<option value="hide" selected="">');
     expect(markup).toContain('1448 × 1072 CSS px');
   });
+  it('offers off / on / now for the break reminder', () => {
+    const markup = renderToStaticMarkup(<Settings settings={normalizeSettings({ breakReminder: true })} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT.zh} />);
+    expect(markup).toContain('<option value="off">关</option><option value="on" selected="">开</option><option value="now">立即</option>');
+  });
 });

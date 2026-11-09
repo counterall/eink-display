@@ -1,12 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CITIES, cityName } from './model';
 
 export default function Settings({ settings, setSettings, close, viewport, t }) {
   const first = useRef(null);
+  // "Now" is a one-off test choice: it enables the reminder and asks for a prompt on close.
+  const [breakNow, setBreakNow] = useState(false);
+  const breakNowRef = useRef(false);
+  breakNowRef.current = breakNow;
+  const finish = () => close({ breakNow: breakNowRef.current });
   useEffect(() => {
     const previous = document.activeElement;
     first.current.focus();
-    const keydown = (event) => { if (event.key === 'Escape') close(); };
+    const keydown = (event) => { if (event.key === 'Escape') finish(); };
     document.addEventListener('keydown', keydown);
     return () => { document.removeEventListener('keydown', keydown); if (previous && previous.focus) previous.focus(); };
   }, []);
@@ -31,10 +36,11 @@ export default function Settings({ settings, setSettings, close, viewport, t }) 
         <label>{t.format}<select value={settings.format} onChange={(event) => change('format', event.target.value)}><option value="24">{t.hour24}</option><option value="12">{t.hour12}</option></select></label>
         <label>{t.rotation}<select value={settings.rotation} onChange={(event) => change('rotation', event.target.value)}>{['auto', 'none', 'cw', 'ccw'].map((key) => <option key={key} value={key}>{t[key]}</option>)}</select></label>
         <label>{t.rightColumn}<select value={settings.showFeeds ? 'show' : 'hide'} onChange={(event) => change('showFeeds', event.target.value === 'show')}><option value="show">{t.show}</option><option value="hide">{t.hide}</option></select></label>
+        <label>{t.breakReminder}<select value={breakNow ? 'now' : settings.breakReminder ? 'on' : 'off'} onChange={(event) => { const value = event.target.value; setBreakNow(value === 'now'); change('breakReminder', value !== 'off'); }}><option value="off">{t.off}</option><option value="on">{t.on}</option><option value="now">{t.breakNow}</option></select></label>
       </div>
       <p>{t.note}</p><p>{t.lofoten}</p>
       <p className="display-info">{t.displayReference}<br />{t.viewport}: {Math.round(viewport.viewportWidth)} × {Math.round(viewport.viewportHeight)} CSS px · {t.layout}: {Math.round(viewport.width)} × {Math.round(viewport.height)} · {t.pixelRatio}: {window.devicePixelRatio || 1}</p>
-      <footer><button className="filled-button" onClick={close}>{t.close}</button><a href="https://open-meteo.com/" target="_blank" rel="noreferrer">{t.source}</a></footer>
+      <footer><button className="filled-button" onClick={finish}>{t.close}</button><a href="https://open-meteo.com/" target="_blank" rel="noreferrer">{t.source}</a></footer>
     </section>
   </div>;
 }

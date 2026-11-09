@@ -20,6 +20,7 @@ export const APP_TEXT = {
     viewport: '浏览器视口', layout: '页面布局', pixelRatio: '像素比',
     rightColumn: '右侧资讯栏', show: '显示', hide: '隐藏（全屏时间）',
     zoomIn: '放大', zoomOut: '缩小',
+    breakReminder: '休息提醒', on: '开', off: '关', breakNow: '立即',
   },
   en: {
     primary: 'PRIMARY CITY', secondary: 'SECOND CITY', today: 'Today', swap: 'Swap cities', settings: 'Settings',
@@ -37,6 +38,7 @@ export const APP_TEXT = {
     viewport: 'Browser viewport', layout: 'Page layout', pixelRatio: 'Pixel ratio',
     rightColumn: 'Right-hand feeds', show: 'Show', hide: 'Hide (fullscreen time)',
     zoomIn: 'Zoom in', zoomOut: 'Zoom out',
+    breakReminder: 'Break reminder', on: 'On', off: 'Off', breakNow: 'Now',
   },
 };
 
@@ -53,4 +55,9 @@ export const WORKDAY_TEXT = {
 export const THEME_TEXT = {
   zh: { label: '深色模式', dark: '切换为深色模式', light: '切换为浅色模式' },
   en: { label: 'Dark mode', dark: 'Switch to dark mode', light: 'Switch to light mode' },
+};
+
+export const BREAK_TEXT = {
+  zh: { title: 'Take a break', duration: '休息时间', minutesSuffix: '分钟', later: '下次吧', start: '开始吧', resting: '继续休息', close: '关闭', progress: '已休息时间' },
+  en: { title: 'Take a break', duration: 'Break length', minutesSuffix: ' min', later: 'Maybe later', start: 'Let’s go', resting: 'Keep resting', close: 'Close', progress: 'Break elapsed' },
 };

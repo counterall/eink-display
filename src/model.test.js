@@ -71,6 +71,11 @@ describe('settings and cache resilience', () => {
     expect(normalizeSettings({ zoom: '120' }).zoom).toBe(100);
     expect(normalizeSettings({ zoom: NaN }).zoom).toBe(100);
   });
+  it('keeps the break reminder off unless explicitly enabled', () => {
+    expect(normalizeSettings({}).breakReminder).toBe(false);
+    expect(normalizeSettings({ breakReminder: true }).breakReminder).toBe(true);
+    expect(normalizeSettings({ breakReminder: 'true' }).breakReminder).toBe(false);
+  });
   it('defaults to light mode and keeps theme separate from the feed visibility preference', () => {
     expect(normalizeSettings({}).theme).toBe('light');
     expect(normalizeSettings({ theme: 'dark', showFeeds: false })).toMatchObject({ theme: 'dark', showFeeds: false });
