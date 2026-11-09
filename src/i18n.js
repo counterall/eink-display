@@ -19,6 +19,7 @@ export const APP_TEXT = {
     displayReference: '适配参考：Kindle 1072 × 1448（横向 1448 × 1072）',
     viewport: '浏览器视口', layout: '页面布局', pixelRatio: '像素比',
     rightColumn: '右侧资讯栏', show: '显示', hide: '隐藏（全屏时间）',
+    zoomIn: '放大', zoomOut: '缩小',
   },
   en: {
     primary: 'PRIMARY CITY', secondary: 'SECOND CITY', today: 'Today', swap: 'Swap cities', settings: 'Settings',
@@ -35,6 +36,7 @@ export const APP_TEXT = {
     displayReference: 'Reference: Kindle 1072 × 1448 (landscape 1448 × 1072)',
     viewport: 'Browser viewport', layout: 'Page layout', pixelRatio: 'Pixel ratio',
     rightColumn: 'Right-hand feeds', show: 'Show', hide: 'Hide (fullscreen time)',
+    zoomIn: 'Zoom in', zoomOut: 'Zoom out',
   },
 };
 

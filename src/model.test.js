@@ -62,6 +62,15 @@ describe('two-hour weather refresh slots', () => {
 });
 
 describe('settings and cache resilience', () => {
+  it('defaults to 100% zoom and clamps saved zoom to 70–150% in 10% steps', () => {
+    expect(normalizeSettings({}).zoom).toBe(100);
+    expect(normalizeSettings({ zoom: 120 }).zoom).toBe(120);
+    expect(normalizeSettings({ zoom: 500 }).zoom).toBe(150);
+    expect(normalizeSettings({ zoom: 10 }).zoom).toBe(70);
+    expect(normalizeSettings({ zoom: 114 }).zoom).toBe(110);
+    expect(normalizeSettings({ zoom: '120' }).zoom).toBe(100);
+    expect(normalizeSettings({ zoom: NaN }).zoom).toBe(100);
+  });
   it('defaults to light mode and keeps theme separate from the feed visibility preference', () => {
     expect(normalizeSettings({}).theme).toBe('light');
     expect(normalizeSettings({ theme: 'dark', showFeeds: false })).toMatchObject({ theme: 'dark', showFeeds: false });
