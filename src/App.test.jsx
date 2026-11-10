@@ -26,7 +26,7 @@ describe('app shell', () => {
     expect(markup).toContain('西安');
     expect(markup).toContain('aria-label="赫尔辛基 12:30"');
     expect(markup).toContain('class="feeds-panel"');
-    expect(markup).toContain('离下班还有');
+    expect(markup).toContain('class="work-start filled-button">开始工作</button>'); // no 09:00–17:00 default any more
     expect(markup).toMatch(/2026年11月6日<\/span><span class="lunar-date" lang="zh-CN"[^>]*>· 农历九月廿八<\/span><span class="date-after-lunar">· 星期五<\/span>/);
   });
   it('restores saved settings: English, 12-hour, swapped cities, fullscreen time, dark', () => {
@@ -35,7 +35,7 @@ describe('app shell', () => {
     expect(markup).not.toContain('feeds-panel');
     expect(markup).toContain('stage--fullscreen');
     expect(markup).toContain('theme--dark');
-    expect(markup).toContain('Work is over');
+    expect(markup).toContain('>Start work</button>');
     // The lunar date stays in Chinese and sits between weekday and date.
     expect(markup).toMatch(/>Fri<\/span><span class="lunar-date" lang="zh-CN"[^>]*>· 农历九月廿八<\/span><span class="date-after-lunar">· 6 Nov 2026<\/span>/);
   });

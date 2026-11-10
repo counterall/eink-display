@@ -48,8 +48,8 @@ export const TRENDING_TEXT = {
 };
 
 export const WORKDAY_TEXT = {
-  zh: { title: '工作时间', until: '离下班还有', rest: '下班啦 好好休息！', weekend: '周末啦 不用上班！' },
-  en: { title: 'Work hours', until: 'Off work in', rest: 'Work is over. Enjoy your rest!', weekend: 'It’s the weekend. No work today!' },
+  zh: { title: '工作时间', until: '离下班还有', rest: '下班啦 好好休息！', weekend: '周末啦 不用上班！', start: '开始工作' },
+  en: { title: 'Work hours', until: 'Off work in', rest: 'Work is over. Enjoy your rest!', weekend: 'It’s the weekend. No work today!', start: 'Start work' },
 };
 
 export const THEME_TEXT = {
@@ -58,6 +58,6 @@ export const THEME_TEXT = {
 };
 
 export const BREAK_TEXT = {
-  zh: { title: 'Take a break', duration: '休息时间', minutesSuffix: '分钟', later: '下次吧', start: '开始吧', resting: '继续休息', close: '关闭', progress: '已休息时间' },
-  en: { title: 'Take a break', duration: 'Break length', minutesSuffix: ' min', later: 'Maybe later', start: 'Let’s go', resting: 'Keep resting', close: 'Close', progress: 'Break elapsed' },
+  zh: { title: 'Take a break', duration: '休息时间', minutesSuffix: '分钟', later: '下次吧', start: '开始吧', resting: '继续休息', close: '关闭', progress: '已休息时间', welcome: '新的一天开始啦 注意休息呀' },
+  en: { title: 'Take a break', duration: 'Break length', minutesSuffix: ' min', later: 'Maybe later', start: 'Let’s go', resting: 'Keep resting', close: 'Close', progress: 'Break elapsed', welcome: 'A new day begins. Remember to take breaks!' },
 };

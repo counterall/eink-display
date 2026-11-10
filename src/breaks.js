@@ -1,17 +1,23 @@
-import { dateKey } from './model';
-import { WORK_END_HOUR, WORK_START_HOUR } from './workday';
+import { workActive, workEndAt } from './workday';
 
 export const BREAK_DURATIONS = [10, 15, 30];
+export const BREAK_INTERVAL_MS = 60 * 60000;
 
-// Receives the primary city's shifted UTC date. A reminder is due once at the
-// top of each completed work hour (10:00–16:00 on weekdays) and stays due for
-// the rest of that hour, so a sleeping Kindle still sees it after waking.
-export function breakSlot(localDate) {
-  const weekday = localDate.getUTCDay();
-  if (weekday === 0 || weekday === 6) return null;
-  const hour = localDate.getUTCHours();
-  if (hour <= WORK_START_HOUR || hour >= WORK_END_HOUR) return null;
-  return `${dateKey(localDate)}-${hour}`;
+// One hour after the reminder window was last closed (or after work started,
+// whichever is later). Null when there is no session or the next reminder
+// would fall after the session ends.
+export function nextBreakAt(startedAt, closedAt) {
+  if (startedAt === null) return null;
+  const anchor = closedAt !== null && closedAt > startedAt ? closedAt : startedAt;
+  const due = anchor + BREAK_INTERVAL_MS;
+  return due < workEndAt(startedAt) ? due : null;
+}
+
+// Once due, the reminder stays due until handled, so a sleeping Kindle still
+// sees it after waking, but never outside the running work session.
+export function breakDue(startedAt, closedAt, nowMs) {
+  const due = nextBreakAt(startedAt, closedAt);
+  return due !== null && nowMs >= due && workActive(startedAt, nowMs);
 }
 
 export function remainingMinutes(endsAt, nowMs) {
@@ -19,9 +25,9 @@ export function remainingMinutes(endsAt, nowMs) {
 }
 
 export function normalizeBreakState(value) {
-  const state = { handledSlot: null, endsAt: null, duration: null };
+  const state = { closedAt: null, endsAt: null, duration: null };
   if (!value || typeof value !== 'object') return state;
-  if (typeof value.handledSlot === 'string') state.handledSlot = value.handledSlot;
+  if (Number.isFinite(value.closedAt)) state.closedAt = value.closedAt;
   if (Number.isFinite(value.endsAt)) state.endsAt = value.endsAt;
   if (BREAK_DURATIONS.includes(value.duration)) state.duration = value.duration;
   return state;
