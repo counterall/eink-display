@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=weekly",
   "period": "weekly",
-  "generatedAt": "2026-11-10T20:32:36.867Z",
+  "generatedAt": "2026-11-10T22:52:23.595Z",
   "repositories": [
     {
       "rank": 1,
@@ -11,7 +11,7 @@
       "url": "https://github.com/NVIDIA/auto-ontology",
       "description": "Auto Ontology is a Python framework for building semantic, graph-based reasoning layers over data. It enables deterministic query generation, better context retrieval, and more explainable AI for LLM and agent workflows.",
       "language": "Python",
-      "stars": 11399,
+      "stars": 11428,
       "weeklyStars": 10159
     },
     {
@@ -21,7 +21,7 @@
       "url": "https://github.com/vercel-labs/agent-desktop",
       "description": "Computer use CLI for AI agents",
       "language": "Rust",
-      "stars": 21272,
+      "stars": 21332,
       "weeklyStars": 12120
     },
     {
@@ -31,7 +31,7 @@
       "url": "https://github.com/anthropics/skills",
       "description": "Public repository for Agent Skills",
       "language": "Python",
-      "stars": 192155,
+      "stars": 192249,
       "weeklyStars": 3796
     },
     {
@@ -41,7 +41,7 @@
       "url": "https://github.com/milind-soni/OpenMausBot",
       "description": "Open-source Grok Bot alternative with a virtual machine that bots can use",
       "language": "TypeScript",
-      "stars": 20574,
+      "stars": 20598,
       "weeklyStars": 8325
     },
     {
@@ -51,7 +51,7 @@
       "url": "https://github.com/max-sixty/worktrunk",
       "description": "Worktrunk is a CLI for Git worktree management, designed for parallel AI agent workflows",
       "language": "Rust",
-      "stars": 12378,
+      "stars": 12387,
       "weeklyStars": 2395
     }
   ]
