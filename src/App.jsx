@@ -16,8 +16,10 @@ import DisplayModeToggle from './DisplayModeToggle';
 import Settings from './Settings';
 import BreakDialog from './BreakDialog';
 import useBreakReminder from './useBreakReminder';
+import { normalizeWorkState, workStartAt } from './workday';
 
 export const SETTINGS_KEY = 'kindle-settings-v1';
+export const WORK_KEY = 'kindle-work-v1';
 
 export function stageOverflows(stage) {
   const bounds = stage.getBoundingClientRect();
@@ -51,8 +53,15 @@ export default function App() {
   const { entries, status } = useWeather(settings.primary, settings.secondary, now);
   const t = pick(APP_TEXT, settings.language);
   const primary = cityById(settings.primary), secondary = cityById(settings.secondary);
-  const breakReminder = useBreakReminder(settings.breakReminder, primary, now);
-  const breakOpen = !showSettings && breakReminder.mode !== null;
+  // The work session starts when "Start work" is pressed and lasts 8 hours.
+  const [work, setWork] = useState(() => normalizeWorkState(readStored(WORK_KEY)));
+  useEffect(() => { writeStored(WORK_KEY, work); }, [work]);
+  const [welcome, setWelcome] = useState(false);
+  // Refresh the minute clock too: a stale `now` would predate the new session.
+  const startWork = () => { const clicked = new Date(); setNow(clicked); setWork({ startedAt: workStartAt(clicked.getTime()) }); setWelcome(true); };
+  const breakReminder = useBreakReminder(settings.breakReminder, work.startedAt, now);
+  const breakMode = welcome ? 'welcome' : breakReminder.mode;
+  const breakOpen = !showSettings && breakMode !== null;
   const primaryDate = cityDate(primary, now), secondaryDate = cityDate(secondary, now);
   const primaryTime = clock(primaryDate, settings.format), secondaryTime = clock(secondaryDate, settings.format);
   const sameDay = dateKey(primaryDate) === dateKey(secondaryDate);
@@ -107,7 +116,7 @@ export default function App() {
               <span className="second-date">{sameDay ? t.today : dateKey(secondaryDate)}</span>
             </div>
           </div>
-          <WorkdayBlock city={primary} now={now} language={settings.language} />
+          <WorkdayBlock city={primary} now={now} language={settings.language} startedAt={work.startedAt} onStart={startWork} />
         </div>
         <footer className="clock-footer">
           <div className="actions">
@@ -123,6 +132,6 @@ export default function App() {
     </div>
     {!showSettings && !breakOpen && <DisplayModeToggle theme={settings.theme} language={settings.language} onToggle={() => setSettings((old) => ({ ...old, theme: old.theme === 'dark' ? 'light' : 'dark' }))} />}
     {showSettings && <Settings settings={settings} setSettings={setSettings} close={(options) => { setShowSettings(false); if (options && options.breakNow) breakReminder.openNow(); }} viewport={viewport} t={t} />}
-    {breakOpen && <BreakDialog mode={breakReminder.mode} minutesLeft={breakReminder.minutesLeft} elapsed={breakReminder.elapsed} language={settings.language} onDismiss={breakReminder.dismiss} onStart={breakReminder.start} />}
+    {breakOpen && <BreakDialog mode={breakMode} minutesLeft={breakReminder.minutesLeft} elapsed={breakReminder.elapsed} language={settings.language} onDismiss={() => { if (welcome) setWelcome(false); breakReminder.dismiss(); }} onStart={breakReminder.start} />}
   </main>;
 }
