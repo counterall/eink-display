@@ -3,6 +3,10 @@ name: Deploy static page
 on:
   push:
     branches: [main, top-feeds, fullscreen-time]
+    # A push (or merged PR) that only edits Markdown, e.g. README.md or CLAUDE.md,
+    # changes nothing on the site. The daily schedule still refreshes Trending.
+    paths-ignore:
+      - '**.md'
   workflow_dispatch:
   schedule:
     - cron: '17 6 * * *'

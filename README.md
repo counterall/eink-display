@@ -84,6 +84,7 @@ pnpm preview
 1. 创建 GitHub 仓库，将项目推送到 `main` 分支（包含 `pnpm-lock.yaml`）。
 2. 仓库 **Settings → Pages → Build and deployment → Source** 选择 **GitHub Actions**。
 3. `main` 工作流自动获取榜单、测试、构建并发布 `dist/`。`top-feeds` 构建不会发布 Pages。完成发布后在 Pages 页面查看网址。
+   只修改 Markdown 文件（如 `README.md`、`CLAUDE.md`）的推送或合并的 PR 不会触发工作流，以免无意义的构建和发布；只要同时改了其他文件仍会照常运行。每日定时任务和手动运行不受影响。
 4. Kindle 浏览器打开该网址。首次打开需要联网加载页面和天气。
 
 `base: './'` 兼容仓库子路径，无需硬编码仓库名。若用于组织项目，正式部署前请与 infra 团队确认托管规范。
