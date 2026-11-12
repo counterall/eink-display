@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=weekly",
   "period": "weekly",
-  "generatedAt": "2026-11-11T06:27:47.382Z",
+  "generatedAt": "2026-11-12T06:28:17.071Z",
   "repositories": [
     {
       "rank": 1,
@@ -11,28 +11,28 @@
       "url": "https://github.com/NVIDIA/auto-ontology",
       "description": "Auto Ontology is a Python framework for building semantic, graph-based reasoning layers over data. It enables deterministic query generation, better context retrieval, and more explainable AI for LLM and agent workflows.",
       "language": "Python",
-      "stars": 11555,
-      "weeklyStars": 9621
+      "stars": 11971,
+      "weeklyStars": 7947
     },
     {
       "rank": 2,
-      "owner": "vercel-labs",
-      "name": "agent-desktop",
-      "url": "https://github.com/vercel-labs/agent-desktop",
-      "description": "Computer use CLI for AI agents",
-      "language": "Rust",
-      "stars": 21574,
-      "weeklyStars": 9502
-    },
-    {
-      "rank": 3,
       "owner": "anthropics",
       "name": "skills",
       "url": "https://github.com/anthropics/skills",
       "description": "Public repository for Agent Skills",
       "language": "Python",
-      "stars": 192583,
-      "weeklyStars": 5014
+      "stars": 193295,
+      "weeklyStars": 5738
+    },
+    {
+      "rank": 3,
+      "owner": "vercel-labs",
+      "name": "agent-desktop",
+      "url": "https://github.com/vercel-labs/agent-desktop",
+      "description": "Computer use CLI for AI agents",
+      "language": "Rust",
+      "stars": 22288,
+      "weeklyStars": 7772
     },
     {
       "rank": 4,
@@ -41,18 +41,18 @@
       "url": "https://github.com/milind-soni/OpenMausBot",
       "description": "Open-source Grok Bot alternative with a virtual machine that bots can use",
       "language": "TypeScript",
-      "stars": 20829,
-      "weeklyStars": 8951
+      "stars": 21377,
+      "weeklyStars": 9257
     },
     {
       "rank": 5,
-      "owner": "max-sixty",
-      "name": "worktrunk",
-      "url": "https://github.com/max-sixty/worktrunk",
-      "description": "Worktrunk is a CLI for Git worktree management, designed for parallel AI agent workflows",
+      "owner": "vercel-labs",
+      "name": "agent-browser",
+      "url": "https://github.com/vercel-labs/agent-browser",
+      "description": "Browser automation CLI for AI agents",
       "language": "Rust",
-      "stars": 12417,
-      "weeklyStars": 2093
+      "stars": 50035,
+      "weeklyStars": 4183
     }
   ]
 }
