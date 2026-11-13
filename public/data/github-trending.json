@@ -2,57 +2,57 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=weekly",
   "period": "weekly",
-  "generatedAt": "2026-11-12T06:28:17.071Z",
+  "generatedAt": "2026-11-13T06:27:23.595Z",
   "repositories": [
     {
       "rank": 1,
-      "owner": "NVIDIA",
-      "name": "auto-ontology",
-      "url": "https://github.com/NVIDIA/auto-ontology",
-      "description": "Auto Ontology is a Python framework for building semantic, graph-based reasoning layers over data. It enables deterministic query generation, better context retrieval, and more explainable AI for LLM and agent workflows.",
-      "language": "Python",
-      "stars": 11971,
-      "weeklyStars": 7947
-    },
-    {
-      "rank": 2,
       "owner": "anthropics",
       "name": "skills",
       "url": "https://github.com/anthropics/skills",
       "description": "Public repository for Agent Skills",
       "language": "Python",
-      "stars": 193295,
-      "weeklyStars": 5738
+      "stars": 193819,
+      "weeklyStars": 6055
     },
     {
-      "rank": 3,
-      "owner": "vercel-labs",
-      "name": "agent-desktop",
-      "url": "https://github.com/vercel-labs/agent-desktop",
-      "description": "Computer use CLI for AI agents",
-      "language": "Rust",
-      "stars": 22288,
-      "weeklyStars": 7772
-    },
-    {
-      "rank": 4,
+      "rank": 2,
       "owner": "milind-soni",
       "name": "OpenMausBot",
       "url": "https://github.com/milind-soni/OpenMausBot",
       "description": "Open-source Grok Bot alternative with a virtual machine that bots can use",
       "language": "TypeScript",
-      "stars": 21377,
-      "weeklyStars": 9257
+      "stars": 21838,
+      "weeklyStars": 9104
     },
     {
-      "rank": 5,
+      "rank": 3,
       "owner": "vercel-labs",
       "name": "agent-browser",
       "url": "https://github.com/vercel-labs/agent-browser",
       "description": "Browser automation CLI for AI agents",
       "language": "Rust",
-      "stars": 50035,
-      "weeklyStars": 4183
+      "stars": 50417,
+      "weeklyStars": 4601
+    },
+    {
+      "rank": 4,
+      "owner": "NVIDIA",
+      "name": "auto-ontology",
+      "url": "https://github.com/NVIDIA/auto-ontology",
+      "description": "Auto Ontology is a Python framework for building semantic, graph-based reasoning layers over data. It enables deterministic query generation, better context retrieval, and more explainable AI for LLM and agent workflows.",
+      "language": "Python",
+      "stars": 12330,
+      "weeklyStars": 5802
+    },
+    {
+      "rank": 5,
+      "owner": "cloudflare",
+      "name": "security-audit-skill",
+      "url": "https://github.com/cloudflare/security-audit-skill",
+      "description": "A coding-agent skill for multi-phase security audits with independently verified, machine-readable findings",
+      "language": "JavaScript",
+      "stars": 71355,
+      "weeklyStars": 10700
     }
   ]
 }
