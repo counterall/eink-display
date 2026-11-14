@@ -2,57 +2,57 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=weekly",
   "period": "weekly",
-  "generatedAt": "2026-11-13T06:27:23.595Z",
+  "generatedAt": "2026-11-14T06:25:29.327Z",
   "repositories": [
     {
       "rank": 1,
+      "owner": "sherlock-project",
+      "name": "sherlock",
+      "url": "https://github.com/sherlock-project/sherlock",
+      "description": "Hunt down social media accounts by username across social networks",
+      "language": "Python",
+      "stars": 111306,
+      "weeklyStars": 13364
+    },
+    {
+      "rank": 2,
       "owner": "anthropics",
       "name": "skills",
       "url": "https://github.com/anthropics/skills",
       "description": "Public repository for Agent Skills",
       "language": "Python",
-      "stars": 193819,
-      "weeklyStars": 6055
+      "stars": 194230,
+      "weeklyStars": 6169
     },
     {
-      "rank": 2,
+      "rank": 3,
       "owner": "milind-soni",
       "name": "OpenMausBot",
       "url": "https://github.com/milind-soni/OpenMausBot",
       "description": "Open-source Grok Bot alternative with a virtual machine that bots can use",
       "language": "TypeScript",
-      "stars": 21838,
-      "weeklyStars": 9104
+      "stars": 22309,
+      "weeklyStars": 7763
     },
     {
-      "rank": 3,
+      "rank": 4,
       "owner": "vercel-labs",
       "name": "agent-browser",
       "url": "https://github.com/vercel-labs/agent-browser",
       "description": "Browser automation CLI for AI agents",
       "language": "Rust",
-      "stars": 50417,
-      "weeklyStars": 4601
-    },
-    {
-      "rank": 4,
-      "owner": "NVIDIA",
-      "name": "auto-ontology",
-      "url": "https://github.com/NVIDIA/auto-ontology",
-      "description": "Auto Ontology is a Python framework for building semantic, graph-based reasoning layers over data. It enables deterministic query generation, better context retrieval, and more explainable AI for LLM and agent workflows.",
-      "language": "Python",
-      "stars": 12330,
-      "weeklyStars": 5802
+      "stars": 50811,
+      "weeklyStars": 4360
     },
     {
       "rank": 5,
-      "owner": "cloudflare",
-      "name": "security-audit-skill",
-      "url": "https://github.com/cloudflare/security-audit-skill",
-      "description": "A coding-agent skill for multi-phase security audits with independently verified, machine-readable findings",
-      "language": "JavaScript",
-      "stars": 71355,
-      "weeklyStars": 10700
+      "owner": "google",
+      "name": "elephant-goldfish-model",
+      "url": "https://github.com/google/elephant-goldfish-model",
+      "description": "Open-source plugin for designing and reviewing software with agents",
+      "language": "Python",
+      "stars": 18727,
+      "weeklyStars": 5560
     }
   ]
 }
