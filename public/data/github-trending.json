@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=weekly",
   "period": "weekly",
-  "generatedAt": "2026-11-15T06:26:08.540Z",
+  "generatedAt": "2026-11-16T06:41:30.881Z",
   "repositories": [
     {
       "rank": 1,
@@ -11,48 +11,48 @@
       "url": "https://github.com/meta/astryx",
       "description": "An open source design system that's fully customizable and agent ready",
       "language": "TypeScript",
-      "stars": 28291,
-      "weeklyStars": 13660
+      "stars": 29102,
+      "weeklyStars": 13501
     },
     {
       "rank": 2,
-      "owner": "sherlock-project",
-      "name": "sherlock",
-      "url": "https://github.com/sherlock-project/sherlock",
-      "description": "Hunt down social media accounts by username across social networks",
-      "language": "Python",
-      "stars": 111920,
-      "weeklyStars": 12401
-    },
-    {
-      "rank": 3,
       "owner": "anthropics",
       "name": "skills",
       "url": "https://github.com/anthropics/skills",
       "description": "Public repository for Agent Skills",
       "language": "Python",
-      "stars": 194715,
-      "weeklyStars": 6220
+      "stars": 195506,
+      "weeklyStars": 6077
+    },
+    {
+      "rank": 3,
+      "owner": "sherlock-project",
+      "name": "sherlock",
+      "url": "https://github.com/sherlock-project/sherlock",
+      "description": "Hunt down social media accounts by username across social networks",
+      "language": "Python",
+      "stars": 112678,
+      "weeklyStars": 10412
     },
     {
       "rank": 4,
+      "owner": "backnotprop",
+      "name": "plannotator",
+      "url": "https://github.com/backnotprop/plannotator",
+      "description": "The workspace to stay in the loop and on top of agents - shape, decide, plan, annotate, review code, share with team, and send all feedback to agents with one click.",
+      "language": "TypeScript",
+      "stars": 12046,
+      "weeklyStars": 1719
+    },
+    {
+      "rank": 5,
       "owner": "vercel-labs",
       "name": "agent-browser",
       "url": "https://github.com/vercel-labs/agent-browser",
       "description": "Browser automation CLI for AI agents",
       "language": "Rust",
-      "stars": 51304,
-      "weeklyStars": 4601
-    },
-    {
-      "rank": 5,
-      "owner": "google",
-      "name": "elephant-goldfish-model",
-      "url": "https://github.com/google/elephant-goldfish-model",
-      "description": "Open-source plugin for designing and reviewing software with agents",
-      "language": "Python",
-      "stars": 19298,
-      "weeklyStars": 5539
+      "stars": 51743,
+      "weeklyStars": 4217
     }
   ]
 }
