@@ -2,47 +2,47 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=weekly",
   "period": "weekly",
-  "generatedAt": "2026-11-16T06:41:30.881Z",
+  "generatedAt": "2026-11-17T06:28:58.292Z",
   "repositories": [
     {
       "rank": 1,
+      "owner": "GoogleChrome",
+      "name": "modern-web-guidance-src",
+      "url": "https://github.com/GoogleChrome/modern-web-guidance-src",
+      "description": "Keep your coding agent up to date with the latest web best practices",
+      "language": "TypeScript",
+      "stars": 8121,
+      "weeklyStars": 6542
+    },
+    {
+      "rank": 2,
       "owner": "meta",
       "name": "astryx",
       "url": "https://github.com/meta/astryx",
       "description": "An open source design system that's fully customizable and agent ready",
       "language": "TypeScript",
-      "stars": 29102,
-      "weeklyStars": 13501
-    },
-    {
-      "rank": 2,
-      "owner": "anthropics",
-      "name": "skills",
-      "url": "https://github.com/anthropics/skills",
-      "description": "Public repository for Agent Skills",
-      "language": "Python",
-      "stars": 195506,
-      "weeklyStars": 6077
+      "stars": 29769,
+      "weeklyStars": 10939
     },
     {
       "rank": 3,
-      "owner": "sherlock-project",
-      "name": "sherlock",
-      "url": "https://github.com/sherlock-project/sherlock",
-      "description": "Hunt down social media accounts by username across social networks",
-      "language": "Python",
-      "stars": 112678,
-      "weeklyStars": 10412
-    },
-    {
-      "rank": 4,
       "owner": "backnotprop",
       "name": "plannotator",
       "url": "https://github.com/backnotprop/plannotator",
       "description": "The workspace to stay in the loop and on top of agents - shape, decide, plan, annotate, review code, share with team, and send all feedback to agents with one click.",
       "language": "TypeScript",
-      "stars": 12046,
-      "weeklyStars": 1719
+      "stars": 12752,
+      "weeklyStars": 2325
+    },
+    {
+      "rank": 4,
+      "owner": "anthropics",
+      "name": "skills",
+      "url": "https://github.com/anthropics/skills",
+      "description": "Public repository for Agent Skills",
+      "language": "Python",
+      "stars": 196217,
+      "weeklyStars": 5666
     },
     {
       "rank": 5,
@@ -51,8 +51,8 @@
       "url": "https://github.com/vercel-labs/agent-browser",
       "description": "Browser automation CLI for AI agents",
       "language": "Rust",
-      "stars": 51743,
-      "weeklyStars": 4217
+      "stars": 52119,
+      "weeklyStars": 3760
     }
   ]
 }
