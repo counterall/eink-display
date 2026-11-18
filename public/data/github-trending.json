@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=weekly",
   "period": "weekly",
-  "generatedAt": "2026-11-17T06:28:58.292Z",
+  "generatedAt": "2026-11-18T06:28:39.845Z",
   "repositories": [
     {
       "rank": 1,
@@ -11,48 +11,48 @@
       "url": "https://github.com/GoogleChrome/modern-web-guidance-src",
       "description": "Keep your coding agent up to date with the latest web best practices",
       "language": "TypeScript",
-      "stars": 8121,
-      "weeklyStars": 6542
+      "stars": 8543,
+      "weeklyStars": 7015
     },
     {
       "rank": 2,
-      "owner": "meta",
-      "name": "astryx",
-      "url": "https://github.com/meta/astryx",
-      "description": "An open source design system that's fully customizable and agent ready",
-      "language": "TypeScript",
-      "stars": 29769,
-      "weeklyStars": 10939
-    },
-    {
-      "rank": 3,
       "owner": "backnotprop",
       "name": "plannotator",
       "url": "https://github.com/backnotprop/plannotator",
       "description": "The workspace to stay in the loop and on top of agents - shape, decide, plan, annotate, review code, share with team, and send all feedback to agents with one click.",
       "language": "TypeScript",
-      "stars": 12752,
-      "weeklyStars": 2325
+      "stars": 13171,
+      "weeklyStars": 2926
+    },
+    {
+      "rank": 3,
+      "owner": "meta",
+      "name": "astryx",
+      "url": "https://github.com/meta/astryx",
+      "description": "An open source design system that's fully customizable and agent ready",
+      "language": "TypeScript",
+      "stars": 30280,
+      "weeklyStars": 8700
     },
     {
       "rank": 4,
-      "owner": "anthropics",
-      "name": "skills",
-      "url": "https://github.com/anthropics/skills",
-      "description": "Public repository for Agent Skills",
-      "language": "Python",
-      "stars": 196217,
-      "weeklyStars": 5666
+      "owner": "we-promise",
+      "name": "sure",
+      "url": "https://github.com/we-promise/sure",
+      "description": "The personal finance app for everyone (by everyone)",
+      "language": "Ruby",
+      "stars": 16321,
+      "weeklyStars": 4786
     },
     {
       "rank": 5,
-      "owner": "vercel-labs",
-      "name": "agent-browser",
-      "url": "https://github.com/vercel-labs/agent-browser",
-      "description": "Browser automation CLI for AI agents",
-      "language": "Rust",
-      "stars": 52119,
-      "weeklyStars": 3760
+      "owner": "ZhuLinsen",
+      "name": "daily_stock_analysis",
+      "url": "https://github.com/ZhuLinsen/daily_stock_analysis",
+      "description": "LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。 LLM-powered multi-market stock analysis system with multi-source market data, real-time news, decision dashboard, automated notifications, and cost-free scheduled runs.",
+      "language": "Python",
+      "stars": 73162,
+      "weeklyStars": 3653
     }
   ]
 }
