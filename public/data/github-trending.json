@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=weekly",
   "period": "weekly",
-  "generatedAt": "2026-11-18T06:28:39.845Z",
+  "generatedAt": "2026-11-19T06:29:25.736Z",
   "repositories": [
     {
       "rank": 1,
@@ -11,8 +11,8 @@
       "url": "https://github.com/GoogleChrome/modern-web-guidance-src",
       "description": "Keep your coding agent up to date with the latest web best practices",
       "language": "TypeScript",
-      "stars": 8543,
-      "weeklyStars": 7015
+      "stars": 8918,
+      "weeklyStars": 7257
     },
     {
       "rank": 2,
@@ -21,8 +21,8 @@
       "url": "https://github.com/backnotprop/plannotator",
       "description": "The workspace to stay in the loop and on top of agents - shape, decide, plan, annotate, review code, share with team, and send all feedback to agents with one click.",
       "language": "TypeScript",
-      "stars": 13171,
-      "weeklyStars": 2926
+      "stars": 13515,
+      "weeklyStars": 3290
     },
     {
       "rank": 3,
@@ -31,8 +31,8 @@
       "url": "https://github.com/meta/astryx",
       "description": "An open source design system that's fully customizable and agent ready",
       "language": "TypeScript",
-      "stars": 30280,
-      "weeklyStars": 8700
+      "stars": 30673,
+      "weeklyStars": 6250
     },
     {
       "rank": 4,
@@ -41,18 +41,18 @@
       "url": "https://github.com/we-promise/sure",
       "description": "The personal finance app for everyone (by everyone)",
       "language": "Ruby",
-      "stars": 16321,
-      "weeklyStars": 4786
+      "stars": 16551,
+      "weeklyStars": 3866
     },
     {
       "rank": 5,
-      "owner": "ZhuLinsen",
-      "name": "daily_stock_analysis",
-      "url": "https://github.com/ZhuLinsen/daily_stock_analysis",
-      "description": "LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。 LLM-powered multi-market stock analysis system with multi-source market data, real-time news, decision dashboard, automated notifications, and cost-free scheduled runs.",
-      "language": "Python",
-      "stars": 73162,
-      "weeklyStars": 3653
+      "owner": "alibaba",
+      "name": "open-code-review",
+      "url": "https://github.com/alibaba/open-code-review",
+      "description": "Secure, fast, efficient, battle-tested at Alibaba's scale. Hybrid architecture code review tool: deterministic pipelines + LLM Agent, precise line-level comments, built-in multi-language ruleset (NPE, thread-safety, XSS, SQL injection), OpenAI & Anthropic compatible.",
+      "language": "Go",
+      "stars": 54234,
+      "weeklyStars": 4383
     }
   ]
 }
