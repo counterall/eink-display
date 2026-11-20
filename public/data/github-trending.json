@@ -2,57 +2,57 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=weekly",
   "period": "weekly",
-  "generatedAt": "2026-11-19T06:29:25.736Z",
+  "generatedAt": "2026-11-20T06:28:38.787Z",
   "repositories": [
     {
       "rank": 1,
-      "owner": "GoogleChrome",
-      "name": "modern-web-guidance-src",
-      "url": "https://github.com/GoogleChrome/modern-web-guidance-src",
-      "description": "Keep your coding agent up to date with the latest web best practices",
-      "language": "TypeScript",
-      "stars": 8918,
-      "weeklyStars": 7257
-    },
-    {
-      "rank": 2,
       "owner": "backnotprop",
       "name": "plannotator",
       "url": "https://github.com/backnotprop/plannotator",
       "description": "The workspace to stay in the loop and on top of agents - shape, decide, plan, annotate, review code, share with team, and send all feedback to agents with one click.",
       "language": "TypeScript",
-      "stars": 13515,
-      "weeklyStars": 3290
+      "stars": 13729,
+      "weeklyStars": 3468
+    },
+    {
+      "rank": 2,
+      "owner": "google-labs-code",
+      "name": "stitch-skills",
+      "url": "https://github.com/google-labs-code/stitch-skills",
+      "description": "A library of Agent Skills designed to work with the Stitch MCP server. Each skill follows the Agent Skills open standard, for compatibility with coding agents such as Antigravity, Gemini CLI, Claude Code, Cursor.",
+      "language": "TypeScript",
+      "stars": 10804,
+      "weeklyStars": 1829
     },
     {
       "rank": 3,
-      "owner": "meta",
-      "name": "astryx",
-      "url": "https://github.com/meta/astryx",
-      "description": "An open source design system that's fully customizable and agent ready",
+      "owner": "GoogleChrome",
+      "name": "modern-web-guidance-src",
+      "url": "https://github.com/GoogleChrome/modern-web-guidance-src",
+      "description": "Keep your coding agent up to date with the latest web best practices",
       "language": "TypeScript",
-      "stars": 30673,
-      "weeklyStars": 6250
+      "stars": 9275,
+      "weeklyStars": 6858
     },
     {
       "rank": 4,
-      "owner": "we-promise",
-      "name": "sure",
-      "url": "https://github.com/we-promise/sure",
-      "description": "The personal finance app for everyone (by everyone)",
-      "language": "Ruby",
-      "stars": 16551,
-      "weeklyStars": 3866
-    },
-    {
-      "rank": 5,
       "owner": "alibaba",
       "name": "open-code-review",
       "url": "https://github.com/alibaba/open-code-review",
       "description": "Secure, fast, efficient, battle-tested at Alibaba's scale. Hybrid architecture code review tool: deterministic pipelines + LLM Agent, precise line-level comments, built-in multi-language ruleset (NPE, thread-safety, XSS, SQL injection), OpenAI & Anthropic compatible.",
       "language": "Go",
-      "stars": 54234,
-      "weeklyStars": 4383
+      "stars": 54468,
+      "weeklyStars": 4492
+    },
+    {
+      "rank": 5,
+      "owner": "mvanhorn",
+      "name": "last30days-skill",
+      "url": "https://github.com/mvanhorn/last30days-skill",
+      "description": "AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - then synthesizes a grounded summary",
+      "language": "Python",
+      "stars": 70983,
+      "weeklyStars": 3179
     }
   ]
 }
