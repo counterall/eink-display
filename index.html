@@ -9,9 +9,12 @@
       (function () {
         try {
           var savedSettings = JSON.parse(localStorage.getItem('kindle-settings-v1'));
-          if (savedSettings && savedSettings.theme === 'dark') {
-            document.documentElement.className += ' theme--dark';
-            document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000000');
+          // Keep in sync with THEME_COLORS in src/model.js (light is the unclassed default).
+          var colors = { dark: '#000000', sky: '#eef4fb', sage: '#eef5ec', lavender: '#f3f0fa', mint: '#eaf5f3' };
+          var theme = savedSettings && savedSettings.theme;
+          if (typeof theme === 'string' && Object.prototype.hasOwnProperty.call(colors, theme)) {
+            document.documentElement.className += ' theme--' + theme;
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', colors[theme]);
           }
         } catch (error) {}
       })();

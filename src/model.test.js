@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CITIES, DEFAULT_SETTINGS, cityById, cityDate, clock, currentWeather, dateKey, dateParts, forecastDay, normalizeSettings, numberText, readStored, refreshSlot, sunTime, validWeather, weatherDescription, writeStored } from './model';
+import { CITIES, DEFAULT_SETTINGS, cityById, cityDate, clock, currentWeather, dateKey, dateParts, forecastDay, normalizeSettings, numberText, THEMES, THEME_COLORS, LIGHT_THEMES, toggleTheme, withTheme, readStored, refreshSlot, sunTime, validWeather, weatherDescription, writeStored } from './model';
 import { fetchWeather, weatherURL } from './weather';
 
 const helsinki = cityById('helsinki');
@@ -82,6 +82,33 @@ describe('settings and cache resilience', () => {
     expect(normalizeSettings({ theme: 'light', showFeeds: true })).toMatchObject({ theme: 'light', showFeeds: true });
     expect(normalizeSettings({ theme: true }).theme).toBe('light');
     expect(normalizeSettings({ theme: 'system' }).theme).toBe('light');
+  });
+  it('accepts the six themes and falls back to light for anything else', () => {
+    expect(THEMES).toEqual(['light', 'dark', 'sky', 'sage', 'lavender', 'mint']);
+    expect(LIGHT_THEMES).toEqual(['light', 'sky', 'sage', 'lavender', 'mint']);
+    for (const theme of THEMES) expect(normalizeSettings({ theme }).theme).toBe(theme);
+    for (const theme of ['Sky', 'blue', '', null, 3, 'toString']) expect(normalizeSettings({ theme }).theme).toBe('light');
+    expect(THEME_COLORS).toEqual({ light: '#ffffff', dark: '#000000', sky: '#eef4fb', sage: '#eef5ec', lavender: '#f3f0fa', mint: '#eaf5f3' });
+  });
+  it('remembers the last non-dark theme in lightTheme', () => {
+    expect(DEFAULT_SETTINGS.lightTheme).toBe('light');
+    expect(normalizeSettings({}).lightTheme).toBe('light');
+    expect(normalizeSettings({ theme: 'dark', lightTheme: 'sage' })).toMatchObject({ theme: 'dark', lightTheme: 'sage' });
+    expect(normalizeSettings({ theme: 'dark', lightTheme: 'dark' }).lightTheme).toBe('light');
+    expect(normalizeSettings({ theme: 'dark', lightTheme: 'purple' }).lightTheme).toBe('light');
+    // An active light theme is always the one remembered.
+    expect(normalizeSettings({ theme: 'mint', lightTheme: 'sky' }).lightTheme).toBe('mint');
+    expect(normalizeSettings({ theme: 'lavender' }).lightTheme).toBe('lavender');
+  });
+  it('switches themes and toggles dark back to the remembered light theme', () => {
+    const sky = withTheme(normalizeSettings({}), 'sky');
+    expect(sky).toMatchObject({ theme: 'sky', lightTheme: 'sky' });
+    const dark = toggleTheme(sky);
+    expect(dark).toMatchObject({ theme: 'dark', lightTheme: 'sky' });
+    expect(toggleTheme(dark)).toMatchObject({ theme: 'sky', lightTheme: 'sky' });
+    expect(withTheme(dark, 'dark')).toMatchObject({ theme: 'dark', lightTheme: 'sky' });
+    expect(toggleTheme(normalizeSettings({ theme: 'dark' }))).toMatchObject({ theme: 'light', lightTheme: 'light' });
+    expect(withTheme(sky, 'bogus')).toMatchObject({ theme: 'light', lightTheme: 'light' });
   });
   it('keeps feeds visible for existing settings and remembers an explicit hide preference', () => {
     expect(normalizeSettings({ language: 'en' }).showFeeds).toBe(true);

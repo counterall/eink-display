@@ -8,6 +8,8 @@ describe('display mode toggle', () => {
     ['zh', 'dark', '深色模式', '切换为浅色模式', 'lucide-sun', true],
     ['en', 'light', 'Dark mode', 'Switch to dark mode', 'lucide-moon', false],
     ['en', 'dark', 'Dark mode', 'Switch to light mode', 'lucide-sun', true],
+    ['zh', 'sky', '深色模式', '切换为深色模式', 'lucide-moon', false],
+    ['en', 'mint', 'Dark mode', 'Switch to dark mode', 'lucide-moon', false],
   ])('renders %s / %s with the right icon and accessible state', (language, theme, label, title, icon, pressed) => {
     const markup = renderToStaticMarkup(<DisplayModeToggle theme={theme} language={language} onToggle={() => {}} />);
     expect(markup).toContain('class="theme-toggle"');

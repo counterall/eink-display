@@ -6,7 +6,18 @@ export const CITIES = [
   { id: 'osaka', zh: '大阪', en: 'Osaka', lat: 34.6937, lon: 135.5023, zone: 'Asia/Tokyo', offset: 9 },
 ];
 
-export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', rotation: 'auto', showFeeds: true, theme: 'light', zoom: 100, breakReminder: false };
+export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', rotation: 'auto', showFeeds: true, theme: 'light', lightTheme: 'light', zoom: 100, breakReminder: false };
+// Page background per theme, also used for <meta name="theme-color">. The
+// inline bootstrap script in index.html repeats this table (tested to match).
+export const THEME_COLORS = { light: '#ffffff', dark: '#000000', sky: '#eef4fb', sage: '#eef5ec', lavender: '#f3f0fa', mint: '#eaf5f3' };
+export const THEMES = ['light', 'dark', 'sky', 'sage', 'lavender', 'mint'];
+export const LIGHT_THEMES = THEMES.filter((theme) => theme !== 'dark');
+// Picking a non-dark theme also remembers it, so the dark toggle can switch back to it.
+export function withTheme(settings, theme) {
+  const next = THEMES.includes(theme) ? theme : 'light';
+  return { ...settings, theme: next, lightTheme: next === 'dark' ? settings.lightTheme : next };
+}
+export const toggleTheme = (settings) => withTheme(settings, settings.theme === 'dark' ? settings.lightTheme : 'dark');
 export const ZOOM_MIN = 70, ZOOM_MAX = 150, ZOOM_STEP = 10;
 export const clampZoom = (zoom) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(zoom / ZOOM_STEP) * ZOOM_STEP));
 export const cityById = (id) => CITIES.find((city) => city.id === id) || CITIES[0];
@@ -70,7 +81,9 @@ export function normalizeSettings(value) {
   if (['12', '24'].includes(value.format)) settings.format = value.format;
   if (['auto', 'none', 'cw', 'ccw'].includes(value.rotation)) settings.rotation = value.rotation;
   if (typeof value.showFeeds === 'boolean') settings.showFeeds = value.showFeeds;
-  if (['light', 'dark'].includes(value.theme)) settings.theme = value.theme;
+  if (THEMES.includes(value.theme)) settings.theme = value.theme;
+  if (LIGHT_THEMES.includes(value.lightTheme)) settings.lightTheme = value.lightTheme;
+  if (settings.theme !== 'dark') settings.lightTheme = settings.theme;
   if (Number.isFinite(value.zoom)) settings.zoom = clampZoom(value.zoom);
   if (typeof value.breakReminder === 'boolean') settings.breakReminder = value.breakReminder;
   return settings;

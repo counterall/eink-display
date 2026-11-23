@@ -39,6 +39,13 @@ describe('app shell', () => {
     // The lunar date stays in Chinese and sits between weekday and date.
     expect(markup).toMatch(/>Fri<\/span><span class="lunar-date" lang="zh-CN"[^>]*>· 农历九月廿八<\/span><span class="date-after-lunar">· 6 Nov 2026<\/span>/);
   });
+  it('restores a colored theme on the stage and leaves light without a theme class', () => {
+    expect(render({ theme: 'lavender' })).toMatch(/<main class="stage[^"]* theme--lavender"/);
+    expect(render({ theme: 'mint', lightTheme: 'sky' })).toContain('theme--mint');
+    expect(render({ theme: 'mint', lightTheme: 'sky' })).not.toContain('theme--sky');
+    expect(render()).not.toContain('theme--');
+    expect(render({ theme: 'dark', lightTheme: 'sage' })).not.toContain('theme--sage');
+  });
   it('rotates a portrait viewport into landscape by default', () => {
     vi.stubGlobal('window', { innerWidth: 1072, innerHeight: 1448, devicePixelRatio: 1 });
     expect(render()).toContain('transform:rotate(90deg)');
@@ -57,5 +64,11 @@ describe('settings dialog', () => {
   it('offers off / on / now for the break reminder', () => {
     const markup = renderToStaticMarkup(<Settings settings={normalizeSettings({ breakReminder: true })} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT.zh} />);
     expect(markup).toContain('<option value="off">关</option><option value="on" selected="">开</option><option value="now">立即</option>');
+  });
+  it('offers the six themes with the current one selected', () => {
+    const zh = renderToStaticMarkup(<Settings settings={normalizeSettings({ theme: 'sage' })} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT.zh} />);
+    expect(zh).toContain('主题<select><option value="light">浅色</option><option value="dark">深色</option><option value="sky">天蓝</option><option value="sage" selected="">鼠尾草绿</option><option value="lavender">薰衣草紫</option><option value="mint">薄荷绿</option></select>');
+    const en = renderToStaticMarkup(<Settings settings={normalizeSettings({ language: 'en' })} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT.en} />);
+    expect(en).toContain('Theme<select><option value="light" selected="">Light</option><option value="dark">Dark</option><option value="sky">Sky</option><option value="sage">Sage</option><option value="lavender">Lavender</option><option value="mint">Mint</option></select>');
   });
 });
