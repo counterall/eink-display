@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowRightLeft, Settings as SettingsIcon, ZoomIn, ZoomOut } from 'lucide-react';
-import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, clampZoom, cityById, cityDate, cityName, clock, dateKey, dateParts, normalizeSettings, readStored, weatherUpdateSummary, writeStored } from './model';
+import { THEMES, THEME_COLORS, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, clampZoom, cityById, cityDate, cityName, clock, dateKey, dateParts, normalizeSettings, readStored, toggleTheme, weatherUpdateSummary, writeStored } from './model';
 import { lunarDateName, solarTermName } from './solarTerms';
 import { primaryTimeFontSize } from './layout';
 import { APP_TEXT, pick } from './i18n';
@@ -21,14 +21,21 @@ import { normalizeWorkState, workStartAt } from './workday';
 export const SETTINGS_KEY = 'kindle-settings-v1';
 export const WORK_KEY = 'kindle-work-v1';
 
-export function stageOverflows(stage) {
-  const bounds = stage.getBoundingClientRect();
-  const nodes = stage.querySelectorAll('.dashboard *');
+function overflows(bounds, nodes) {
   for (let i = 0; i < nodes.length; i++) {
     const box = nodes[i].getBoundingClientRect();
     if (box.width && (box.right > bounds.right + 1 || box.bottom > bounds.bottom + 1)) return true;
   }
   return false;
+}
+
+// The colored themes draw Trending as a bordered card, so its content must also stay inside the card.
+const CARD_THEMES = THEMES.filter((theme) => theme !== 'light' && theme !== 'dark');
+export function stageOverflows(stage) {
+  if (overflows(stage.getBoundingClientRect(), stage.querySelectorAll('.dashboard *'))) return true;
+  const card = stage.querySelector('.feeds-panel');
+  const carded = CARD_THEMES.some((theme) => (` ${stage.className} `).indexOf(` theme--${theme} `) !== -1);
+  return Boolean(card && carded && overflows(card.getBoundingClientRect(), stage.querySelectorAll('.feeds-panel *')));
 }
 
 export default function App() {
@@ -40,7 +47,7 @@ export default function App() {
   // Largest zoom that fit this layout; reset whenever the available space or content shape changes.
   const [zoomLimit, setZoomLimit] = useState(null);
   const stageRef = useRef(null);
-  const layoutKey = [viewport.width, viewport.height, settings.showFeeds, settings.language, settings.format].join('|');
+  const layoutKey = [viewport.width, viewport.height, settings.showFeeds, settings.language, settings.format, settings.theme].join('|');
   useEffect(() => { setZoomLimit(null); }, [layoutKey]);
   // Runs before paint, so an oversized zoom is never shown (and never leaves the controls off-screen).
   useLayoutEffect(() => {
@@ -74,11 +81,13 @@ export default function App() {
   useEffect(() => {
     writeStored(SETTINGS_KEY, settings);
     document.documentElement.lang = settings.language === 'zh' ? 'zh-CN' : 'en';
-    const dark = settings.theme === 'dark';
-    if (dark) document.documentElement.classList.add('theme--dark');
-    else document.documentElement.classList.remove('theme--dark');
+    // Light is the unclassed base; every other theme is a theme--<name> class.
+    for (const theme of THEMES) {
+      if (theme !== 'light' && theme === settings.theme) document.documentElement.classList.add(`theme--${theme}`);
+      else document.documentElement.classList.remove(`theme--${theme}`);
+    }
     const colorMeta = document.querySelector('meta[name="theme-color"]');
-    if (colorMeta) colorMeta.setAttribute('content', dark ? '#000000' : '#ffffff');
+    if (colorMeta) colorMeta.setAttribute('content', THEME_COLORS[settings.theme]);
   }, [settings]);
   useEffect(() => {
     let timer;
@@ -94,7 +103,7 @@ export default function App() {
     return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', resume); window.removeEventListener('focus', resume); };
   }, []);
 
-  return <main ref={stageRef} className={`stage ${viewport.width < 650 ? 'compact' : ''} ${settings.showFeeds ? '' : 'stage--fullscreen'} ${settings.theme === 'dark' ? 'theme--dark' : ''}`} style={viewport.style}>
+  return <main ref={stageRef} className={`stage ${viewport.width < 650 ? 'compact' : ''} ${settings.showFeeds ? '' : 'stage--fullscreen'} ${settings.theme === 'light' ? '' : `theme--${settings.theme}`}`} style={viewport.style}>
     <div className="dashboard" aria-hidden={showSettings || breakOpen ? 'true' : undefined}>
       <section className="clock-panel">
         <header className="date-header">
@@ -130,7 +139,7 @@ export default function App() {
       </section>
       {settings.showFeeds && <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingFeed language={settings.language} city={primary} now={now} /></aside>}
     </div>
-    {!showSettings && !breakOpen && <DisplayModeToggle theme={settings.theme} language={settings.language} onToggle={() => setSettings((old) => ({ ...old, theme: old.theme === 'dark' ? 'light' : 'dark' }))} />}
+    {!showSettings && !breakOpen && <DisplayModeToggle theme={settings.theme} language={settings.language} onToggle={() => setSettings(toggleTheme)} />}
     {showSettings && <Settings settings={settings} setSettings={setSettings} close={(options) => { setShowSettings(false); if (options && options.breakNow) breakReminder.openNow(); }} viewport={viewport} t={t} />}
     {breakOpen && <BreakDialog mode={breakMode} minutesLeft={breakReminder.minutesLeft} elapsed={breakReminder.elapsed} language={settings.language} onDismiss={() => { if (welcome) setWelcome(false); breakReminder.dismiss(); }} onStart={breakReminder.start} />}
   </main>;
