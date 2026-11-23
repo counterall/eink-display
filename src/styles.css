@@ -157,7 +157,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.theme--sky button:focus-visible, .stage.theme--sky select:focus-visible, .stage.theme--sky a:focus-visible { outline-color: #2e6aac; }
 .stage.theme--sky .date-header, .stage.theme--sky .eyebrow, .stage.theme--sky .second-date, .stage.theme--sky .daily-temperature-range, .stage.theme--sky .weather-status, .stage.theme--sky .work-meta, .stage.theme--sky .trending-status, .stage.theme--sky .repo-description, .stage.theme--sky .repo-meta, .stage.theme--sky .trending-footer, .stage.theme--sky .settings-panel p { color: #56697f; }
 .stage.theme--sky .weather-icon, .stage.theme--sky .sun-symbol, .stage.theme--sky .time-colon, .stage.theme--sky .repo-rank, .stage.theme--sky .repo-stars svg, .stage.theme--sky .trending-footer a, .stage.theme--sky .settings-panel a, .stage.theme--sky .break-icon, .stage.theme--sky .break-close { color: #2e6aac; }
-.stage.theme--sky .repo-link { color: #1c2d44; }
+.stage.theme--sky .repo-link, .stage.theme--sky .break-panel .break-countdown { color: #1c2d44; }
 .stage.theme--sky .icon-button { color: #2e6aac; background: #ffffff; border: 1px solid #2e6aac; border-radius: .6em; }
 .stage.theme--sky .icon-button:active { color: #fff; background: #2e6aac; }
 /* Sit the dark-mode toggle inside the Trending card's corner instead of across its border. */
@@ -179,7 +179,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.theme--sage button:focus-visible, .stage.theme--sage select:focus-visible, .stage.theme--sage a:focus-visible { outline-color: #37754c; }
 .stage.theme--sage .date-header, .stage.theme--sage .eyebrow, .stage.theme--sage .second-date, .stage.theme--sage .daily-temperature-range, .stage.theme--sage .weather-status, .stage.theme--sage .work-meta, .stage.theme--sage .trending-status, .stage.theme--sage .repo-description, .stage.theme--sage .repo-meta, .stage.theme--sage .trending-footer, .stage.theme--sage .settings-panel p { color: #566b5c; }
 .stage.theme--sage .weather-icon, .stage.theme--sage .sun-symbol, .stage.theme--sage .time-colon, .stage.theme--sage .repo-rank, .stage.theme--sage .repo-stars svg, .stage.theme--sage .trending-footer a, .stage.theme--sage .settings-panel a, .stage.theme--sage .break-icon, .stage.theme--sage .break-close { color: #37754c; }
-.stage.theme--sage .repo-link { color: #203427; }
+.stage.theme--sage .repo-link, .stage.theme--sage .break-panel .break-countdown { color: #203427; }
 .stage.theme--sage .icon-button { color: #37754c; background: #ffffff; border: 1px solid #37754c; border-radius: .6em; }
 .stage.theme--sage .icon-button:active { color: #fff; background: #37754c; }
 /* Sit the dark-mode toggle inside the Trending card's corner instead of across its border. */
@@ -201,7 +201,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.theme--lavender button:focus-visible, .stage.theme--lavender select:focus-visible, .stage.theme--lavender a:focus-visible { outline-color: #6a4ca6; }
 .stage.theme--lavender .date-header, .stage.theme--lavender .eyebrow, .stage.theme--lavender .second-date, .stage.theme--lavender .daily-temperature-range, .stage.theme--lavender .weather-status, .stage.theme--lavender .work-meta, .stage.theme--lavender .trending-status, .stage.theme--lavender .repo-description, .stage.theme--lavender .repo-meta, .stage.theme--lavender .trending-footer, .stage.theme--lavender .settings-panel p { color: #655d80; }
 .stage.theme--lavender .weather-icon, .stage.theme--lavender .sun-symbol, .stage.theme--lavender .time-colon, .stage.theme--lavender .repo-rank, .stage.theme--lavender .repo-stars svg, .stage.theme--lavender .trending-footer a, .stage.theme--lavender .settings-panel a, .stage.theme--lavender .break-icon, .stage.theme--lavender .break-close { color: #6a4ca6; }
-.stage.theme--lavender .repo-link { color: #2c2541; }
+.stage.theme--lavender .repo-link, .stage.theme--lavender .break-panel .break-countdown { color: #2c2541; }
 .stage.theme--lavender .icon-button { color: #6a4ca6; background: #ffffff; border: 1px solid #6a4ca6; border-radius: .6em; }
 .stage.theme--lavender .icon-button:active { color: #fff; background: #6a4ca6; }
 /* Sit the dark-mode toggle inside the Trending card's corner instead of across its border. */
@@ -209,7 +209,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.compact.theme--lavender .theme-toggle { top: 1.9em; right: 2.1em; }
 .stage.stage--fullscreen.theme--lavender .theme-toggle { top: .65em; right: .65em; }
 .stage.theme--lavender .feeds-panel { background: #ffffff; border: 1px solid #dcd4ee; border-radius: .6em; padding: 1em 1.4em; }
-.stage.theme--lavender .settings-layer { background: rgba(242,240,250,.95); }
+.stage.theme--lavender .settings-layer { background: rgba(243,240,250,.95); }
 .stage.theme--lavender .settings-panel { background: #ffffff; border: 1px solid #dcd4ee; border-radius: .6em; }
 .stage.theme--lavender .settings-panel header, .stage.theme--lavender .settings-panel .display-info, .stage.theme--lavender .settings-panel button, .stage.theme--lavender .settings-fields select, .stage.theme--lavender .break-field select { border-color: #dcd4ee; }
 .stage.theme--lavender .filled-button, .stage.theme--lavender .settings-panel .filled-button, .stage.theme--lavender .work-start { color: #fff; background: #6a4ca6; border-color: #6a4ca6; }
@@ -223,7 +223,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.theme--mint button:focus-visible, .stage.theme--mint select:focus-visible, .stage.theme--mint a:focus-visible { outline-color: #1d7870; }
 .stage.theme--mint .date-header, .stage.theme--mint .eyebrow, .stage.theme--mint .second-date, .stage.theme--mint .daily-temperature-range, .stage.theme--mint .weather-status, .stage.theme--mint .work-meta, .stage.theme--mint .trending-status, .stage.theme--mint .repo-description, .stage.theme--mint .repo-meta, .stage.theme--mint .trending-footer, .stage.theme--mint .settings-panel p { color: #526d69; }
 .stage.theme--mint .weather-icon, .stage.theme--mint .sun-symbol, .stage.theme--mint .time-colon, .stage.theme--mint .repo-rank, .stage.theme--mint .repo-stars svg, .stage.theme--mint .trending-footer a, .stage.theme--mint .settings-panel a, .stage.theme--mint .break-icon, .stage.theme--mint .break-close { color: #1d7870; }
-.stage.theme--mint .repo-link { color: #1c3634; }
+.stage.theme--mint .repo-link, .stage.theme--mint .break-panel .break-countdown { color: #1c3634; }
 .stage.theme--mint .icon-button { color: #1d7870; background: #ffffff; border: 1px solid #1d7870; border-radius: .6em; }
 .stage.theme--mint .icon-button:active { color: #fff; background: #1d7870; }
 /* Sit the dark-mode toggle inside the Trending card's corner instead of across its border. */

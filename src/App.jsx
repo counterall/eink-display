@@ -21,14 +21,21 @@ import { normalizeWorkState, workStartAt } from './workday';
 export const SETTINGS_KEY = 'kindle-settings-v1';
 export const WORK_KEY = 'kindle-work-v1';
 
-export function stageOverflows(stage) {
-  const bounds = stage.getBoundingClientRect();
-  const nodes = stage.querySelectorAll('.dashboard *');
+function overflows(bounds, nodes) {
   for (let i = 0; i < nodes.length; i++) {
     const box = nodes[i].getBoundingClientRect();
     if (box.width && (box.right > bounds.right + 1 || box.bottom > bounds.bottom + 1)) return true;
   }
   return false;
+}
+
+// The colored themes draw Trending as a bordered card, so its content must also stay inside the card.
+const CARD_THEMES = THEMES.filter((theme) => theme !== 'light' && theme !== 'dark');
+export function stageOverflows(stage) {
+  if (overflows(stage.getBoundingClientRect(), stage.querySelectorAll('.dashboard *'))) return true;
+  const card = stage.querySelector('.feeds-panel');
+  const carded = CARD_THEMES.some((theme) => (` ${stage.className} `).indexOf(` theme--${theme} `) !== -1);
+  return Boolean(card && carded && overflows(card.getBoundingClientRect(), stage.querySelectorAll('.feeds-panel *')));
 }
 
 export default function App() {
@@ -40,7 +47,7 @@ export default function App() {
   // Largest zoom that fit this layout; reset whenever the available space or content shape changes.
   const [zoomLimit, setZoomLimit] = useState(null);
   const stageRef = useRef(null);
-  const layoutKey = [viewport.width, viewport.height, settings.showFeeds, settings.language, settings.format].join('|');
+  const layoutKey = [viewport.width, viewport.height, settings.showFeeds, settings.language, settings.format, settings.theme].join('|');
   useEffect(() => { setZoomLimit(null); }, [layoutKey]);
   // Runs before paint, so an oversized zoom is never shown (and never leaves the controls off-screen).
   useLayoutEffect(() => {
