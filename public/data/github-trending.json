@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=weekly",
   "period": "weekly",
-  "generatedAt": "2026-11-22T06:26:19.928Z",
+  "generatedAt": "2026-11-23T06:37:46.458Z",
   "repositories": [
     {
       "rank": 1,
@@ -11,8 +11,8 @@
       "url": "https://github.com/backnotprop/plannotator",
       "description": "The workspace to stay in the loop and on top of agents - shape, decide, plan, annotate, review code, share with team, and send all feedback to agents with one click.",
       "language": "TypeScript",
-      "stars": 14220,
-      "weeklyStars": 3396
+      "stars": 14510,
+      "weeklyStars": 2815
     },
     {
       "rank": 2,
@@ -21,8 +21,8 @@
       "url": "https://github.com/google-labs-code/stitch-skills",
       "description": "A library of Agent Skills designed to work with the Stitch MCP server. Each skill follows the Agent Skills open standard, for compatibility with coding agents such as Antigravity, Gemini CLI, Claude Code, Cursor.",
       "language": "TypeScript",
-      "stars": 11570,
-      "weeklyStars": 2431
+      "stars": 12023,
+      "weeklyStars": 2683
     },
     {
       "rank": 3,
@@ -31,8 +31,8 @@
       "url": "https://github.com/GoogleChrome/modern-web-guidance-src",
       "description": "Keep your coding agent up to date with the latest web best practices",
       "language": "TypeScript",
-      "stars": 9961,
-      "weeklyStars": 4400
+      "stars": 10292,
+      "weeklyStars": 3575
     },
     {
       "rank": 4,
@@ -41,8 +41,8 @@
       "url": "https://github.com/alibaba/open-code-review",
       "description": "Secure, fast, efficient, battle-tested at Alibaba's scale. Hybrid architecture code review tool: deterministic pipelines + LLM Agent, precise line-level comments, built-in multi-language ruleset (NPE, thread-safety, XSS, SQL injection), OpenAI & Anthropic compatible.",
       "language": "Go",
-      "stars": 55176,
-      "weeklyStars": 4032
+      "stars": 55492,
+      "weeklyStars": 3700
     },
     {
       "rank": 5,
@@ -51,8 +51,8 @@
       "url": "https://github.com/mvanhorn/last30days-skill",
       "description": "AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - then synthesizes a grounded summary",
       "language": "Python",
-      "stars": 72162,
-      "weeklyStars": 4198
+      "stars": 72948,
+      "weeklyStars": 4731
     }
   ]
 }
