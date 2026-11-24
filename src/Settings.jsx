@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CITIES, THEMES, cityName, withTheme } from './model';
+import { CITIES, CLOCK_STYLES, THEMES, cityName, withTheme } from './model';
 
 export default function Settings({ settings, setSettings, close, viewport, t }) {
   const first = useRef(null);
@@ -38,6 +38,7 @@ export default function Settings({ settings, setSettings, close, viewport, t }) 
         <label>{t.rotation}<select value={settings.rotation} onChange={(event) => change('rotation', event.target.value)}>{['auto', 'none', 'cw', 'ccw'].map((key) => <option key={key} value={key}>{t[key]}</option>)}</select></label>
         <label>{t.rightColumn}<select value={settings.showFeeds ? 'show' : 'hide'} onChange={(event) => change('showFeeds', event.target.value === 'show')}><option value="show">{t.show}</option><option value="hide">{t.hide}</option></select></label>
         <label>{t.theme}<select value={settings.theme} onChange={(event) => change('theme', event.target.value)}>{THEMES.map((key) => <option key={key} value={key}>{t[`theme_${key}`]}</option>)}</select></label>
+        <label>{t.clockStyle}<select value={settings.clockStyle} onChange={(event) => change('clockStyle', event.target.value)}>{CLOCK_STYLES.map((key) => <option key={key} value={key}>{t[`clock_${key}`]}</option>)}</select></label>
         <label>{t.breakReminder}<select value={breakNow ? 'now' : settings.breakReminder ? 'on' : 'off'} onChange={(event) => { const value = event.target.value; setBreakNow(value === 'now'); change('breakReminder', value !== 'off'); }}><option value="off">{t.off}</option><option value="on">{t.on}</option><option value="now">{t.breakNow}</option></select></label>
       </div>
       <p>{t.note}</p><p>{t.lofoten}</p>

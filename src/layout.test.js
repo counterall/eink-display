@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { KINDLE_REFERENCE, primaryTimeFontSize, viewportLayout } from './layout';
+import { KINDLE_REFERENCE, flipTimeFontSize, primaryTimeFontSize, viewportLayout } from './layout';
 
 describe('1072 × 1448 Kindle layout', () => {
   it.each([[70, .7], [100, 1], [130, 1.3], [150, 1.5]])('applies %s%% zoom to base and clock typography without changing dimensions', (zoom, factor) => {
@@ -73,5 +73,31 @@ describe('1072 × 1448 Kindle layout', () => {
     expect(layout.width).toBe(1);
     expect(layout.height).toBe(1);
     expect(Number.isFinite(layout.style.fontSize)).toBe(true);
+  });
+});
+
+describe('flip clock sizing', () => {
+  // A card is 1.25em wide and the cards sit .12em apart (see styles.css).
+  const width = (fontSize, cards) => fontSize * (cards * 1.25 + (cards - 1) * .12);
+  it.each([[1448, 1072], [1121, 743], [724, 536], [600, 400]])('fits three cards in the left column at %s × %s', (w, h) => {
+    const layout = viewportLayout(w, h, 'none', true);
+    const base = layout.style.fontSize;
+    const column = w / 2 - (2.3 + 2) * base; // dashboard padding + clock-panel padding (compact uses less)
+    expect(width(flipTimeFontSize(w, h, true), 3)).toBeLessThanOrEqual(column);
+  });
+  it.each([[1448, 1072], [1121, 743], [724, 536]])('fits three cards across the fullscreen page at %s × %s', (w, h) => {
+    const base = viewportLayout(w, h, 'none', false).style.fontSize;
+    expect(width(flipTimeFontSize(w, h, false), 3)).toBeLessThanOrEqual(w - 2 * 2.3 * base);
+    expect(flipTimeFontSize(w, h, false)).toBeGreaterThan(flipTimeFontSize(w, h, true));
+  });
+  it('scales with zoom like the classic clock', () => {
+    expect(flipTimeFontSize(1448, 1072, true, 130)).toBeCloseTo(flipTimeFontSize(1448, 1072, true) * 1.3);
+  });
+  it('keeps the card height close to the classic clock height', () => {
+    // Classic digits use line-height .8; a flip card is 1.2em tall.
+    const classic = primaryTimeFontSize(1448, 1072, true) * .8;
+    const flip = flipTimeFontSize(1448, 1072, true) * 1.2;
+    expect(flip).toBeGreaterThan(classic * .8);
+    expect(flip).toBeLessThan(classic * 1.1);
   });
 });

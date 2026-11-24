@@ -237,3 +237,49 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.theme--mint .filled-button, .stage.theme--mint .settings-panel .filled-button, .stage.theme--mint .work-start { color: #fff; background: #1d7870; border-color: #1d7870; }
 .stage.theme--mint .break-progress { border-color: #c5e1dc; background: #ffffff; }
 .stage.theme--mint .break-progress-fill { background: #1d7870; }
+/* Flip-clock look (issue #13), chosen in Settings; the classic look above is untouched. Cards
+   have fixed widths so changing digits never moves the layout. The flip animation is a
+   progressive enhancement for normal monitors: the resting layers already show the new value,
+   so browsers without 3D transforms or animations (or with reduced motion) just switch digits. */
+.flip-clock { display: inline-flex; align-items: flex-start; white-space: nowrap; font-family: 'Roboto Condensed', Arial, sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; flex-shrink: 0; }
+.flip-clock--primary { align-self: flex-start; margin: .04em 0; }
+.flip-clock--second { font-size: 3.7em; }
+.flip-clock--work { font-size: 3.7em; }
+.stage--fullscreen .flip-clock--primary { align-self: center; }
+.stage--fullscreen .flip-clock--work { font-size: 4.2em; }
+.flip-card { position: relative; display: block; width: 1.25em; height: 1.2em; flex-shrink: 0; color: #f2f2f2; perspective: 4em; }
+.flip-card + .flip-card { margin-left: .12em; }
+.flip-half { position: absolute; left: 0; right: 0; height: .6em; overflow: hidden; background: #222; }
+.flip-top { top: 0; border-radius: .08em .08em 0 0; }
+.flip-bottom { top: .6em; border-radius: 0 0 .08em .08em; }
+.flip-digits { display: block; height: 1.2em; line-height: 1.2em; text-align: center; }
+.flip-bottom .flip-digits { margin-top: -.6em; }
+.flip-flap { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.flip-flap--top { transform-origin: 50% 100%; visibility: hidden; }
+.flip-flap--bottom { transform-origin: 50% 0; }
+.flip-hinge { position: absolute; left: 0; right: 0; top: .6em; height: .03em; min-height: 1px; margin-top: -.015em; background: #fff; }
+.flip-period { position: absolute; top: .3em; left: .35em; z-index: 1; font-size: .14em; letter-spacing: .06em; line-height: 1; color: #f2f2f2; }
+/* stylelint-disable property-disallowed-list, plugin/no-unsupported-browser-features -- the flip
+   animation is the one place that may animate (owner decision in issue #13); old browsers ignore it. */
+.flip-flap--top.flip-flap--turn { animation: flip-fold 150ms ease-in; }
+.flip-flap--bottom.flip-flap--turn { animation: flip-drop 150ms ease-out 150ms both; }
+@keyframes flip-fold { from { visibility: visible; transform: rotateX(0deg); } to { visibility: visible; transform: rotateX(-90deg); } }
+@keyframes flip-drop { from { transform: rotateX(90deg); } to { transform: rotateX(0deg); } }
+@media (prefers-reduced-motion: reduce) { .flip-flap--top.flip-flap--turn, .flip-flap--bottom.flip-flap--turn { animation: none; } }
+/* stylelint-enable property-disallowed-list, plugin/no-unsupported-browser-features */
+/* Flip-card colours per theme: card, digits, and a hinge in the page background. */
+.stage.theme--dark .flip-half { background: #1c1c1c; }
+.stage.theme--dark .flip-card, .stage.theme--dark .flip-period { color: #c4c4c4; }
+.stage.theme--dark .flip-hinge { background: #000; }
+.stage.theme--sky .flip-half { background: #2e6aac; }
+.stage.theme--sky .flip-card, .stage.theme--sky .flip-period { color: #fff; }
+.stage.theme--sky .flip-hinge { background: #eef4fb; }
+.stage.theme--sage .flip-half { background: #37754c; }
+.stage.theme--sage .flip-card, .stage.theme--sage .flip-period { color: #fff; }
+.stage.theme--sage .flip-hinge { background: #eef5ec; }
+.stage.theme--lavender .flip-half { background: #6a4ca6; }
+.stage.theme--lavender .flip-card, .stage.theme--lavender .flip-period { color: #fff; }
+.stage.theme--lavender .flip-hinge { background: #f3f0fa; }
+.stage.theme--mint .flip-half { background: #1d7870; }
+.stage.theme--mint .flip-card, .stage.theme--mint .flip-period { color: #fff; }
+.stage.theme--mint .flip-hinge { background: #eaf5f3; }

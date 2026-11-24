@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CITIES, DEFAULT_SETTINGS, cityById, cityDate, clock, currentWeather, dateKey, dateParts, forecastDay, normalizeSettings, numberText, THEMES, THEME_COLORS, LIGHT_THEMES, toggleTheme, withTheme, readStored, refreshSlot, sunTime, validWeather, weatherDescription, writeStored } from './model';
+import { CITIES, DEFAULT_SETTINGS, cityById, cityDate, clock, currentWeather, flipParts, dateKey, dateParts, forecastDay, normalizeSettings, numberText, THEMES, THEME_COLORS, LIGHT_THEMES, toggleTheme, withTheme, readStored, refreshSlot, sunTime, validWeather, weatherDescription, writeStored } from './model';
 import { fetchWeather, weatherURL } from './weather';
 
 const helsinki = cityById('helsinki');
@@ -214,5 +214,31 @@ describe('weather API', () => {
     await expect(fetchWeather(helsinki)).rejects.toThrow('Incomplete weather data');
     xhr({ daily: fixture().daily });
     await expect(fetchWeather(helsinki)).rejects.toThrow('Incomplete weather data');
+  });
+});
+
+describe('flip clock values', () => {
+  const at = (iso, format = '24') => flipParts(new Date(iso), format);
+  it('splits the city time into hour, minute and second cards', () => {
+    expect(at('2026-11-06T14:38:07Z')).toEqual({ hours: '14', minutes: '38', seconds: '07', period: '' });
+    expect(flipParts(cityDate(cityById('helsinki'), new Date('2026-11-06T12:38:07Z')), '24')).toMatchObject({ hours: '14', minutes: '38', seconds: '07' });
+  });
+  it('drops the leading zero of the 12-hour hour and keeps AM/PM', () => {
+    expect(at('2026-11-06T09:05:00Z', '12')).toEqual({ hours: '9', minutes: '05', seconds: '00', period: 'AM' });
+    expect(at('2026-11-06T00:00:00Z', '12')).toMatchObject({ hours: '12', period: 'AM' });
+    expect(at('2026-11-06T21:00:00Z', '12')).toMatchObject({ hours: '9', period: 'PM' });
+    expect(at('2026-11-06T09:05:00Z', '24').hours).toBe('09');
+  });
+  it('keeps the classic clock() output unchanged', () => {
+    expect(clock(new Date('2026-11-06T09:05:59Z'), '12')).toEqual({ digits: '09:05', period: 'AM' });
+  });
+});
+
+describe('clock style setting', () => {
+  it('defaults to classic, keeps flip, and normalizes unknown values', () => {
+    expect(DEFAULT_SETTINGS.clockStyle).toBe('classic');
+    expect(normalizeSettings({ theme: 'dark' }).clockStyle).toBe('classic');
+    expect(normalizeSettings({ clockStyle: 'flip' }).clockStyle).toBe('flip');
+    for (const clockStyle of ['Flip', 'split', '', null, true]) expect(normalizeSettings({ clockStyle }).clockStyle).toBe('classic');
   });
 });
