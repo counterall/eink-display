@@ -34,6 +34,9 @@ function overflows(bounds, nodes) {
 const CARD_THEMES = THEMES.filter((theme) => theme !== 'light' && theme !== 'dark');
 export function stageOverflows(stage) {
   if (overflows(stage.getBoundingClientRect(), stage.querySelectorAll('.dashboard *'))) return true;
+  // Flip cards are wider than the classic digits; keep them out of the Trending column.
+  const panel = stage.querySelector('.clock-panel');
+  if (panel && overflows(panel.getBoundingClientRect(), stage.querySelectorAll('.flip-clock'))) return true;
   const card = stage.querySelector('.feeds-panel');
   const carded = CARD_THEMES.some((theme) => (` ${stage.className} `).indexOf(` theme--${theme} `) !== -1);
   return Boolean(card && carded && overflows(card.getBoundingClientRect(), stage.querySelectorAll('.feeds-panel *')));

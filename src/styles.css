@@ -265,7 +265,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .flip-flap--bottom.flip-flap--turn { animation: flip-drop 150ms ease-out 150ms both; }
 @keyframes flip-fold { from { visibility: visible; transform: rotateX(0deg); } to { visibility: visible; transform: rotateX(-90deg); } }
 @keyframes flip-drop { from { transform: rotateX(90deg); } to { transform: rotateX(0deg); } }
-@media (prefers-reduced-motion: reduce) { .flip-flap--turn { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .flip-flap--top.flip-flap--turn, .flip-flap--bottom.flip-flap--turn { animation: none; } }
 /* stylelint-enable property-disallowed-list, plugin/no-unsupported-browser-features */
 /* Flip-card colours per theme: card, digits, and a hinge in the page background. */
 .stage.theme--dark .flip-half { background: #1c1c1c; }

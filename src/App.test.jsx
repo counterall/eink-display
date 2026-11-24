@@ -123,3 +123,17 @@ describe('clock style', () => {
     expect(en).toContain('Clock style<select><option value="classic" selected="">Classic</option><option value="flip">Flip</option></select>');
   });
 });
+
+describe('zoom overflow check in the flip look', () => {
+  const box = (right, bottom, width = 10) => ({ getBoundingClientRect: () => ({ right, bottom, width }) });
+  it('flags flip cards that run past the clock column into Trending', () => {
+    const stage = (flipRight) => ({
+      className: 'stage',
+      getBoundingClientRect: () => ({ right: 1448, bottom: 1072 }),
+      querySelector: (selector) => (selector === '.clock-panel' ? box(724, 1072) : null),
+      querySelectorAll: (selector) => (selector === '.flip-clock' ? [box(flipRight, 300)] : selector === '.dashboard *' ? [box(flipRight, 300)] : []),
+    });
+    expect(stageOverflows(stage(700))).toBe(false);
+    expect(stageOverflows(stage(780))).toBe(true);
+  });
+});

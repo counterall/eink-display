@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { cityById } from './model';
-import FlipCard from './FlipCard';
+import { cityById, flipParts } from './model';
+import FlipCard, { nextFlipState } from './FlipCard';
 import FlipClock, { LiveFlipClock, nextSecondDelay } from './FlipClock';
 import WorkdayBlock from './WorkdayBlock';
 
@@ -15,6 +15,36 @@ describe('flip card', () => {
     expect(markup).not.toContain('flip-flap--turn');
     expect(markup).toContain('flip-hinge');
     expect(markup).toContain('aria-hidden="true"');
+  });
+});
+
+describe('which cards flip', () => {
+  const keys = ['hours', 'minutes', 'seconds'];
+  // Feed each card its value second by second, as LiveFlipClock does, and report the cards that started a turn.
+  function flips(...times) {
+    const parts = times.map((iso) => flipParts(new Date(iso), '24'));
+    const states = keys.map((key) => ({ value: parts[0][key], previous: parts[0][key], turn: 0 }));
+    return parts.slice(1).map((next) => keys.filter((key, i) => {
+      const after = nextFlipState(states[i], next[key]);
+      const turned = after.turn !== states[i].turn;
+      states[i] = after;
+      return turned;
+    }));
+  }
+  it('flips only the seconds card within a minute', () => {
+    expect(flips('2026-11-06T10:15:57Z', '2026-11-06T10:15:58Z', '2026-11-06T10:15:59Z')).toEqual([['seconds'], ['seconds']]);
+  });
+  it('flips minutes and seconds together at :59 → :00', () => {
+    expect(flips('2026-11-06T10:15:59Z', '2026-11-06T10:16:00Z')).toEqual([['minutes', 'seconds']]);
+  });
+  it('flips all three cards at 59:59 → 00:00 and at midnight', () => {
+    expect(flips('2026-11-06T10:59:59Z', '2026-11-06T11:00:00Z')).toEqual([keys]);
+    expect(flips('2026-11-06T23:59:59Z', '2026-11-07T00:00:00Z')).toEqual([keys]);
+  });
+  it('does not flip when the value is unchanged, and jumps in one turn after sleep', () => {
+    expect(flips('2026-11-06T10:15:30Z', '2026-11-06T10:15:30Z')).toEqual([[]]);
+    const state = nextFlipState({ value: '15', previous: '15', turn: 3 }, '42');
+    expect(state).toEqual({ value: '42', previous: '15', turn: 4 });
   });
 });
 

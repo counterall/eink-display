@@ -60,8 +60,6 @@ export function flipParts(date, format) {
     period: format === '12' ? (hour < 12 ? 'AM' : 'PM') : '',
   };
 }
-// Which cards flip between two renders: only those whose value changed.
-export const changedCards = (before, after, keys = ['hours', 'minutes', 'seconds']) => keys.filter((key) => before[key] !== after[key]);
 
 // Date and weekday as separate parts, in reading order for the language, so
 // the header can place the Chinese lunar date between them.

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CITIES, DEFAULT_SETTINGS, cityById, cityDate, changedCards, clock, currentWeather, flipParts, dateKey, dateParts, forecastDay, normalizeSettings, numberText, THEMES, THEME_COLORS, LIGHT_THEMES, toggleTheme, withTheme, readStored, refreshSlot, sunTime, validWeather, weatherDescription, writeStored } from './model';
+import { CITIES, DEFAULT_SETTINGS, cityById, cityDate, clock, currentWeather, flipParts, dateKey, dateParts, forecastDay, normalizeSettings, numberText, THEMES, THEME_COLORS, LIGHT_THEMES, toggleTheme, withTheme, readStored, refreshSlot, sunTime, validWeather, weatherDescription, writeStored } from './model';
 import { fetchWeather, weatherURL } from './weather';
 
 const helsinki = cityById('helsinki');
@@ -231,13 +231,6 @@ describe('flip clock values', () => {
   });
   it('keeps the classic clock() output unchanged', () => {
     expect(clock(new Date('2026-11-06T09:05:59Z'), '12')).toEqual({ digits: '09:05', period: 'AM' });
-  });
-  it('flips only the cards whose value changed', () => {
-    expect(changedCards(at('2026-11-06T10:15:58Z'), at('2026-11-06T10:15:59Z'))).toEqual(['seconds']);
-    expect(changedCards(at('2026-11-06T10:15:59Z'), at('2026-11-06T10:16:00Z'))).toEqual(['minutes', 'seconds']);
-    expect(changedCards(at('2026-11-06T10:59:59Z'), at('2026-11-06T11:00:00Z'))).toEqual(['hours', 'minutes', 'seconds']);
-    expect(changedCards(at('2026-11-06T23:59:59Z'), at('2026-11-07T00:00:00Z'))).toEqual(['hours', 'minutes', 'seconds']);
-    expect(changedCards(at('2026-11-06T10:15:30Z'), at('2026-11-06T10:15:30Z'))).toEqual([]);
   });
 });
 

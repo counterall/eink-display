@@ -5,10 +5,13 @@ import { useState } from 'react';
 // The resting layers already show the new value, so a browser without animations or 3D
 // transforms, or with prefers-reduced-motion, simply shows the new digits. Each change restarts
 // the flaps (new keys), so a big jump after sleep is one flip, never a queue of catch-up flips.
+// Pure state step: a new value starts a new turn (remembering the old value); the same value keeps the state.
+export const nextFlipState = (state, value) => (state.value === value ? state : { value, previous: state.value, turn: state.turn + 1 });
+
 export default function FlipCard({ value, kind, children }) {
   const [state, setState] = useState({ value, previous: value, turn: 0 });
   // Derived state: update during render, so the flip starts in the same commit as the new value.
-  if (state.value !== value) setState({ value, previous: state.value, turn: state.turn + 1 });
+  if (state.value !== value) setState(nextFlipState(state, value));
   const turning = state.turn > 0 ? ' flip-flap--turn' : '';
   const digits = (text) => <span className="flip-digits">{text}</span>;
   return <span className={`flip-card flip-card--${kind}`}>
