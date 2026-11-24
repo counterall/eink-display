@@ -1,13 +1,14 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { ArrowRightLeft, Settings as SettingsIcon, ZoomIn, ZoomOut } from 'lucide-react';
-import { THEMES, THEME_COLORS, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, clampZoom, cityById, cityDate, cityName, clock, dateKey, dateParts, normalizeSettings, readStored, toggleTheme, weatherUpdateSummary, writeStored } from './model';
+import { THEMES, THEME_COLORS, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, clampZoom, cityById, cityDate, cityName, clock, dateKey, dateParts, flipParts, normalizeSettings, readStored, toggleTheme, weatherUpdateSummary, writeStored } from './model';
 import { lunarDateName, solarTermName } from './solarTerms';
-import { primaryTimeFontSize } from './layout';
+import { flipTimeFontSize, primaryTimeFontSize } from './layout';
 import { APP_TEXT, pick } from './i18n';
 import useViewport from './useViewport';
 import useWeather from './useWeather';
 import IconButton from './IconButton';
 import DigitalClock from './DigitalClock';
+import FlipClock, { LiveFlipClock } from './FlipClock';
 import TimeDigits from './TimeDigits';
 import CityHeading from './CityHeading';
 import TrendingFeed from './TrendingFeed';
@@ -47,7 +48,7 @@ export default function App() {
   // Largest zoom that fit this layout; reset whenever the available space or content shape changes.
   const [zoomLimit, setZoomLimit] = useState(null);
   const stageRef = useRef(null);
-  const layoutKey = [viewport.width, viewport.height, settings.showFeeds, settings.language, settings.format, settings.theme].join('|');
+  const layoutKey = [viewport.width, viewport.height, settings.showFeeds, settings.language, settings.format, settings.theme, settings.clockStyle].join('|');
   useEffect(() => { setZoomLimit(null); }, [layoutKey]);
   // Runs before paint, so an oversized zoom is never shown (and never leaves the controls off-screen).
   useLayoutEffect(() => {
@@ -71,6 +72,8 @@ export default function App() {
   const breakOpen = !showSettings && breakMode !== null;
   const primaryDate = cityDate(primary, now), secondaryDate = cityDate(secondary, now);
   const primaryTime = clock(primaryDate, settings.format), secondaryTime = clock(secondaryDate, settings.format);
+  const flip = settings.clockStyle === 'flip';
+  const secondaryLabel = `${cityName(secondary, settings.language)} ${secondaryTime.digits}${secondaryTime.period ? ` ${secondaryTime.period}` : ''}`;
   const sameDay = dateKey(primaryDate) === dateKey(secondaryDate);
   const dateText = dateParts(primaryDate, settings.language);
   const updateSummary = weatherUpdateSummary([entries[primary.id], entries[secondary.id]], [status[primary.id], status[secondary.id]], now);
@@ -114,18 +117,22 @@ export default function App() {
         </header>
         <div className="primary-clock">
           <CityHeading city={primary} entry={entries[primary.id]} now={now} language={settings.language} format={settings.format} label={t.primary} primary t={t} />
-          <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, settings.showFeeds, settings.zoom)} />
+          {flip
+            ? <LiveFlipClock city={primary} cityLabel={cityName(primary, settings.language)} format={settings.format} fontSize={flipTimeFontSize(viewport.width, viewport.height, settings.showFeeds, settings.zoom)} />
+            : <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, settings.showFeeds, settings.zoom)} />}
           <div className="second-clock">
             <CityHeading city={secondary} entry={entries[secondary.id]} now={now} language={settings.language} format={settings.format} label={t.secondary} t={t} />
             <div className="second-time-row">
-              <strong role="img" aria-label={`${cityName(secondary, settings.language)} ${secondaryTime.digits}${secondaryTime.period ? ` ${secondaryTime.period}` : ''}`}>
-                <TimeDigits digits={secondaryTime.digits} />
-                {secondaryTime.period && <small aria-hidden="true">{secondaryTime.period}</small>}
-              </strong>
+              {flip
+                ? <FlipClock className="flip-clock--second" label={secondaryLabel} parts={flipParts(secondaryDate, settings.format)} />
+                : <strong role="img" aria-label={secondaryLabel}>
+                  <TimeDigits digits={secondaryTime.digits} />
+                  {secondaryTime.period && <small aria-hidden="true">{secondaryTime.period}</small>}
+                </strong>}
               <span className="second-date">{sameDay ? t.today : dateKey(secondaryDate)}</span>
             </div>
           </div>
-          <WorkdayBlock city={primary} now={now} language={settings.language} startedAt={work.startedAt} onStart={startWork} />
+          <WorkdayBlock city={primary} now={now} language={settings.language} startedAt={work.startedAt} onStart={startWork} clockStyle={settings.clockStyle} />
         </div>
         <footer className="clock-footer">
           <div className="actions">

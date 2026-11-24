@@ -95,3 +95,31 @@ describe('zoom overflow check', () => {
     expect(stageOverflows(stage('stage theme--sage', [box(110, 110, 0)]))).toBe(false);
   });
 });
+
+describe('clock style', () => {
+  beforeEach(() => {
+    vi.stubGlobal('window', { innerWidth: 1448, innerHeight: 1072, devicePixelRatio: 1 });
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-06T10:30:15Z'));
+  });
+  it('keeps the classic look by default', () => {
+    const markup = render();
+    expect(markup).not.toContain('flip-');
+    expect(markup).toContain('class="time-display"');
+  });
+  it('renders flip cards for all three clocks when chosen', () => {
+    const markup = render({ clockStyle: 'flip' });
+    expect(markup).not.toContain('class="time-display"');
+    expect(markup).toContain('aria-label="赫尔辛基 12:30"');
+    expect(markup).toContain('aria-label="西安 18:30"');
+    expect(markup).toContain('flip-clock--primary');
+    expect(markup).toContain('flip-clock--second');
+    expect(markup.match(/flip-card--seconds/g)).toHaveLength(1);
+  });
+  it('offers classic / flip in Settings', () => {
+    const zh = renderToStaticMarkup(<Settings settings={normalizeSettings({ clockStyle: 'flip' })} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT.zh} />);
+    expect(zh).toContain('时钟样式<select><option value="classic">经典</option><option value="flip" selected="">翻页</option></select>');
+    const en = renderToStaticMarkup(<Settings settings={normalizeSettings({ language: 'en' })} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT.en} />);
+    expect(en).toContain('Clock style<select><option value="classic" selected="">Classic</option><option value="flip">Flip</option></select>');
+  });
+});

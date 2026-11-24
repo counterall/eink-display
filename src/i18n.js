@@ -22,6 +22,7 @@ export const APP_TEXT = {
     zoomIn: '放大', zoomOut: '缩小',
     breakReminder: '休息提醒', on: '开', off: '关', breakNow: '立即',
     theme: '主题', theme_light: '浅色', theme_dark: '深色', theme_sky: '天蓝', theme_sage: '鼠尾草绿', theme_lavender: '薰衣草紫', theme_mint: '薄荷绿',
+    clockStyle: '时钟样式', clock_classic: '经典', clock_flip: '翻页',
   },
   en: {
     primary: 'PRIMARY CITY', secondary: 'SECOND CITY', today: 'Today', swap: 'Swap cities', settings: 'Settings',
@@ -41,6 +42,7 @@ export const APP_TEXT = {
     zoomIn: 'Zoom in', zoomOut: 'Zoom out',
     breakReminder: 'Break reminder', on: 'On', off: 'Off', breakNow: 'Now',
     theme: 'Theme', theme_light: 'Light', theme_dark: 'Dark', theme_sky: 'Sky', theme_sage: 'Sage', theme_lavender: 'Lavender', theme_mint: 'Mint',
+    clockStyle: 'Clock style', clock_classic: 'Classic', clock_flip: 'Flip',
   },
 };
 

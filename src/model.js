@@ -6,7 +6,8 @@ export const CITIES = [
   { id: 'osaka', zh: '大阪', en: 'Osaka', lat: 34.6937, lon: 135.5023, zone: 'Asia/Tokyo', offset: 9 },
 ];
 
-export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', rotation: 'auto', showFeeds: true, theme: 'light', lightTheme: 'light', zoom: 100, breakReminder: false };
+export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', rotation: 'auto', showFeeds: true, theme: 'light', lightTheme: 'light', zoom: 100, breakReminder: false, clockStyle: 'classic' };
+export const CLOCK_STYLES = ['classic', 'flip'];
 // Page background per theme, also used for <meta name="theme-color">. The
 // inline bootstrap script in index.html repeats this table (tested to match).
 export const THEME_COLORS = { light: '#ffffff', dark: '#000000', sky: '#eef4fb', sage: '#eef5ec', lavender: '#f3f0fa', mint: '#eaf5f3' };
@@ -48,6 +49,20 @@ export function clock(date, format) {
   };
 }
 
+// Card values for the flip look: hours, minutes and seconds as separate strings. The 12-hour
+// hour has no leading zero (9, not 09); `clock()` keeps the classic padded digits.
+export function flipParts(date, format) {
+  const hour = date.getUTCHours();
+  return {
+    hours: format === '12' ? String(hour % 12 || 12) : pad(hour),
+    minutes: pad(date.getUTCMinutes()),
+    seconds: pad(date.getUTCSeconds()),
+    period: format === '12' ? (hour < 12 ? 'AM' : 'PM') : '',
+  };
+}
+// Which cards flip between two renders: only those whose value changed.
+export const changedCards = (before, after, keys = ['hours', 'minutes', 'seconds']) => keys.filter((key) => before[key] !== after[key]);
+
 // Date and weekday as separate parts, in reading order for the language, so
 // the header can place the Chinese lunar date between them.
 export function dateParts(date, language) {
@@ -86,6 +101,7 @@ export function normalizeSettings(value) {
   if (settings.theme !== 'dark') settings.lightTheme = settings.theme;
   if (Number.isFinite(value.zoom)) settings.zoom = clampZoom(value.zoom);
   if (typeof value.breakReminder === 'boolean') settings.breakReminder = value.breakReminder;
+  if (CLOCK_STYLES.includes(value.clockStyle)) settings.clockStyle = value.clockStyle;
   return settings;
 }
 

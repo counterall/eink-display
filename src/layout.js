@@ -28,3 +28,11 @@ export function primaryTimeFontSize(width, height, showFeeds = true, zoom = 100)
   const size = showFeeds ? Math.min(width * .17, height * .30) : Math.min(width * .23, height * (width < 650 ? .27 : .31));
   return size * zoom / 100;
 }
+
+// The flip look puts three fixed-width cards (hours | minutes | seconds) where the classic
+// clock puts HH:MM, so it needs a smaller font: about 4em of cards must fit the column.
+// Card height (1.2em) stays close to the classic digit height (.8em of primaryTimeFontSize).
+export function flipTimeFontSize(width, height, showFeeds = true, zoom = 100) {
+  const size = showFeeds ? Math.min(width * .105, height * .19) : Math.min(width * .2, height * (width < 650 ? .18 : .205));
+  return size * zoom / 100;
+}
