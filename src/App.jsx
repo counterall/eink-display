@@ -141,7 +141,8 @@ export default function App() {
                   <TimeDigits digits={secondaryTime.digits} />
                   {secondaryTime.period && <small aria-hidden="true">{secondaryTime.period}</small>}
                 </strong>}
-              <span className="second-date">{sameDay ? t.today : dateKey(secondaryDate)}</span>
+              {/* A different calendar day shows the date as two short lines (year / MM-DD) so it fits beside the cards in the half-width tile. */}
+              <span className="second-date">{sameDay ? t.today : <><span>{dateKey(secondaryDate).slice(0, 4)}</span><span>{dateKey(secondaryDate).slice(5)}</span></>}</span>
             </div>
           </div>
           <WorkdayBlock city={primary} now={now} language={settings.language} startedAt={work.startedAt} onStart={startWork} clockStyle={settings.clockStyle} />

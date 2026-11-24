@@ -94,14 +94,18 @@ describe('flip clock sizing', () => {
     expect(flipTimeFontSize(1448, 1072, true)).toBeGreaterThan(1448 * .105);
     expect(flipTimeFontSize(1448, 1072, false)).toBeGreaterThan(1072 * .205);
     expect(primaryTimeFontSize(1448, 1072, false)).toBeGreaterThan(1072 * .31);
+    expect(primaryTimeFontSize(1448, 1072, true)).toBeGreaterThan(1448 * .17);
   });
-  it.each([[1448, 1072, true], [600, 400, true], [1448, 1072, false]])('fits two tile cards and the 今天 label in a half-width tile at %s × %s (feeds %s)', (w, h, showFeeds) => {
+  it.each([[1448, 1072, true], [600, 400, true], [1448, 1072, false]])('fits the tile time and the 今天 / MM-DD label in a half-width tile at %s × %s (feeds %s)', (w, h, showFeeds) => {
     const base = viewportLayout(w, h, 'none', showFeeds).style.fontSize;
     const column = showFeeds ? w / 2 - (2.3 + 1.4) * base : w - 2 * 2.3 * base;
     const tile = column / 2 - (showFeeds ? 1.1 : 1.6) * base; // .second-clock padding-right
     const cards = width((showFeeds ? 3.1 : 3.8) * base, 2);
-    const label = (showFeeds ? .8 : 1) * base * (.6 + 2); // margin + two CJK characters
+    // Classic 12-hour: Roboto Condensed HH:MM (2.38em) + AM/PM (.3em text, .35em margin, at the digit size).
+    const classic = (showFeeds ? 3.3 : 4.4) * base * (2.38 + .3 * (1.2 + .35));
+    const label = (showFeeds ? .8 : 1) * base * (.6 + 2.6); // margin + "11-25" in Arial (wider than 今天)
     expect(cards + label).toBeLessThanOrEqual(tile);
+    expect(classic + label).toBeLessThanOrEqual(tile);
   });
   it('scales with zoom like the classic clock', () => {
     expect(flipTimeFontSize(1448, 1072, true, 130)).toBeCloseTo(flipTimeFontSize(1448, 1072, true) * 1.3);

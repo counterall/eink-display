@@ -46,10 +46,11 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
    and countdown cards line up. */
 .city-heading--stacked .city-name { font-size: 1.3em; }
 .city-heading--stacked .city-sun { position: static; transform: none; margin-top: .3em; font-size: .85em; }
-.second-time-row { display: flex; align-items: center; flex-wrap: wrap; margin-top: auto; padding-top: .45em; }
-.second-time-row > strong, .work-countdown { display: inline-flex; align-items: baseline; font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 3.4em; line-height: 1.05; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.second-time-row { display: flex; align-items: center; margin-top: auto; padding-top: .45em; }
+.second-time-row > strong, .work-countdown { display: inline-flex; align-items: baseline; font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 3.3em; line-height: 1.05; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .second-clock strong small { font-size: .3em; margin-left: .35em; }
 .second-date, .work-caption { font-size: .8em; margin-left: .6em; white-space: nowrap; }
+.second-date > span { display: block; line-height: 1.25; }
 .workday-block { display: flex; flex-direction: column; padding-left: 1.1em; border-left: 1px solid #111; }
 .work-progress { margin-top: .5em; }
 .work-bar { height: .55em; border: 1px solid #111; background: #fff; overflow: hidden; }

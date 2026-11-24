@@ -148,6 +148,10 @@ describe('left-half layout', () => {
       expect(markup).toMatch(/second-clock clock-tile"><div class="city-heading city-heading--stacked">[\s\S]*?<\/div><\/div><div class="city-sun">/);
     }
   });
+  it('shows the second city date as year / MM-DD lines when it is another day', () => {
+    vi.setSystemTime(new Date('2026-11-06T18:30:00Z')); // 20:30 Helsinki, already Saturday 02:30 in Xi’an
+    expect(render()).toContain('<span class="second-date"><span>2026</span><span>11-07</span></span>');
+  });
   it('keeps the same tiles in fullscreen time mode', () => {
     const markup = render({ showFeeds: false, clockStyle: 'flip' });
     expect(markup).toContain('stage--fullscreen');

@@ -24,8 +24,10 @@ export function viewportLayout(rawWidth, rawHeight, rotation = 'auto', showFeeds
 }
 
 export function primaryTimeFontSize(width, height, showFeeds = true, zoom = 100) {
-  // Keep a little horizontal headroom for the wider Arial fallback as well.
-  const size = showFeeds ? Math.min(width * .17, height * .30) : Math.min(width * .25, height * (width < 650 ? .27 : .33));
+  // Roboto Condensed HH:MM is about 2.38em wide (digits .503em, colon .264em + .1em margin), so
+  // 18% of the width fits the split column (issue #15). The wider Arial fallback can overflow it;
+  // the zoom check in App then steps the zoom down.
+  const size = showFeeds ? Math.min(width * .18, height * .30) : Math.min(width * .25, height * (width < 650 ? .27 : .33));
   return size * zoom / 100;
 }
 
