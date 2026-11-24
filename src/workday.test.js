@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { cityById } from './model';
-import { normalizeWorkState, workActive, workdayState, workEndAt, workStartAt } from './workday';
+import { normalizeWorkState, workActive, workdayState, workEndAt, workProgress, workStartAt, workedText } from './workday';
 
 const helsinki = cityById('helsinki');
 const ms = (iso) => new Date(iso).getTime();
@@ -54,5 +54,32 @@ describe('work session started with the "Start work" button', () => {
     expect(normalizeWorkState(null)).toEqual({ startedAt: null });
     expect(normalizeWorkState({ startedAt: 'today' })).toEqual({ startedAt: null });
     expect(normalizeWorkState({ startedAt: ms('2026-11-06T08:00:30Z') })).toEqual({ startedAt: ms('2026-11-06T08:00Z') });
+  });
+});
+
+describe('eight-hour progress bar', () => {
+  const startedAt = ms('2026-11-06T08:23:00Z');
+  it.each([
+    ['2026-11-06T08:23:00Z', 0, 0],
+    ['2026-11-06T08:23:59Z', 0, 0], // seconds ignored, like the countdown
+    ['2026-11-06T09:53:30Z', 90, 0.1875],
+    ['2026-11-06T12:23:00Z', 240, 0.5],
+    ['2026-11-06T16:22:59Z', 479, 479 / 480],
+    ['2026-11-06T16:23:00Z', 480, 1], // clamped once the session is over
+    ['2026-11-06T23:00:00Z', 480, 1],
+    ['2026-11-06T08:00:00Z', 0, 0], // clock before the start (device clock moved back)
+  ])('at %s has worked %i minutes', (iso, minutes, fraction) => {
+    expect(workProgress(startedAt, ms(iso))).toEqual({ minutes, fraction });
+  });
+  it('matches the countdown: worked + remaining = 8 hours', () => {
+    const now = new Date('2026-11-06T13:01:45Z');
+    const { hours, minutes } = workdayState(helsinki, now, startedAt);
+    expect(workProgress(startedAt, now.getTime()).minutes + hours * 60 + minutes).toBe(480);
+  });
+  it('formats worked time as h:mm', () => {
+    expect(workedText(0)).toBe('0:00');
+    expect(workedText(90)).toBe('1:30');
+    expect(workedText(479)).toBe('7:59');
+    expect(workedText(480)).toBe('8:00');
   });
 });

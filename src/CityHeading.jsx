@@ -10,7 +10,7 @@ function SunEvent({ icon: Icon, label, value }) {
   </span>;
 }
 
-export default function CityHeading({ city, entry, now, language, format, label, primary = false, t }) {
+export default function CityHeading({ city, entry, now, language, format, label, primary = false, stacked = false, t }) {
   const day = forecastDay(entry && entry.data, city, now);
   const current = currentWeather(entry && entry.data);
   const Heading = primary ? 'h1' : 'h2';
@@ -21,18 +21,21 @@ export default function CityHeading({ city, entry, now, language, format, label,
   const code = current ? current.weather_code : day && day.code;
   const weatherLabel = day ? `${t.current}: ${numberText(current && current.temperature_2m)}°C, ${weatherDescription(code, language)}; ${t.forecast}: ${numberText(day.min)}–${numberText(day.max)}°C` : t.empty;
 
-  return <div className="city-heading">
+  const sun = <div className="city-sun">
+    {polarDay || polarNight ? <span className="polar-event" title={polarLabel} aria-label={polarLabel}>
+      <PolarIcon className="sun-symbol" strokeWidth={1.8} aria-hidden="true" /><span>24h</span>
+    </span> : <>
+      <SunEvent icon={Sunrise} label={t.sunrise} value={sunTime(day && day.sunrise, format)} />
+      <SunEvent icon={Sunset} label={t.sunset} value={sunTime(day && day.sunset, format)} />
+    </>}
+  </div>;
+
+  // `stacked` (half-width tile): the sun times get their own line under the name and weather.
+  return <div className={`city-heading${stacked ? ' city-heading--stacked' : ''}`}>
     <span className="eyebrow">{label}</span>
     <div className="city-heading-row">
       <Heading className="city-name">{cityName(city, language)}</Heading>
-      <div className="city-sun">
-        {polarDay || polarNight ? <span className="polar-event" title={polarLabel} aria-label={polarLabel}>
-          <PolarIcon className="sun-symbol" strokeWidth={1.8} aria-hidden="true" /><span>24h</span>
-        </span> : <>
-          <SunEvent icon={Sunrise} label={t.sunrise} value={sunTime(day && day.sunrise, format)} />
-          <SunEvent icon={Sunset} label={t.sunset} value={sunTime(day && day.sunset, format)} />
-        </>}
-      </div>
+      {!stacked && sun}
       <div className="city-weather" title={weatherLabel} aria-label={weatherLabel}>
         <WeatherIcon code={code} />
         <div className="city-temperatures">
@@ -41,5 +44,6 @@ export default function CityHeading({ city, entry, now, language, format, label,
         </div>
       </div>
     </div>
+    {stacked && sun}
   </div>;
 }

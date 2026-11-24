@@ -1,4 +1,4 @@
-import { cityDate, dateKey } from './model';
+import { cityDate, dateKey, pad } from './model';
 
 export const WORK_MINUTES = 8 * 60;
 
@@ -37,3 +37,12 @@ export function workdayState(city, now, startedAt) {
   if (startedAt !== null && dateKey(cityDate(city, new Date(startedAt))) === dateKey(local)) return { type: 'rest' };
   return { type: 'idle' };
 }
+
+// Whole minutes worked so far for the 8-hour bar, clamped to the session. Seconds are
+// ignored like in the countdown, so worked + remaining is always exactly 8 hours.
+export function workProgress(startedAt, nowMs) {
+  const minutes = Math.min(WORK_MINUTES, Math.max(0, (workStartAt(nowMs) - startedAt) / 60000));
+  return { minutes, fraction: minutes / WORK_MINUTES };
+}
+
+export const workedText = (minutes) => `${Math.floor(minutes / 60)}:${pad(minutes % 60)}`;

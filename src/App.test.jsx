@@ -137,3 +137,37 @@ describe('zoom overflow check in the flip look', () => {
     expect(stageOverflows(stage(780))).toBe(true);
   });
 });
+
+describe('left-half layout', () => {
+  it('puts the second city and the work session side by side below the main clock', () => {
+    for (const clockStyle of ['classic', 'flip']) {
+      const markup = render({ clockStyle });
+      expect(markup).toMatch(/<div class="primary-clock"><div class="city-heading">[\s\S]*<div class="primary-time">/);
+      expect(markup).toMatch(/<\/div><div class="clock-tiles"><div class="second-clock clock-tile">[\s\S]*<section class="workday-block clock-tile"/);
+      // The second city's sun times sit on their own line under the name and weather row.
+      expect(markup).toMatch(/second-clock clock-tile"><div class="city-heading city-heading--stacked">[\s\S]*?<\/div><\/div><div class="city-sun">/);
+    }
+  });
+  it('keeps the same tiles in fullscreen time mode', () => {
+    const markup = render({ showFeeds: false, clockStyle: 'flip' });
+    expect(markup).toContain('stage--fullscreen');
+    expect(markup).toContain('<div class="clock-tiles">');
+  });
+});
+
+describe('zoom overflow check for the tiles', () => {
+  const box = (right, bottom, width = 10) => ({ getBoundingClientRect: () => ({ right, bottom, width }) });
+  it('flags tile cards that run past their own tile', () => {
+    const stage = (timeRight) => {
+      const tile = { ...box(500, 1000), querySelectorAll: (selector) => (selector === '.clock-tile-time' ? [box(timeRight, 900)] : []) };
+      return {
+        className: 'stage',
+        getBoundingClientRect: () => ({ right: 1448, bottom: 1072 }),
+        querySelector: (selector) => (selector === '.clock-panel' ? box(724, 1072) : null),
+        querySelectorAll: (selector) => (selector === '.clock-tile' ? [tile] : []),
+      };
+    };
+    expect(stageOverflows(stage(490))).toBe(false);
+    expect(stageOverflows(stage(530))).toBe(true);
+  });
+});

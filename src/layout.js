@@ -25,14 +25,16 @@ export function viewportLayout(rawWidth, rawHeight, rotation = 'auto', showFeeds
 
 export function primaryTimeFontSize(width, height, showFeeds = true, zoom = 100) {
   // Keep a little horizontal headroom for the wider Arial fallback as well.
-  const size = showFeeds ? Math.min(width * .17, height * .30) : Math.min(width * .23, height * (width < 650 ? .27 : .31));
+  const size = showFeeds ? Math.min(width * .17, height * .30) : Math.min(width * .25, height * (width < 650 ? .27 : .33));
   return size * zoom / 100;
 }
 
 // The flip look puts three fixed-width cards (hours | minutes | seconds) where the classic
 // clock puts HH:MM, so it needs a smaller font: about 4em of cards must fit the column.
 // Card height (1.2em) stays close to the classic digit height (.8em of primaryTimeFontSize).
+// The split layout is limited by the column width, not height; fullscreen grew in issue #15 because
+// the second city and work session now share one row of tiles.
 export function flipTimeFontSize(width, height, showFeeds = true, zoom = 100) {
-  const size = showFeeds ? Math.min(width * .105, height * .19) : Math.min(width * .2, height * (width < 650 ? .18 : .205));
+  const size = showFeeds ? Math.min(width * .108, height * .19) : Math.min(width * .2, height * (width < 650 ? .18 : .23));
   return size * zoom / 100;
 }

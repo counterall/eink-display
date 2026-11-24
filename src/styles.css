@@ -10,13 +10,19 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .theme-toggle { position: absolute; top: .65em; right: .65em; z-index: 2; }
 .theme-toggle .icon-button { width: 2.4em; height: 2.4em; }
 .dashboard { height: 100%; padding: 2.1em 2.3em; display: flex; }
-.clock-panel { width: 50%; min-width: 0; padding-right: 2em; display: flex; flex-direction: column; }
+.clock-panel { width: 50%; min-width: 0; padding-right: 1.4em; display: flex; flex-direction: column; }
 .date-header { display: flex; align-items: baseline; flex-wrap: wrap; padding-bottom: 1.4em; font-size: 1.02em; line-height: 1.6; }
 .date-header > span { white-space: nowrap; }
 .lunar-date, .date-after-lunar { margin-left: .35em; }
 .solar-term { margin-left: .6em; }
 .eyebrow { display: block; font-size: .7em; letter-spacing: .12em; line-height: 1.4; }
-.primary-clock { flex: 1; display: flex; flex-direction: column; justify-content: flex-start; padding: .5em 0; }
+/* Left half (issue #15): main clock on top, its cards centred in the height left over; below it a
+   row of two equal tiles (second city | work session) split by thin rules. */
+.primary-clock { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: .5em 0 .9em; }
+.primary-time { flex: 1; min-height: 0; display: flex; align-items: center; }
+.primary-time .time-display, .primary-time .flip-clock--primary { align-self: center; }
+.clock-tiles { display: flex; flex-shrink: 0; border-top: 1px solid #111; padding-top: .8em; }
+.clock-tile { width: 50%; min-width: 0; }
 .city-heading { width: 100%; flex-shrink: 0; }
 .city-heading-row { display: flex; align-items: center; position: relative; margin-top: .28em; min-height: 1.9em; }
 .city-name { font-size: 1.55em; font-weight: 500; line-height: 1.2; margin: 0; white-space: nowrap; }
@@ -35,35 +41,36 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .time-hours, .time-minutes { letter-spacing: 0; flex-shrink: 0; }
 .time-colon { margin: 0 .05em; flex-shrink: 0; }
 .time-period { display: block; font-size: .13em; font-weight: 600; letter-spacing: .08em; line-height: 1.2; text-align: right; margin-top: .15em; }
-.second-clock { display: flex; flex-direction: column; align-items: flex-start; width: 100%; margin-top: .35em; flex-shrink: 0; }
-.second-time-row { display: flex; align-items: baseline; flex-wrap: wrap; margin-top: .3em; }
-.second-time-row > strong { display: inline-flex; align-items: baseline; font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 4.8em; line-height: 1.05; font-weight: 600; font-variant-numeric: tabular-nums; }
+.second-clock { display: flex; flex-direction: column; align-items: flex-start; padding-right: 1.1em; }
+/* Both tiles stretch to the row height and push their cards to the bottom, so the second-city
+   and countdown cards line up. */
+.city-heading--stacked .city-name { font-size: 1.3em; }
+.city-heading--stacked .city-sun { position: static; transform: none; margin-top: .3em; font-size: .85em; }
+.second-time-row { display: flex; align-items: center; flex-wrap: wrap; margin-top: auto; padding-top: .45em; }
+.second-time-row > strong, .work-countdown { display: inline-flex; align-items: baseline; font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 3.4em; line-height: 1.05; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .second-clock strong small { font-size: .3em; margin-left: .35em; }
-.second-date { font-size: .8em; margin-left: 1em; }
-.workday-block { width: 100%; margin-top: 1em; flex-shrink: 0; }
-.work-meta { display: flex; align-items: baseline; flex-wrap: wrap; font-size: .9em; line-height: 1.2; }
-.work-meta-detail { margin-left: .6em; }
-.work-active { display: flex; align-items: center; margin-top: .1em; }
-.work-caption { font-size: 1.4em; margin-right: .55em; }
-.work-countdown { display: flex; align-items: baseline; font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 4.8em; font-weight: 600; line-height: 1.05; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.work-start { font-size: 1.6em; min-height: 44px; padding: .35em 1.2em; margin-top: .3em; border: 1px solid #111; }
-.work-message { font-size: 2.8em; font-weight: 500; line-height: 1.15; margin: .2em 0 0; }
-.work-message:lang(en) { font-size: 2em; line-height: 1.2; }
+.second-date, .work-caption { font-size: .8em; margin-left: .6em; white-space: nowrap; }
+.workday-block { display: flex; flex-direction: column; padding-left: 1.1em; border-left: 1px solid #111; }
+.work-progress { margin-top: .5em; }
+.work-bar { height: .55em; border: 1px solid #111; background: #fff; overflow: hidden; }
+.work-bar-fill { height: 100%; background: #111; }
+.work-bar-labels { display: flex; justify-content: space-between; font-size: .7em; line-height: 1.3; margin-top: .3em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.work-worked { padding: 0 .5em; }
+.work-active { display: flex; align-items: center; margin-top: auto; padding-top: .45em; }
+.work-start { font-size: 1.3em; min-height: 44px; padding: .35em 1.1em; margin-top: .4em; border: 1px solid #111; }
+.work-message { font-size: 1.9em; font-weight: 500; line-height: 1.2; margin: .3em 0 0; }
+.work-message:lang(en) { font-size: 1.4em; line-height: 1.25; }
 .stage--fullscreen .clock-panel { width: 100%; padding-right: 0; }
-.stage--fullscreen .primary-clock { padding: .3em 0; }
-.stage--fullscreen .time-display { display: flex; align-items: baseline; align-self: center; line-height: .8; padding: .04em 0; }
+.stage--fullscreen .primary-clock { padding: .3em 0 .7em; }
+.stage--fullscreen .primary-time { justify-content: center; }
+.stage--fullscreen .time-display { display: flex; align-items: baseline; line-height: .8; padding: .04em 0; }
 .stage--fullscreen .time-period { margin: 0 0 0 .45em; }
-.stage--fullscreen .second-clock { margin-top: .15em; }
-.stage--fullscreen .second-time-row { align-self: center; }
-.stage--fullscreen .work-meta, .stage--fullscreen .work-active { justify-content: center; }
-.stage--fullscreen .work-message { text-align: center; }
-.stage--fullscreen .workday-block { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; margin-top: .6em; }
-.stage--fullscreen .work-meta { font-size: 1em; }
-.stage--fullscreen .work-active { align-items: baseline; margin-top: .1em; }
-.stage--fullscreen .work-caption { font-size: 2em; margin-right: .5em; }
-.stage--fullscreen .work-countdown { font-size: 5.4em; line-height: .9; }
-.stage--fullscreen .work-message { font-size: 3.6em; margin-top: .3em; }
-.stage--fullscreen .work-message:lang(en) { font-size: 2.6em; }
+.stage--fullscreen .second-clock { padding-right: 1.6em; }
+.stage--fullscreen .workday-block { padding-left: 1.6em; }
+.stage--fullscreen .second-time-row > strong, .stage--fullscreen .work-countdown { font-size: 4.4em; }
+.stage--fullscreen .second-date, .stage--fullscreen .work-caption { font-size: 1em; }
+.stage--fullscreen .work-message { font-size: 2.6em; }
+.stage--fullscreen .work-message:lang(en) { font-size: 1.9em; }
 .stage--fullscreen .date-header { min-height: 2.8em; padding-right: 17em; padding-bottom: .4em; }
 .stage--fullscreen .clock-footer { position: absolute; top: 2.1em; right: calc(44px + 2.4em); padding-top: 0; }
 .stage--fullscreen .clock-footer .icon-button { width: 2.5em; height: 2.5em; }
@@ -125,9 +132,8 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .break-panel .break-countdown { font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 4.5em; font-weight: 600; line-height: 1.1; margin: .2em 0 0; font-variant-numeric: tabular-nums; }
 .settings-panel a { color: #111; font-size: .7em; margin-left: 1em; }
 .compact .dashboard { padding: 1.4em 1.6em; }
-.compact .clock-panel { padding-right: 1.5em; }
+.compact .clock-panel { padding-right: 1.2em; }
 .compact .primary-clock { padding: .3em 0; }
-.compact .workday-block { margin-top: .8em; }
 .compact.stage--fullscreen .primary-clock { padding: .3em 0; }
 .compact.stage--fullscreen .date-header { min-height: calc(44px + .9em); padding-right: calc(5 * 44px + 3 * .8em + 9em); }
 .stage--fullscreen .actions { flex-wrap: nowrap; }
@@ -146,6 +152,9 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.theme--dark .settings-panel header, .stage.theme--dark .settings-panel .display-info, .stage.theme--dark .settings-panel button, .stage.theme--dark .settings-fields select, .stage.theme--dark .break-field select { border-color: #fff; }
 .stage.theme--dark .filled-button { color: #000; background: #fff; }
 .stage.theme--dark .work-start { border-color: #fff; }
+.stage.theme--dark .clock-tiles, .stage.theme--dark .workday-block, .stage.theme--dark .work-bar { border-color: #fff; }
+.stage.theme--dark .work-bar { background: #000; }
+.stage.theme--dark .work-bar-fill { background: #fff; }
 /* Soft colored light themes for normal monitors (issue #11). Each block repeats the same rules with
    one palette, because CSS variables are not available on the Kindle targets. Order per palette:
    page background, card, text, secondary text, accent, border/rule. */
@@ -171,6 +180,10 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.theme--sky .filled-button, .stage.theme--sky .settings-panel .filled-button, .stage.theme--sky .work-start { color: #fff; background: #2e6aac; border-color: #2e6aac; }
 .stage.theme--sky .break-progress { border-color: #c9d8ea; background: #ffffff; }
 .stage.theme--sky .break-progress-fill { background: #2e6aac; }
+.stage.theme--sky .clock-tiles, .stage.theme--sky .workday-block { border-color: #c9d8ea; }
+.stage.theme--sky .work-bar { border-color: #c9d8ea; background: #ffffff; }
+.stage.theme--sky .work-bar-fill { background: #2e6aac; }
+.stage.theme--sky .work-bar-labels, .stage.theme--sky .work-caption { color: #56697f; }
 /* Sage (green) */
 :root.theme--sage { color: #203427; background: #eef5ec; }
 .stage.theme--sage { color: #203427; background: #eef5ec; }
@@ -193,6 +206,10 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.theme--sage .filled-button, .stage.theme--sage .settings-panel .filled-button, .stage.theme--sage .work-start { color: #fff; background: #37754c; border-color: #37754c; }
 .stage.theme--sage .break-progress { border-color: #cfe0cc; background: #ffffff; }
 .stage.theme--sage .break-progress-fill { background: #37754c; }
+.stage.theme--sage .clock-tiles, .stage.theme--sage .workday-block { border-color: #cfe0cc; }
+.stage.theme--sage .work-bar { border-color: #cfe0cc; background: #ffffff; }
+.stage.theme--sage .work-bar-fill { background: #37754c; }
+.stage.theme--sage .work-bar-labels, .stage.theme--sage .work-caption { color: #566b5c; }
 /* Lavender (purple) */
 :root.theme--lavender { color: #2c2541; background: #f3f0fa; }
 .stage.theme--lavender { color: #2c2541; background: #f3f0fa; }
@@ -215,6 +232,10 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.theme--lavender .filled-button, .stage.theme--lavender .settings-panel .filled-button, .stage.theme--lavender .work-start { color: #fff; background: #6a4ca6; border-color: #6a4ca6; }
 .stage.theme--lavender .break-progress { border-color: #dcd4ee; background: #ffffff; }
 .stage.theme--lavender .break-progress-fill { background: #6a4ca6; }
+.stage.theme--lavender .clock-tiles, .stage.theme--lavender .workday-block { border-color: #dcd4ee; }
+.stage.theme--lavender .work-bar { border-color: #dcd4ee; background: #ffffff; }
+.stage.theme--lavender .work-bar-fill { background: #6a4ca6; }
+.stage.theme--lavender .work-bar-labels, .stage.theme--lavender .work-caption { color: #655d80; }
 /* Mint (teal) */
 :root.theme--mint { color: #1c3634; background: #eaf5f3; }
 .stage.theme--mint { color: #1c3634; background: #eaf5f3; }
@@ -237,16 +258,18 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage.theme--mint .filled-button, .stage.theme--mint .settings-panel .filled-button, .stage.theme--mint .work-start { color: #fff; background: #1d7870; border-color: #1d7870; }
 .stage.theme--mint .break-progress { border-color: #c5e1dc; background: #ffffff; }
 .stage.theme--mint .break-progress-fill { background: #1d7870; }
+.stage.theme--mint .clock-tiles, .stage.theme--mint .workday-block { border-color: #c5e1dc; }
+.stage.theme--mint .work-bar { border-color: #c5e1dc; background: #ffffff; }
+.stage.theme--mint .work-bar-fill { background: #1d7870; }
+.stage.theme--mint .work-bar-labels, .stage.theme--mint .work-caption { color: #526d69; }
 /* Flip-clock look (issue #13), chosen in Settings; the classic look above is untouched. Cards
    have fixed widths so changing digits never moves the layout. The flip animation is a
    progressive enhancement for normal monitors: the resting layers already show the new value,
    so browsers without 3D transforms or animations (or with reduced motion) just switch digits. */
 .flip-clock { display: inline-flex; align-items: flex-start; white-space: nowrap; font-family: 'Roboto Condensed', Arial, sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; flex-shrink: 0; }
 .flip-clock--primary { align-self: flex-start; margin: .04em 0; }
-.flip-clock--second { font-size: 3.7em; }
-.flip-clock--work { font-size: 3.7em; }
-.stage--fullscreen .flip-clock--primary { align-self: center; }
-.stage--fullscreen .flip-clock--work { font-size: 4.2em; }
+.flip-clock--second, .flip-clock--work { font-size: 3.1em; }
+.stage--fullscreen .flip-clock--second, .stage--fullscreen .flip-clock--work { font-size: 3.8em; }
 .flip-card { position: relative; display: block; width: 1.25em; height: 1.2em; flex-shrink: 0; color: #f2f2f2; perspective: 4em; }
 .flip-card + .flip-card { margin-left: .12em; }
 .flip-half { position: absolute; left: 0; right: 0; height: .6em; overflow: hidden; background: #222; }

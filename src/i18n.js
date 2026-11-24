@@ -52,8 +52,8 @@ export const TRENDING_TEXT = {
 };
 
 export const WORKDAY_TEXT = {
-  zh: { title: '工作时间', until: '离下班还有', rest: '下班啦 好好休息！', weekend: '周末啦 不用上班！', start: '开始工作' },
-  en: { title: 'Work hours', until: 'Off work in', rest: 'Work is over. Enjoy your rest!', weekend: 'It’s the weekend. No work today!', start: 'Start work' },
+  zh: { title: '工作时间', until: '离下班还有', toGo: '后下班', worked: '已工作', rest: '下班啦 好好休息！', weekend: '周末啦 不用上班！', start: '开始工作' },
+  en: { title: 'Work hours', until: 'Off work in', toGo: 'to go', worked: 'worked', rest: 'Work is over. Enjoy your rest!', weekend: 'It’s the weekend. No work today!', start: 'Start work' },
 };
 
 export const THEME_TEXT = {
