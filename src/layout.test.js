@@ -82,13 +82,30 @@ describe('flip clock sizing', () => {
   it.each([[1448, 1072], [1121, 743], [724, 536], [600, 400]])('fits three cards in the left column at %s × %s', (w, h) => {
     const layout = viewportLayout(w, h, 'none', true);
     const base = layout.style.fontSize;
-    const column = w / 2 - (2.3 + 2) * base; // dashboard padding + clock-panel padding (compact uses less)
+    const column = w / 2 - (2.3 + 1.4) * base; // dashboard padding + clock-panel padding (compact uses less)
     expect(width(flipTimeFontSize(w, h, true), 3)).toBeLessThanOrEqual(column);
   });
   it.each([[1448, 1072], [1121, 743], [724, 536]])('fits three cards across the fullscreen page at %s × %s', (w, h) => {
     const base = viewportLayout(w, h, 'none', false).style.fontSize;
     expect(width(flipTimeFontSize(w, h, false), 3)).toBeLessThanOrEqual(w - 2 * 2.3 * base);
     expect(flipTimeFontSize(w, h, false)).toBeGreaterThan(flipTimeFontSize(w, h, true));
+  });
+  it('grows the main cards now that the tiles free height (issue #15)', () => {
+    expect(flipTimeFontSize(1448, 1072, true)).toBeGreaterThan(1448 * .105);
+    expect(flipTimeFontSize(1448, 1072, false)).toBeGreaterThan(1072 * .205);
+    expect(primaryTimeFontSize(1448, 1072, false)).toBeGreaterThan(1072 * .31);
+    expect(primaryTimeFontSize(1448, 1072, true)).toBeGreaterThan(1448 * .17);
+  });
+  it.each([[1448, 1072, true], [600, 400, true], [1448, 1072, false]])('fits the tile time and the 今天 / MM-DD label in a half-width tile at %s × %s (feeds %s)', (w, h, showFeeds) => {
+    const base = viewportLayout(w, h, 'none', showFeeds).style.fontSize;
+    const column = showFeeds ? w / 2 - (2.3 + 1.4) * base : w - 2 * 2.3 * base;
+    const tile = column / 2 - (showFeeds ? 1.1 : 1.6) * base; // .second-clock padding-right
+    const cards = width((showFeeds ? 3.1 : 3.8) * base, 2);
+    // Classic 12-hour: Roboto Condensed HH:MM (2.38em) + AM/PM (.3em text, .35em margin, at the digit size).
+    const classic = (showFeeds ? 3.3 : 4.4) * base * (2.38 + .3 * (1.2 + .35));
+    const label = (showFeeds ? .8 : 1) * base * (.6 + 2.6); // margin + "11-25" in Arial (wider than 今天)
+    expect(cards + label).toBeLessThanOrEqual(tile);
+    expect(classic + label).toBeLessThanOrEqual(tile);
   });
   it('scales with zoom like the classic clock', () => {
     expect(flipTimeFontSize(1448, 1072, true, 130)).toBeCloseTo(flipTimeFontSize(1448, 1072, true) * 1.3);

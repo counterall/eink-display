@@ -37,6 +37,11 @@ export function stageOverflows(stage) {
   // Flip cards are wider than the classic digits; keep them out of the Trending column.
   const panel = stage.querySelector('.clock-panel');
   if (panel && overflows(panel.getBoundingClientRect(), stage.querySelectorAll('.flip-clock'))) return true;
+  // The second-city and work tiles sit side by side: their time must not run into the neighbour.
+  const tiles = stage.querySelectorAll('.clock-tile');
+  for (let i = 0; i < tiles.length; i++) {
+    if (overflows(tiles[i].getBoundingClientRect(), tiles[i].querySelectorAll('.clock-tile-time'))) return true;
+  }
   const card = stage.querySelector('.feeds-panel');
   const carded = CARD_THEMES.some((theme) => (` ${stage.className} `).indexOf(` theme--${theme} `) !== -1);
   return Boolean(card && carded && overflows(card.getBoundingClientRect(), stage.querySelectorAll('.feeds-panel *')));
@@ -120,19 +125,24 @@ export default function App() {
         </header>
         <div className="primary-clock">
           <CityHeading city={primary} entry={entries[primary.id]} now={now} language={settings.language} format={settings.format} label={t.primary} primary t={t} />
-          {flip
-            ? <LiveFlipClock city={primary} cityLabel={cityName(primary, settings.language)} format={settings.format} fontSize={flipTimeFontSize(viewport.width, viewport.height, settings.showFeeds, settings.zoom)} />
-            : <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, settings.showFeeds, settings.zoom)} />}
-          <div className="second-clock">
-            <CityHeading city={secondary} entry={entries[secondary.id]} now={now} language={settings.language} format={settings.format} label={t.secondary} t={t} />
+          <div className="primary-time">
+            {flip
+              ? <LiveFlipClock city={primary} cityLabel={cityName(primary, settings.language)} format={settings.format} fontSize={flipTimeFontSize(viewport.width, viewport.height, settings.showFeeds, settings.zoom)} />
+              : <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, settings.showFeeds, settings.zoom)} />}
+          </div>
+        </div>
+        <div className="clock-tiles">
+          <div className="second-clock clock-tile">
+            <CityHeading city={secondary} entry={entries[secondary.id]} now={now} language={settings.language} format={settings.format} label={t.secondary} stacked t={t} />
             <div className="second-time-row">
               {flip
-                ? <FlipClock className="flip-clock--second" label={secondaryLabel} parts={flipParts(secondaryDate, settings.format)} />
-                : <strong role="img" aria-label={secondaryLabel}>
+                ? <FlipClock className="flip-clock--second clock-tile-time" label={secondaryLabel} parts={flipParts(secondaryDate, settings.format)} />
+                : <strong className="clock-tile-time" role="img" aria-label={secondaryLabel}>
                   <TimeDigits digits={secondaryTime.digits} />
                   {secondaryTime.period && <small aria-hidden="true">{secondaryTime.period}</small>}
                 </strong>}
-              <span className="second-date">{sameDay ? t.today : dateKey(secondaryDate)}</span>
+              {/* A different calendar day shows the date as two short lines (year / MM-DD) so it fits beside the cards in the half-width tile. */}
+              <span className="second-date">{sameDay ? t.today : <><span>{dateKey(secondaryDate).slice(0, 4)}</span><span>{dateKey(secondaryDate).slice(5)}</span></>}</span>
             </div>
           </div>
           <WorkdayBlock city={primary} now={now} language={settings.language} startedAt={work.startedAt} onStart={startWork} clockStyle={settings.clockStyle} />
