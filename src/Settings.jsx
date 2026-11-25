@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { CITIES, CLOCK_STYLES, THEMES, cityName, withTheme } from './model';
+import { notificationPermission, notificationsSupported, requestNotificationPermission } from './notifications';
 
 export default function Settings({ settings, setSettings, close, viewport, t }) {
   const first = useRef(null);
@@ -8,6 +9,14 @@ export default function Settings({ settings, setSettings, close, viewport, t }) 
   const breakNowRef = useRef(false);
   breakNowRef.current = breakNow;
   const finish = () => close({ breakNow: breakNowRef.current });
+  // Desktop only: the row is absent where there is no Notification API (Kindle).
+  const [permission, setPermission] = useState(notificationPermission);
+  const notifyOn = settings.breakNotification && permission === 'granted';
+  const changeNotification = (on) => {
+    if (!on || permission === 'granted') { change('breakNotification', on); return; }
+    // Asked from this user gesture; the setting only turns on once granted.
+    requestNotificationPermission((result) => { setPermission(result); change('breakNotification', result === 'granted'); });
+  };
   useEffect(() => {
     const previous = document.activeElement;
     first.current.focus();
@@ -40,6 +49,8 @@ export default function Settings({ settings, setSettings, close, viewport, t }) 
         <label>{t.theme}<select value={settings.theme} onChange={(event) => change('theme', event.target.value)}>{THEMES.map((key) => <option key={key} value={key}>{t[`theme_${key}`]}</option>)}</select></label>
         <label>{t.clockStyle}<select value={settings.clockStyle} onChange={(event) => change('clockStyle', event.target.value)}>{CLOCK_STYLES.map((key) => <option key={key} value={key}>{t[`clock_${key}`]}</option>)}</select></label>
         <label>{t.breakReminder}<select value={breakNow ? 'now' : settings.breakReminder ? 'on' : 'off'} onChange={(event) => { const value = event.target.value; setBreakNow(value === 'now'); change('breakReminder', value !== 'off'); }}><option value="off">{t.off}</option><option value="on">{t.on}</option><option value="now">{t.breakNow}</option></select></label>
+        {settings.breakReminder && notificationsSupported() && <label>{t.breakNotification}<select value={notifyOn ? 'on' : 'off'} onChange={(event) => changeNotification(event.target.value === 'on')}><option value="off">{t.off}</option><option value="on">{t.on}</option></select></label>}
+        {settings.breakReminder && permission === 'denied' && <p className="settings-hint">{t.notificationBlocked}</p>}
       </div>
       <p>{t.note}</p><p>{t.lofoten}</p>
       <p className="display-info">{t.displayReference}<br />{t.viewport}: {Math.round(viewport.viewportWidth)} × {Math.round(viewport.viewportHeight)} CSS px · {t.layout}: {Math.round(viewport.width)} × {Math.round(viewport.height)} · {t.pixelRatio}: {window.devicePixelRatio || 1}</p>

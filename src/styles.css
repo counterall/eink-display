@@ -112,6 +112,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .settings-fields label { display: block; width: 50%; padding: .6em .7em .6em 0; font-size: .9em; }
 .settings-fields select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; border: 1px solid #111; background: #fff; }
 .settings-fields .wide-field { width: 100%; }
+.settings-fields .settings-hint { width: 100%; margin: 0 0 .3em; }
 .settings-panel p { font-size: .75em; line-height: 1.6; margin: .65em 0; }
 .settings-panel .display-info { border-top: 1px solid #111; padding-top: .65em; }
 .settings-panel footer { display: flex; align-items: center; justify-content: space-between; margin-top: 1em; }

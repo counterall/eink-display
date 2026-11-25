@@ -25,11 +25,12 @@ export function remainingMinutes(endsAt, nowMs) {
 }
 
 export function normalizeBreakState(value) {
-  const state = { closedAt: null, endsAt: null, duration: null };
+  const state = { closedAt: null, endsAt: null, duration: null, notifiedFor: null };
   if (!value || typeof value !== 'object') return state;
   if (Number.isFinite(value.closedAt)) state.closedAt = value.closedAt;
   if (Number.isFinite(value.endsAt)) state.endsAt = value.endsAt;
   if (BREAK_DURATIONS.includes(value.duration)) state.duration = value.duration;
+  if (Number.isFinite(value.notifiedFor)) state.notifiedFor = value.notifiedFor;
   return state;
 }
 
@@ -38,4 +39,11 @@ export function elapsedPercent(endsAt, duration, nowMs) {
   if (!Number.isFinite(endsAt) || !duration) return 0;
   const total = duration * 60000;
   return Math.min(100, Math.max(0, (total - (endsAt - nowMs)) / total * 100));
+}
+
+// A desktop notification for the scheduled reminder that just became due
+// (`dueAt`), at most once per reminder (`notifiedFor` is the due time already
+// handled) and only while the dashboard is out of view.
+export function shouldNotifyBreak({ dueAt, notifiedFor, enabled, permission, visible }) {
+  return Boolean(enabled) && permission === 'granted' && !visible && dueAt !== null && dueAt !== undefined && dueAt !== notifiedFor;
 }

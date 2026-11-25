@@ -1,12 +1,26 @@
 import { useEffect, useState } from 'react';
 import { readStored, writeStored } from './model';
-import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, remainingMinutes } from './breaks';
+import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, remainingMinutes, shouldNotifyBreak } from './breaks';
+import { notificationPermission, pageInView, showBreakNotification } from './notifications';
 
 export const BREAK_KEY = 'kindle-break-v1';
 
+// Run once when a scheduled reminder becomes due (`dueAt`): shows the desktop
+// notification if the page is out of view and returns the due time to store as
+// handled, or null when this reminder was already handled by this tab.
+// Another open tab may have handled it already, so the saved state is checked too.
+export function notifyDueBreak(dueAt, handledFor, notification) {
+  if (dueAt === null || handledFor === dueAt) return null;
+  const { notifiedFor } = normalizeBreakState(readStored(BREAK_KEY));
+  if (shouldNotifyBreak({ dueAt, notifiedFor, enabled: notification.enabled, permission: notificationPermission(), visible: pageInView() })) showBreakNotification(notification.title);
+  return dueAt;
+}
+
 // Owns the reminder lifecycle. `now` is the app's minute clock; the running
 // break and the next due reminder keep their own timers so they don't wait for it.
-export default function useBreakReminder(enabled, startedAt, now) {
+// `notification` ({ enabled, title }) adds a desktop notification for the
+// scheduled reminder when the page is out of view.
+export default function useBreakReminder(enabled, startedAt, now, notification = { enabled: false, title: '' }) {
   const [state, setState] = useState(() => normalizeBreakState(readStored(BREAK_KEY)));
   const [nowMs, setNowMs] = useState(Date.now());
   useEffect(() => { writeStored(BREAK_KEY, state); }, [state]);
@@ -34,6 +48,16 @@ export default function useBreakReminder(enabled, startedAt, now) {
     const timer = setTimeout(() => setNowMs(Date.now()), nextAt - Date.now() + 20);
     return () => clearTimeout(timer);
   }, [nextAt]);
+
+  // Decided once per scheduled reminder, when it becomes due: notify if the page
+  // is out of view, then remember that due time (also when the page was in view)
+  // so a reload or a second tab never notifies for it again. The "Now" prompt
+  // and the "new day" window are not scheduled reminders and never notify.
+  const dueAt = due && !running ? nextBreakAt(startedAt, state.closedAt) : null;
+  useEffect(() => {
+    const handled = notifyDueBreak(dueAt, state.notifiedFor, notification);
+    if (handled !== null) setState((old) => ({ ...old, notifiedFor: handled }));
+  }, [dueAt]);
 
   // A one-off prompt requested from settings, independent of the hourly schedule.
   const [forced, setForced] = useState(false);

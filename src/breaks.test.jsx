@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import App, { SETTINGS_KEY, WORK_KEY } from './App';
 import BreakDialog from './BreakDialog';
-import { BREAK_KEY } from './useBreakReminder';
-import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, remainingMinutes } from './breaks';
+import { BREAK_KEY, notifyDueBreak } from './useBreakReminder';
+import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, remainingMinutes, shouldNotifyBreak } from './breaks';
 
 const ms = (iso) => new Date(iso).getTime();
 
@@ -37,6 +37,76 @@ describe('hourly loop anchored on when the window was last closed', () => {
   });
 });
 
+describe('break notification decision', () => {
+  const base = { dueAt: 1000, notifiedFor: null, enabled: true, permission: 'granted', visible: false };
+  it('notifies once for a due reminder while the page is out of view', () => {
+    expect(shouldNotifyBreak(base)).toBe(true);
+    expect(shouldNotifyBreak({ ...base, notifiedFor: 1000 })).toBe(false);
+    expect(shouldNotifyBreak({ ...base, notifiedFor: 500 })).toBe(true); // an earlier reminder
+  });
+  it('stays quiet when the page is in view', () => {
+    expect(shouldNotifyBreak({ ...base, visible: true })).toBe(false);
+  });
+  it('needs the setting, a granted permission and a due reminder', () => {
+    expect(shouldNotifyBreak({ ...base, enabled: false })).toBe(false);
+    expect(shouldNotifyBreak({ ...base, permission: 'default' })).toBe(false);
+    expect(shouldNotifyBreak({ ...base, permission: 'denied' })).toBe(false);
+    expect(shouldNotifyBreak({ ...base, permission: 'unsupported' })).toBe(false);
+    expect(shouldNotifyBreak({ ...base, dueAt: null })).toBe(false);
+  });
+});
+
+describe('notifying a due reminder', () => {
+  const on = { enabled: true, title: 'Take a break ☕' };
+  let shown, store;
+  function setup({ permission = 'granted', hidden = true, focused = false, saved = null } = {}) {
+    shown = [];
+    store = { [BREAK_KEY]: saved ? JSON.stringify(saved) : null };
+    function Notification(title, options) { shown.push({ title, options }); }
+    Notification.permission = permission;
+    vi.stubGlobal('window', { Notification, focus: () => {} });
+    vi.stubGlobal('document', { hidden, hasFocus: () => focused });
+    vi.stubGlobal('localStorage', { getItem: (key) => store[key] ?? null, setItem: () => {} });
+  }
+  afterEach(() => { vi.unstubAllGlobals(); });
+
+  it('shows one tagged notification when out of view and marks the reminder handled', () => {
+    setup();
+    expect(notifyDueBreak(1000, null, on)).toBe(1000);
+    expect(shown).toEqual([{ title: 'Take a break ☕', options: { tag: 'kindle-break' } }]);
+    expect(notifyDueBreak(1000, 1000, on)).toBeNull();
+    expect(shown).toHaveLength(1);
+  });
+  it('counts an unfocused but not hidden window as out of view', () => {
+    setup({ hidden: false, focused: false });
+    notifyDueBreak(1000, null, on);
+    expect(shown).toHaveLength(1);
+  });
+  it('marks a reminder that became due in view without notifying, so hiding later stays quiet', () => {
+    setup({ hidden: false, focused: true });
+    expect(notifyDueBreak(1000, null, on)).toBe(1000);
+    expect(shown).toHaveLength(0);
+    setup();
+    expect(notifyDueBreak(1000, 1000, on)).toBeNull();
+    expect(shown).toHaveLength(0);
+  });
+  it('skips a reminder another tab or an earlier load already notified', () => {
+    setup({ saved: { notifiedFor: 1000 } });
+    expect(notifyDueBreak(1000, null, on)).toBe(1000);
+    expect(shown).toHaveLength(0);
+  });
+  it('stays quiet when off, not granted, unsupported or nothing is due', () => {
+    setup();
+    notifyDueBreak(1000, null, { enabled: false, title: 'x' });
+    setup({ permission: 'denied' });
+    notifyDueBreak(1000, null, on);
+    expect(shown).toHaveLength(0);
+    vi.stubGlobal('window', {});
+    expect(() => notifyDueBreak(1000, null, on)).not.toThrow();
+    expect(notifyDueBreak(null, null, on)).toBeNull();
+  });
+});
+
 describe('break countdown arithmetic', () => {
   it('rounds the remaining time up to whole minutes and stops at zero', () => {
     const end = 10 * 60000;
@@ -47,11 +117,13 @@ describe('break countdown arithmetic', () => {
     expect(remainingMinutes(end, end + 5000)).toBe(0);
   });
   it('recovers from missing or corrupt saved state', () => {
-    expect(normalizeBreakState(null)).toEqual({ closedAt: null, endsAt: null, duration: null });
-    expect(normalizeBreakState({ closedAt: 'now', endsAt: 'soon', duration: 12 })).toEqual({ closedAt: null, endsAt: null, duration: null });
-    expect(normalizeBreakState({ closedAt: 5, endsAt: 1, duration: 15 })).toEqual({ closedAt: 5, endsAt: 1, duration: 15 });
+    expect(normalizeBreakState(null)).toEqual({ closedAt: null, endsAt: null, duration: null, notifiedFor: null });
+    expect(normalizeBreakState({ closedAt: 'now', endsAt: 'soon', duration: 12 })).toEqual({ closedAt: null, endsAt: null, duration: null, notifiedFor: null });
+    expect(normalizeBreakState({ closedAt: 5, endsAt: 1, duration: 15 })).toEqual({ closedAt: 5, endsAt: 1, duration: 15, notifiedFor: null });
+    expect(normalizeBreakState({ notifiedFor: 1234 }).notifiedFor).toBe(1234);
+    expect(normalizeBreakState({ notifiedFor: 'x' }).notifiedFor).toBeNull();
     // Saved state from the old o'clock schedule is dropped harmlessly.
-    expect(normalizeBreakState({ handledSlot: '2026-11-06-10' })).toEqual({ closedAt: null, endsAt: null, duration: null });
+    expect(normalizeBreakState({ handledSlot: '2026-11-06-10' })).toEqual({ closedAt: null, endsAt: null, duration: null, notifiedFor: null });
   });
   it('reports the elapsed share of the break for the progress bar', () => {
     const end = 10 * 60000;
