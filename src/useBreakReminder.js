@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { readStored, writeStored } from './model';
-import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, remainingMinutes, shouldNotifyBreak } from './breaks';
+import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, pendingDueAt, remainingMinutes, shouldNotifyBreak } from './breaks';
 import { notificationPermission, pageInView, showBreakNotification } from './notifications';
 
 export const BREAK_KEY = 'kindle-break-v1';
@@ -11,7 +11,10 @@ export const BREAK_KEY = 'kindle-break-v1';
 // Another open tab may have handled it already, so the saved state is checked too.
 export function notifyDueBreak(dueAt, handledFor, notification) {
   if (dueAt === null || handledFor === dueAt) return null;
-  const { notifiedFor } = normalizeBreakState(readStored(BREAK_KEY));
+  const stored = normalizeBreakState(readStored(BREAK_KEY));
+  const { notifiedFor } = stored;
+  // Saved right away (not only via the state effect) so a tab waking in the same moment sees it.
+  writeStored(BREAK_KEY, { ...stored, notifiedFor: dueAt });
   if (shouldNotifyBreak({ dueAt, notifiedFor, enabled: notification.enabled, permission: notificationPermission(), visible: pageInView() })) showBreakNotification(notification.title);
   return dueAt;
 }
@@ -53,7 +56,7 @@ export default function useBreakReminder(enabled, startedAt, now, notification =
   // is out of view, then remember that due time (also when the page was in view)
   // so a reload or a second tab never notifies for it again. The "Now" prompt
   // and the "new day" window are not scheduled reminders and never notify.
-  const dueAt = due && !running ? nextBreakAt(startedAt, state.closedAt) : null;
+  const dueAt = enabled ? pendingDueAt(startedAt, state, nowMs) : null;
   useEffect(() => {
     const handled = notifyDueBreak(dueAt, state.notifiedFor, notification);
     if (handled !== null) setState((old) => ({ ...old, notifiedFor: handled }));

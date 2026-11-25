@@ -20,6 +20,14 @@ export function breakDue(startedAt, closedAt, nowMs) {
   return due !== null && nowMs >= due && workActive(startedAt, nowMs);
 }
 
+// Due time of the scheduled reminder waiting to be handled, or null. Never
+// while a break is running or has just ended (`endsAt` not yet cleared): the
+// end of a break closes the window, so it must not count as a due reminder.
+export function pendingDueAt(startedAt, state, nowMs) {
+  if (state.endsAt !== null || !breakDue(startedAt, state.closedAt, nowMs)) return null;
+  return nextBreakAt(startedAt, state.closedAt);
+}
+
 export function remainingMinutes(endsAt, nowMs) {
   return Math.max(0, Math.ceil((endsAt - nowMs) / 60000));
 }

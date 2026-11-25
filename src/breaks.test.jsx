@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import App, { SETTINGS_KEY, WORK_KEY } from './App';
 import BreakDialog from './BreakDialog';
 import { BREAK_KEY, notifyDueBreak } from './useBreakReminder';
-import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, remainingMinutes, shouldNotifyBreak } from './breaks';
+import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, pendingDueAt, remainingMinutes, shouldNotifyBreak } from './breaks';
 
 const ms = (iso) => new Date(iso).getTime();
 
@@ -37,6 +37,24 @@ describe('hourly loop anchored on when the window was last closed', () => {
   });
 });
 
+describe('pending reminder for notifications', () => {
+  const startedAt = ms('2026-11-06T08:00:00Z');
+  const closedAt = ms('2026-11-06T09:00:00Z');
+  const state = (extra) => ({ ...normalizeBreakState({ closedAt }), ...extra });
+  it('is the due time of the scheduled reminder once it is due', () => {
+    expect(pendingDueAt(startedAt, state(), ms('2026-11-06T09:59Z'))).toBeNull();
+    expect(pendingDueAt(startedAt, state(), ms('2026-11-06T10:05Z'))).toBe(ms('2026-11-06T10:00Z'));
+  });
+  it('is never a running break or one that has just ended', () => {
+    // "Now" at 09:55 started a 10-minute break; the 10:00 reminder passed meanwhile.
+    expect(pendingDueAt(startedAt, state({ endsAt: ms('2026-11-06T10:05Z'), duration: 10 }), ms('2026-11-06T10:02Z'))).toBeNull();
+    expect(pendingDueAt(startedAt, state({ endsAt: ms('2026-11-06T10:05Z'), duration: 10 }), ms('2026-11-06T10:05:01Z'))).toBeNull();
+  });
+  it('is null outside a work session', () => {
+    expect(pendingDueAt(null, state(), ms('2026-11-06T10:05Z'))).toBeNull();
+  });
+});
+
 describe('break notification decision', () => {
   const base = { dueAt: 1000, notifiedFor: null, enabled: true, permission: 'granted', visible: false };
   it('notifies once for a due reminder while the page is out of view', () => {
@@ -58,15 +76,16 @@ describe('break notification decision', () => {
 
 describe('notifying a due reminder', () => {
   const on = { enabled: true, title: 'Take a break ☕' };
-  let shown, store;
+  let shown, store, stored;
   function setup({ permission = 'granted', hidden = true, focused = false, saved = null } = {}) {
     shown = [];
     store = { [BREAK_KEY]: saved ? JSON.stringify(saved) : null };
+    stored = () => JSON.parse(store[BREAK_KEY]);
     function Notification(title, options) { shown.push({ title, options }); }
     Notification.permission = permission;
     vi.stubGlobal('window', { Notification, focus: () => {} });
     vi.stubGlobal('document', { hidden, hasFocus: () => focused });
-    vi.stubGlobal('localStorage', { getItem: (key) => store[key] ?? null, setItem: () => {} });
+    vi.stubGlobal('localStorage', { getItem: (key) => store[key] ?? null, setItem: (key, value) => { store[key] = value; } });
   }
   afterEach(() => { vi.unstubAllGlobals(); });
 
@@ -74,6 +93,7 @@ describe('notifying a due reminder', () => {
     setup();
     expect(notifyDueBreak(1000, null, on)).toBe(1000);
     expect(shown).toEqual([{ title: 'Take a break ☕', options: { tag: 'kindle-break' } }]);
+    expect(stored().notifiedFor).toBe(1000); // saved at once for other tabs
     expect(notifyDueBreak(1000, 1000, on)).toBeNull();
     expect(shown).toHaveLength(1);
   });
