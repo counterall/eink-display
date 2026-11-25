@@ -6,7 +6,7 @@ export const CITIES = [
   { id: 'osaka', zh: '大阪', en: 'Osaka', lat: 34.6937, lon: 135.5023, zone: 'Asia/Tokyo', offset: 9 },
 ];
 
-export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', rotation: 'auto', showFeeds: true, theme: 'light', lightTheme: 'light', zoom: 100, breakReminder: false, clockStyle: 'classic' };
+export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', rotation: 'auto', showFeeds: true, theme: 'light', lightTheme: 'light', zoom: 100, breakReminder: false, breakNotification: false, clockStyle: 'classic' };
 export const CLOCK_STYLES = ['classic', 'flip'];
 // Page background per theme, also used for <meta name="theme-color">. The
 // inline bootstrap script in index.html repeats this table (tested to match).
@@ -99,6 +99,7 @@ export function normalizeSettings(value) {
   if (settings.theme !== 'dark') settings.lightTheme = settings.theme;
   if (Number.isFinite(value.zoom)) settings.zoom = clampZoom(value.zoom);
   if (typeof value.breakReminder === 'boolean') settings.breakReminder = value.breakReminder;
+  if (typeof value.breakNotification === 'boolean') settings.breakNotification = value.breakNotification;
   if (CLOCK_STYLES.includes(value.clockStyle)) settings.clockStyle = value.clockStyle;
   return settings;
 }

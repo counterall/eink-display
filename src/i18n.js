@@ -21,6 +21,7 @@ export const APP_TEXT = {
     rightColumn: '右侧资讯栏', show: '显示', hide: '隐藏（全屏时间）',
     zoomIn: '放大', zoomOut: '缩小',
     breakReminder: '休息提醒', on: '开', off: '关', breakNow: '立即',
+    breakNotification: '休息通知', notificationBlocked: '通知已被浏览器屏蔽，请在浏览器设置中允许本站通知。',
     theme: '主题', theme_light: '浅色', theme_dark: '深色', theme_sky: '天蓝', theme_sage: '鼠尾草绿', theme_lavender: '薰衣草紫', theme_mint: '薄荷绿',
     clockStyle: '时钟样式', clock_classic: '经典', clock_flip: '翻页',
   },
@@ -41,6 +42,7 @@ export const APP_TEXT = {
     rightColumn: 'Right-hand feeds', show: 'Show', hide: 'Hide (fullscreen time)',
     zoomIn: 'Zoom in', zoomOut: 'Zoom out',
     breakReminder: 'Break reminder', on: 'On', off: 'Off', breakNow: 'Now',
+    breakNotification: 'Break notification', notificationBlocked: 'Notifications are blocked. Allow them for this site in the browser settings.',
     theme: 'Theme', theme_light: 'Light', theme_dark: 'Dark', theme_sky: 'Sky', theme_sage: 'Sage', theme_lavender: 'Lavender', theme_mint: 'Mint',
     clockStyle: 'Clock style', clock_classic: 'Classic', clock_flip: 'Flip',
   },
@@ -62,6 +64,6 @@ export const THEME_TEXT = {
 };
 
 export const BREAK_TEXT = {
-  zh: { title: 'Take a break', duration: '休息时间', minutesSuffix: '分钟', later: '下次吧', start: '开始吧', resting: '继续休息', close: '关闭', progress: '已休息时间', welcome: '新的一天开始啦 注意休息呀' },
-  en: { title: 'Take a break', duration: 'Break length', minutesSuffix: ' min', later: 'Maybe later', start: 'Let’s go', resting: 'Keep resting', close: 'Close', progress: 'Break elapsed', welcome: 'A new day begins. Remember to take breaks!' },
+  zh: { title: 'Take a break', notification: 'Take a break ☕', duration: '休息时间', minutesSuffix: '分钟', later: '下次吧', start: '开始吧', resting: '继续休息', close: '关闭', progress: '已休息时间', welcome: '新的一天开始啦 注意休息呀' },
+  en: { title: 'Take a break', notification: 'Take a break ☕', duration: 'Break length', minutesSuffix: ' min', later: 'Maybe later', start: 'Let’s go', resting: 'Keep resting', close: 'Close', progress: 'Break elapsed', welcome: 'A new day begins. Remember to take breaks!' },
 };

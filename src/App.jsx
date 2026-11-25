@@ -3,7 +3,7 @@ import { ArrowRightLeft, Settings as SettingsIcon, ZoomIn, ZoomOut } from 'lucid
 import { THEMES, THEME_COLORS, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, clampZoom, cityById, cityDate, cityName, clock, dateKey, dateParts, flipParts, normalizeSettings, readStored, toggleTheme, weatherUpdateSummary, writeStored } from './model';
 import { lunarDateName, solarTermName } from './solarTerms';
 import { flipTimeFontSize, primaryTimeFontSize } from './layout';
-import { APP_TEXT, pick } from './i18n';
+import { APP_TEXT, BREAK_TEXT, pick } from './i18n';
 import useViewport from './useViewport';
 import useWeather from './useWeather';
 import IconButton from './IconButton';
@@ -75,7 +75,7 @@ export default function App() {
   const [welcome, setWelcome] = useState(false);
   // Refresh the minute clock too: a stale `now` would predate the new session.
   const startWork = () => { const clicked = new Date(); setNow(clicked); setWork({ startedAt: workStartAt(clicked.getTime()) }); setWelcome(true); };
-  const breakReminder = useBreakReminder(settings.breakReminder, work.startedAt, now);
+  const breakReminder = useBreakReminder(settings.breakReminder, work.startedAt, now, { enabled: settings.breakNotification, title: pick(BREAK_TEXT, settings.language).notification });
   const breakMode = welcome ? 'welcome' : breakReminder.mode;
   const breakOpen = !showSettings && breakMode !== null;
   const primaryDate = cityDate(primary, now), secondaryDate = cityDate(secondary, now);

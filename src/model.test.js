@@ -75,6 +75,9 @@ describe('settings and cache resilience', () => {
     expect(normalizeSettings({}).breakReminder).toBe(false);
     expect(normalizeSettings({ breakReminder: true }).breakReminder).toBe(true);
     expect(normalizeSettings({ breakReminder: 'true' }).breakReminder).toBe(false);
+    expect(normalizeSettings({}).breakNotification).toBe(false);
+    expect(normalizeSettings({ breakNotification: true }).breakNotification).toBe(true);
+    expect(normalizeSettings({ breakNotification: 1 }).breakNotification).toBe(false);
   });
   it('defaults to light mode and keeps theme separate from the feed visibility preference', () => {
     expect(normalizeSettings({}).theme).toBe('light');

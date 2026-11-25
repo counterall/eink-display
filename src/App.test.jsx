@@ -65,6 +65,22 @@ describe('settings dialog', () => {
     const markup = renderToStaticMarkup(<Settings settings={normalizeSettings({ breakReminder: true })} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT.zh} />);
     expect(markup).toContain('<option value="off">关</option><option value="on" selected="">开</option><option value="now">立即</option>');
   });
+  it('offers the break notification only where the Notification API exists and the reminder is on', () => {
+    const render = (settings, t = APP_TEXT.en) => renderToStaticMarkup(<Settings settings={normalizeSettings(settings)} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={t} />);
+    expect(render({ breakReminder: true })).not.toContain('Break notification'); // Kindle: no API
+    vi.stubGlobal('window', { Notification: { permission: 'granted' } });
+    try {
+      expect(render({ breakReminder: false })).not.toContain('Break notification');
+      expect(render({ breakReminder: true })).toContain('Break notification<select><option value="off" selected="">Off</option><option value="on">On</option></select>');
+      expect(render({ breakReminder: true, breakNotification: true })).toContain('<option value="on" selected="">On</option></select>');
+      expect(render({ breakReminder: true, breakNotification: true }, APP_TEXT.zh)).toContain('休息通知<select>');
+      window.Notification.permission = 'denied';
+      const denied = render({ breakReminder: true, breakNotification: true });
+      expect(denied).toContain('<option value="off" selected="">Off</option><option value="on">On</option></select>');
+      expect(denied).toContain(APP_TEXT.en.notificationBlocked);
+      expect(render({ breakReminder: true }, APP_TEXT.zh)).toContain(APP_TEXT.zh.notificationBlocked);
+    } finally { vi.unstubAllGlobals(); }
+  });
   it('offers the six themes with the current one selected', () => {
     const zh = renderToStaticMarkup(<Settings settings={normalizeSettings({ theme: 'sage' })} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT.zh} />);
     expect(zh).toContain('主题<select><option value="light">浅色</option><option value="dark">深色</option><option value="sky">天蓝</option><option value="sage" selected="">鼠尾草绿</option><option value="lavender">薰衣草紫</option><option value="mint">薄荷绿</option></select>');
