@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=weekly",
   "period": "weekly",
-  "generatedAt": "2026-11-25T06:29:51.575Z",
+  "generatedAt": "2026-11-25T14:08:49.777Z",
   "repositories": [
     {
       "rank": 1,
@@ -11,7 +11,7 @@
       "url": "https://github.com/backnotprop/plannotator",
       "description": "The workspace to stay in the loop and on top of agents - shape, decide, plan, annotate, review code, share with team, and send all feedback to agents with one click.",
       "language": "TypeScript",
-      "stars": 14949,
+      "stars": 15018,
       "weeklyStars": 1956
     },
     {
@@ -21,7 +21,7 @@
       "url": "https://github.com/google-labs-code/stitch-skills",
       "description": "A library of Agent Skills designed to work with the Stitch MCP server. Each skill follows the Agent Skills open standard, for compatibility with coding agents such as Antigravity, Gemini CLI, Claude Code, Cursor.",
       "language": "TypeScript",
-      "stars": 12758,
+      "stars": 12868,
       "weeklyStars": 2626
     },
     {
@@ -31,28 +31,28 @@
       "url": "https://github.com/GoogleChrome/modern-web-guidance-src",
       "description": "Keep your coding agent up to date with the latest web best practices",
       "language": "TypeScript",
-      "stars": 10881,
+      "stars": 10966,
       "weeklyStars": 2494
     },
     {
       "rank": 4,
+      "owner": "n8n-io",
+      "name": "nod",
+      "url": "https://github.com/n8n-io/nod",
+      "description": "Open source personal agent with its own computer. It chases invoices, preps your calls and cancels trials on real websites, and asks before it acts. Runs on your machine with the model you choose. By n8n.",
+      "language": "TypeScript",
+      "stars": 3430,
+      "weeklyStars": 1011
+    },
+    {
+      "rank": 5,
       "owner": "alibaba",
       "name": "open-code-review",
       "url": "https://github.com/alibaba/open-code-review",
       "description": "Secure, fast, efficient, battle-tested at Alibaba's scale. Hybrid architecture code review tool: deterministic pipelines + LLM Agent, precise line-level comments, built-in multi-language ruleset (NPE, thread-safety, XSS, SQL injection), OpenAI & Anthropic compatible.",
       "language": "Go",
-      "stars": 56131,
+      "stars": 56261,
       "weeklyStars": 2638
-    },
-    {
-      "rank": 5,
-      "owner": "mvanhorn",
-      "name": "last30days-skill",
-      "url": "https://github.com/mvanhorn/last30days-skill",
-      "description": "AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - then synthesizes a grounded summary",
-      "language": "Python",
-      "stars": 74490,
-      "weeklyStars": 5369
     }
   ]
 }
