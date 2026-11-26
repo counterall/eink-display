@@ -49,18 +49,6 @@ describe('responsive base size', () => {
     }
     expect(viewportLayout(1448, 1072, false).style.fontSize).toBe(29);
   });
-  it.each([[70, .7], [100, 1], [130, 1.3], [150, 1.5]])('applies %s%% zoom to base and clock typography without changing dimensions', (zoom, factor) => {
-    for (const showFeeds of [true, false]) {
-      for (const [w, h] of [[1448, 1072], [768, 1024]]) {
-        const base = viewportLayout(w, h, showFeeds);
-        const zoomed = viewportLayout(w, h, showFeeds, zoom);
-        expect(zoomed.style.fontSize).toBeCloseTo(base.style.fontSize * factor);
-        expect(zoomed.style.width).toBe(base.style.width);
-        expect(primaryTimeFontSize(w, h, base.mode, zoom)).toBeCloseTo(primaryTimeFontSize(w, h, base.mode) * factor);
-        expect(flipTimeFontSize(w, h, base.mode, zoom)).toBeCloseTo(flipTimeFontSize(w, h, base.mode) * factor);
-      }
-    }
-  });
   it.each([[0, 0], [NaN, undefined]])('does not produce NaN dimensions for an unavailable viewport %s × %s', (width, height) => {
     const layout = viewportLayout(width, height);
     expect(layout.width).toBe(1);

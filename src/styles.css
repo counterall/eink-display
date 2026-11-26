@@ -113,12 +113,16 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .carousel-viewport { height: 100%; overflow: hidden; touch-action: pan-y; }
 .carousel-track { display: flex; height: 100%; transition: transform 400ms ease-out; }
 .carousel-slide { flex: 0 0 100%; min-width: 0; }
-.carousel-arrow { position: absolute; top: 50%; z-index: 1; transform: translateY(-50%); color: var(--accent); background: var(--card); border: 1px solid var(--rule); border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity 150ms ease-out; }
-.carousel-arrow--previous { left: 0; }
-.carousel-arrow--next { right: 0; }
+/* Issue #25: the button is a transparent 44px hit box; only the 1.6em disc inside it is drawn. */
+.carousel-arrow { position: absolute; top: 50%; z-index: 1; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 2em; height: 2em; min-width: 44px; min-height: 44px; padding: 0; color: var(--accent); background: transparent; border: 0; opacity: 0; pointer-events: none; transition: opacity 150ms ease-out; }
+.carousel-arrow--previous { left: .25em; }
+.carousel-arrow--next { right: .25em; }
+.carousel-arrow-disc { display: inline-flex; align-items: center; justify-content: center; width: 1.6em; height: 1.6em; min-width: 32px; min-height: 32px; background: var(--card); border: 1px solid var(--rule); border-radius: 50%; }
+.carousel-arrow-disc svg { width: 1em; height: 1em; min-width: 18px; min-height: 18px; }
 .trending-carousel:hover .carousel-arrow, .trending-carousel:has(:focus-visible) .carousel-arrow { opacity: 1; pointer-events: auto; }
-.carousel-arrow:hover { border-color: var(--accent); }
-.carousel-arrow:active { color: var(--on-strong); background: var(--strong); }
+.carousel-arrow:hover .carousel-arrow-disc { border-color: var(--accent); }
+.carousel-arrow:active { background: transparent; }
+.carousel-arrow:active .carousel-arrow-disc { color: var(--on-strong); background: var(--strong); border-color: var(--strong); }
 /* The dots row is shorter than the 44px dot buttons: their hit areas reach into the last list
    item's bottom padding instead of taking more height from the list. */
 .carousel-dots { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; height: 1.5em; margin-top: -.3em; }
@@ -129,7 +133,15 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .carousel-dot[aria-current='true'] .carousel-dot-mark { background: var(--accent); }
 .trending-carousel .trending-footer { margin-top: .15em; }
 .trending-carousel .trending-item { padding: .4em 0; }
-@media (hover: none) { .carousel-arrow { opacity: 1; pointer-events: auto; } }
+/* Touch screens have no hover: the arrows stay visible at half strength with no border, and are
+   full strength while pressed or keyboard-focused. A tap leaves :hover stuck on the carousel, so
+   the half-strength rule also covers that state; the selectors are long enough to beat the card
+   themes' disc border. */
+@media (hover: none) {
+  .carousel-arrow, .trending-carousel:hover .carousel-arrow { opacity: .5; pointer-events: auto; }
+  .trending-carousel .carousel-arrow .carousel-arrow-disc { border-color: transparent; }
+  .trending-carousel .carousel-arrow:active, .trending-carousel .carousel-arrow:focus-visible { opacity: 1; }
+}
 @media (prefers-reduced-motion: reduce) { .carousel-track, .carousel-arrow, .carousel-dot-mark { transition: none; } }
 .weather-status { color: var(--muted); margin-left: 1.15em; font-size: .7em; line-height: 1.5; min-width: 0; }
 .updated-time { display: block; }
@@ -177,8 +189,8 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .break-progress { height: .9em; margin: 1em auto 0; border: 2px solid var(--rule); background: var(--card); overflow: hidden; }
 .break-progress-fill { height: 100%; background: var(--strong); }
 /* Portrait with the right column (issue #21): Trending drops below the clock panel. layout.js
-   picks a base size that should fit both; if it doesn't, the zoom check steps the zoom down and
-   the page can still scroll, so nothing is cut off. */
+   picks a base size that should fit both; if it doesn't, the automatic fit shrinks the page and
+   it can still scroll, so nothing is cut off. */
 .stage--stacked { overflow-y: auto; }
 .stage--stacked .dashboard { flex-direction: column; height: auto; min-height: 100%; }
 .stage--stacked .clock-panel { width: 100%; padding-right: 0; flex: 1 0 auto; }
@@ -193,8 +205,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage--card .icon-button { color: var(--accent); background: var(--card); border: 1px solid var(--accent); border-radius: .6em; }
 .stage--card .icon-button:active { color: var(--on-strong); background: var(--strong); }
 .stage--card .feeds-panel { background: var(--card); border: 1px solid var(--rule); border-radius: .6em; padding: 1em 1.4em; }
-.stage--card .carousel-arrow { color: var(--accent); border-color: var(--accent); border-radius: 50%; }
-.stage--card .carousel-arrow:active { color: var(--on-strong); background: var(--strong); }
+.stage--card .carousel-arrow-disc { border-color: var(--accent); }
 .stage--card .settings-panel { border-width: 1px; border-radius: .6em; }
 /* Sit the dark-mode toggle inside the Trending card's corner instead of across its border. */
 .stage--card .theme-toggle { top: 2.6em; right: 2.8em; }

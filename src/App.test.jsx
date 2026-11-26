@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import App, { SETTINGS_KEY, effectiveZoom, stageOverflows } from './App';
+import App, { FIT_MIN, SETTINGS_KEY, nextFitScale, stageOverflows } from './App';
 import Settings from './Settings';
 import { APP_TEXT } from './i18n';
 import { normalizeSettings } from './model';
@@ -102,15 +102,26 @@ describe('settings dialog', () => {
   });
 });
 
-describe('zoom auto-fit', () => {
-  it('caps the saved zoom without changing it, so a layout that fits again gets it back', () => {
-    expect(effectiveZoom(120, null)).toBe(120);
-    expect(effectiveZoom(120, 90)).toBe(90);
-    expect(effectiveZoom(80, 90)).toBe(80);
+describe('automatic fit (issue #25)', () => {
+  it('shrinks in 10% steps from 100% down to 70% and never grows', () => {
+    expect(FIT_MIN).toBe(70);
+    expect(nextFitScale(100)).toBe(90);
+    expect(nextFitScale(80)).toBe(70);
+    expect(nextFitScale(70)).toBe(70);
+    expect(nextFitScale(75)).toBe(70);
+  });
+  it('renders no zoom buttons, in either language, even with an old saved zoom', () => {
+    for (const language of ['zh', 'en']) {
+      const markup = render({ language, zoom: 130 });
+      expect(markup).not.toMatch(/zoom|放大|缩小/i);
+      expect(markup).toContain(`aria-label="${APP_TEXT[language].swap}"`);
+      expect(markup).toContain(`aria-label="${APP_TEXT[language].settings}"`);
+      expect(markup).toMatch(/font-size:24px/);
+    }
   });
 });
 
-describe('zoom overflow check', () => {
+describe('fit overflow check', () => {
   const box = (right, bottom, width = 10) => ({ getBoundingClientRect: () => ({ right, bottom, width }) });
   function stage(className, feedNodes) {
     const card = box(100, 100);
@@ -161,7 +172,7 @@ describe('clock style', () => {
   });
 });
 
-describe('zoom overflow check in the flip look', () => {
+describe('fit overflow check in the flip look', () => {
   const box = (right, bottom, width = 10) => ({ getBoundingClientRect: () => ({ right, bottom, width }) });
   it('flags flip cards that run past the clock column into Trending', () => {
     const stage = (flipRight) => ({
@@ -196,7 +207,7 @@ describe('left-half layout', () => {
   });
 });
 
-describe('zoom overflow check for the tiles', () => {
+describe('fit overflow check for the tiles', () => {
   const box = (right, bottom, width = 10) => ({ getBoundingClientRect: () => ({ right, bottom, width }) });
   it('flags tile cards that run past their own tile', () => {
     const stage = (timeRight) => {

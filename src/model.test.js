@@ -86,14 +86,12 @@ describe('two-hour weather refresh slots', () => {
 });
 
 describe('settings and cache resilience', () => {
-  it('defaults to 100% zoom and clamps saved zoom to 70–150% in 10% steps', () => {
-    expect(normalizeSettings({}).zoom).toBe(100);
-    expect(normalizeSettings({ zoom: 120 }).zoom).toBe(120);
-    expect(normalizeSettings({ zoom: 500 }).zoom).toBe(150);
-    expect(normalizeSettings({ zoom: 10 }).zoom).toBe(70);
-    expect(normalizeSettings({ zoom: 114 }).zoom).toBe(110);
-    expect(normalizeSettings({ zoom: '120' }).zoom).toBe(100);
-    expect(normalizeSettings({ zoom: NaN }).zoom).toBe(100);
+  it('has no zoom setting any more and ignores a saved zoom (issue #25)', () => {
+    expect(DEFAULT_SETTINGS).not.toHaveProperty('zoom');
+    expect(normalizeSettings({})).not.toHaveProperty('zoom');
+    const old = normalizeSettings({ zoom: 120, language: 'en' });
+    expect(old).not.toHaveProperty('zoom');
+    expect(old.language).toBe('en');
   });
   it('keeps the break reminder off unless explicitly enabled', () => {
     expect(normalizeSettings({}).breakReminder).toBe(false);

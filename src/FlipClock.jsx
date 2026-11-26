@@ -16,7 +16,7 @@ export default function FlipClock({ parts, keys = ['hours', 'minutes'], label, c
 export const nextSecondDelay = (ms) => 1000 - ms % 1000 + 20;
 
 // The main city clock in the flip look. It keeps its own once-a-second tick so the rest of the
-// app (weather, workday, break reminder, Trending, the zoom check) stays on App's minute tick.
+// app (weather, workday, break reminder, Trending, the automatic fit) stays on App's minute tick.
 export function LiveFlipClock({ city, cityLabel, format, fontSize }) {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {

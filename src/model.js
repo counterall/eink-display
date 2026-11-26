@@ -8,7 +8,7 @@ export const CITIES = [
   { id: 'osaka', zh: '大阪', en: 'Osaka', lat: 34.6937, lon: 135.5023, zone: 'Asia/Tokyo' },
 ];
 
-export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', showFeeds: true, theme: 'light', lightTheme: 'light', zoom: 100, breakReminder: false, breakNotification: false, clockStyle: 'classic', carouselInterval: DEFAULT_CAROUSEL_INTERVAL };
+export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', showFeeds: true, theme: 'light', lightTheme: 'light', breakReminder: false, breakNotification: false, clockStyle: 'classic', carouselInterval: DEFAULT_CAROUSEL_INTERVAL };
 export const CLOCK_STYLES = ['classic', 'flip'];
 // Page background per theme, also used for <meta name="theme-color">. The
 // inline bootstrap script in index.html repeats this table (tested to match).
@@ -21,8 +21,6 @@ export function withTheme(settings, theme) {
   return { ...settings, theme: next, lightTheme: next === 'dark' ? settings.lightTheme : next };
 }
 export const toggleTheme = (settings) => withTheme(settings, settings.theme === 'dark' ? settings.lightTheme : 'dark');
-export const ZOOM_MIN = 70, ZOOM_MAX = 150, ZOOM_STEP = 10;
-export const clampZoom = (zoom) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(zoom / ZOOM_STEP) * ZOOM_STEP));
 export const cityById = (id) => CITIES.find((city) => city.id === id) || CITIES[0];
 export const cityName = (city, language) => city[language === 'zh' ? 'zh' : 'en'];
 export const pad = (n) => String(n).padStart(2, '0');
@@ -105,7 +103,6 @@ export function normalizeSettings(value) {
   if (THEMES.includes(value.theme)) settings.theme = value.theme;
   if (LIGHT_THEMES.includes(value.lightTheme)) settings.lightTheme = value.lightTheme;
   if (settings.theme !== 'dark') settings.lightTheme = settings.theme;
-  if (Number.isFinite(value.zoom)) settings.zoom = clampZoom(value.zoom);
   if (typeof value.breakReminder === 'boolean') settings.breakReminder = value.breakReminder;
   if (typeof value.breakNotification === 'boolean') settings.breakNotification = value.breakNotification;
   if (CLOCK_STYLES.includes(value.clockStyle)) settings.clockStyle = value.clockStyle;

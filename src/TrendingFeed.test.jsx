@@ -101,8 +101,9 @@ describe('Trending carousel markup (issue #23)', () => {
   });
   it('has previous / next icon buttons and one footer for the current slide', () => {
     const markup = carousel({ language: 'en' });
-    expect(markup).toMatch(/class="icon-button carousel-arrow carousel-arrow--previous"[^>]*aria-label="Previous slide"/);
-    expect(markup).toMatch(/class="icon-button carousel-arrow carousel-arrow--next"[^>]*aria-label="Next slide"/);
+    // A transparent hit box around a small disc (issue #25).
+    expect(markup).toMatch(/<button type="button" class="carousel-arrow carousel-arrow--previous"[^>]*aria-label="Previous slide"[^>]*><span class="carousel-arrow-disc" aria-hidden="true"><svg/);
+    expect(markup).toMatch(/<button type="button" class="carousel-arrow carousel-arrow--next"[^>]*aria-label="Next slide"[^>]*><span class="carousel-arrow-disc" aria-hidden="true"><svg/);
     expect(markup.match(/class="trending-footer"/g)).toHaveLength(1);
     expect(markup).toContain('https://github.com/trending?since=weekly');
     expect(markup).not.toContain('https://github.com/trending?since=daily');

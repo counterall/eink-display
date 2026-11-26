@@ -4,7 +4,6 @@ import { cityDate, clock, dateKey } from './model';
 import { formatStars, periodConfig, periodStars, TRENDING_STALE_MS } from './trendingData';
 import useTrending from './useTrending';
 import { CAROUSEL_SLIDES, goToSlide, initialCarousel, swipeDirection, tickCarousel } from './carousel';
-import IconButton from './IconButton';
 import { CAROUSEL_TEXT, TRENDING_TEXT, pick } from './i18n';
 
 // One Top 5 list. In the carousel the footer is shared below the dots (TrendingFooter), so
@@ -112,8 +111,9 @@ export function TrendingCarousel({ language, city, now, interval, paused = false
         </div>
       </div>
       {count > 1 && <>
-        <IconButton className="carousel-arrow carousel-arrow--previous" icon={ChevronLeft} label={c.previous} onClick={() => step(-1)} />
-        <IconButton className="carousel-arrow carousel-arrow--next" icon={ChevronRight} label={c.next} onClick={() => step(1)} />
+        {/* Issue #25: a transparent 44px hit box around a small disc, so the arrows cover less of the list. */}
+        <button type="button" className="carousel-arrow carousel-arrow--previous" title={c.previous} aria-label={c.previous} onClick={() => step(-1)}><span className="carousel-arrow-disc" aria-hidden="true"><ChevronLeft aria-hidden="true" strokeWidth={1.8} /></span></button>
+        <button type="button" className="carousel-arrow carousel-arrow--next" title={c.next} aria-label={c.next} onClick={() => step(1)}><span className="carousel-arrow-disc" aria-hidden="true"><ChevronRight aria-hidden="true" strokeWidth={1.8} /></span></button>
       </>}
     </div>
     {count > 1 && <div className="carousel-dots">
