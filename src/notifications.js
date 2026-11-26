@@ -1,7 +1,8 @@
 // Desktop browser notifications for the break reminder. Every access is
-// guarded: the Kindle browser has no Notification API (the feature is simply
-// absent there), Node tests have no window, and some browsers throw (Android
-// Chrome on `new Notification`). Nothing here may break the page.
+// guarded: some browsers have no Notification API (e.g. iOS Safari outside a
+// home-screen app, where the feature is simply absent), Node tests have no
+// window, and some browsers throw (Android Chrome on `new Notification`).
+// Nothing here may break the page.
 
 export const BREAK_NOTIFICATION_TAG = 'kindle-break';
 
@@ -16,8 +17,7 @@ export function notificationPermission() {
   try { return Notification.permission || 'default'; } catch { return 'default'; }
 }
 
-// Must be called from a user gesture. Handles both the promise form and the
-// callback form (Safari 9); `done` is called exactly once with the result.
+// Must be called from a user gesture; `done` is called exactly once with the result.
 export function requestNotificationPermission(done) {
   let answered = false;
   const finish = (permission) => {
@@ -28,8 +28,7 @@ export function requestNotificationPermission(done) {
   const Notification = api();
   if (!Notification) { finish('unsupported'); return; }
   try {
-    const result = Notification.requestPermission(finish);
-    if (result && typeof result.then === 'function') result.then(finish, () => finish(notificationPermission()));
+    Notification.requestPermission().then(finish, () => finish(notificationPermission()));
   } catch {
     finish(notificationPermission());
   }

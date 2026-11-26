@@ -1,19 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { trendingData } from '../tests/trending-fixtures';
-import { fetchTrending, trendingURL } from './trending';
+import { stubFetch } from '../tests/fetch-stub';
+import { TRENDING_TIMEOUT_MS, fetchTrending, trendingURL } from './trending';
 
-afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
+afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); vi.useRealTimers(); });
 
 describe('same-origin Trending snapshot request', () => {
-  function mock(response, status = 200, event = 'onload') {
-    const requests = [];
-    vi.stubGlobal('XMLHttpRequest', class {
-      constructor() { requests.push(this); }
-      open(method, url) { this.method = method; this.url = url; }
-      send() { this.status = status; this.responseText = JSON.stringify(response); this[event](); }
-    });
-    return requests;
-  }
   it('uses the Pages subpath, not github.com or a CORS proxy', () => {
     vi.stubEnv('BASE_URL', './');
     const url = new URL(trendingURL(7200000), 'https://example.github.io/kindle-display/');
@@ -25,19 +17,25 @@ describe('same-origin Trending snapshot request', () => {
     vi.stubEnv('BASE_URL', '/eink-display/');
     expect(trendingURL(0)).toBe('/eink-display/data/github-trending.json?v=0');
   });
-  it('validates a successful response and sets a real timeout', async () => {
-    const requests = mock(trendingData());
+  it('validates a successful response and requests it with a timeout signal', async () => {
+    vi.stubEnv('BASE_URL', './');
+    const calls = stubFetch(trendingData());
     await expect(fetchTrending()).resolves.toEqual(trendingData());
-    expect(requests[0].timeout).toBe(15000);
+    expect(calls[0].url).toMatch(/^\.\/data\/github-trending\.json\?v=\d+$/);
+    expect(calls[0].options.signal).toBeInstanceOf(AbortSignal);
+    expect(TRENDING_TIMEOUT_MS).toBe(15000);
   });
   it('rejects invalid snapshots, HTTP errors, network errors and timeouts', async () => {
-    mock({});
+    stubFetch({});
     await expect(fetchTrending()).rejects.toThrow('Invalid weekly Trending snapshot');
-    mock({}, 404);
+    stubFetch({}, 404);
     await expect(fetchTrending()).rejects.toThrow('HTTP 404');
-    mock({}, 200, 'onerror');
+    stubFetch({}, 200, 'network');
     await expect(fetchTrending()).rejects.toThrow('Network error');
-    mock({}, 200, 'ontimeout');
-    await expect(fetchTrending()).rejects.toThrow('Request timeout');
+    vi.useFakeTimers();
+    stubFetch({}, 200, 'hang');
+    const slow = expect(fetchTrending()).rejects.toThrow('Request timeout');
+    await vi.advanceTimersByTimeAsync(TRENDING_TIMEOUT_MS);
+    await slow;
   });
 });

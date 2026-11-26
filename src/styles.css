@@ -1,27 +1,29 @@
-:root { font-family: Arial, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif; color: #111; background: #fff; font-synthesis: none; }
-:root.theme--dark { color: #fff; background: #000; color-scheme: dark; }
+/* Colours come from the theme variables at the end of this file: light is the default on :root,
+   every other theme is a theme--<name> class on <html> (set before React by index.html) and on the
+   stage. Everything is sized in em from the stage font size computed in src/layout.js. */
+:root { font-family: Arial, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif; color: var(--fg); background: var(--bg); font-synthesis: none; }
 * { box-sizing: border-box; }
 html, body, #root { width: 100%; height: 100%; margin: 0; overflow: hidden; }
-button, select { font: inherit; color: #111; background: white; border: 0; border-radius: 0; }
+button, select { font: inherit; color: var(--fg); background: var(--card); border: 0; border-radius: 0; }
 button { min-height: 3em; padding: .6em 1.15em; cursor: pointer; }
-button:active { color: white; background: #111; }
-button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashed #111; outline-offset: 3px; }
-.stage { position: absolute; transform-origin: 0 0; background: #fff; overflow: hidden; }
+button:active { color: var(--on-strong); background: var(--strong); }
+button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashed var(--strong); outline-offset: 3px; }
+.stage { position: absolute; left: 0; top: 0; color: var(--fg); background: var(--bg); overflow: hidden; }
 .theme-toggle { position: absolute; top: .65em; right: .65em; z-index: 2; }
 .theme-toggle .icon-button { width: 2.4em; height: 2.4em; }
 .dashboard { height: 100%; padding: 2.1em 2.3em; display: flex; }
 .clock-panel { width: 50%; min-width: 0; padding-right: 1.4em; display: flex; flex-direction: column; }
-.date-header { display: flex; align-items: baseline; flex-wrap: wrap; padding-bottom: 1.4em; font-size: 1.02em; line-height: 1.6; }
+.date-header { display: flex; align-items: baseline; flex-wrap: wrap; padding-bottom: 1.4em; font-size: 1.02em; line-height: 1.6; color: var(--muted); }
 .date-header > span { white-space: nowrap; }
 .lunar-date, .date-after-lunar { margin-left: .35em; }
 .solar-term { margin-left: .6em; }
-.eyebrow { display: block; font-size: .7em; letter-spacing: .12em; line-height: 1.4; }
+.eyebrow { display: block; color: var(--muted); font-size: .7em; letter-spacing: .12em; line-height: 1.4; }
 /* Left half (issue #15): main clock on top, its cards centred in the height left over; below it a
    row of two equal tiles (second city | work session) split by thin rules. */
 .primary-clock { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: .5em 0 .9em; }
 .primary-time { flex: 1; min-height: 0; display: flex; align-items: center; }
 .primary-time .time-display, .primary-time .flip-clock--primary { align-self: center; }
-.clock-tiles { display: flex; flex-shrink: 0; border-top: 1px solid #111; padding-top: .8em; }
+.clock-tiles { display: flex; flex-shrink: 0; border-top: 1px solid var(--rule); padding-top: .8em; }
 .clock-tile { width: 50%; min-width: 0; }
 .city-heading { width: 100%; flex-shrink: 0; }
 .city-heading-row { display: flex; align-items: center; position: relative; margin-top: .28em; min-height: 1.9em; }
@@ -30,16 +32,16 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .sun-event, .polar-event { display: inline-flex; align-items: center; }
 .sun-event + .sun-event { margin-left: .6em; }
 .sun-period { font-size: .65em; margin-left: .2em; }
-.sun-symbol { width: 1.4em; height: 1.4em; margin-right: .3em; flex-shrink: 0; }
+.sun-symbol { color: var(--accent); width: 1.4em; height: 1.4em; margin-right: .3em; flex-shrink: 0; }
 .city-weather { display: flex; align-items: center; margin-left: auto; font-size: 1.05em; white-space: nowrap; }
-.city-weather .weather-icon { width: 1.55em; height: 1.55em; margin-right: .35em; flex-shrink: 0; }
+.city-weather .weather-icon { color: var(--accent); width: 1.55em; height: 1.55em; margin-right: .35em; flex-shrink: 0; }
 .city-temperatures { text-align: right; }
 .city-weather strong { display: block; font-size: 1.2em; line-height: 1.1; font-weight: 500; }
-.daily-temperature-range { display: block; font-size: .8em; line-height: 1.3; margin-top: .15em; }
+.daily-temperature-range { color: var(--muted); display: block; font-size: .8em; line-height: 1.3; margin-top: .15em; }
 .time-display { font-family: 'Roboto Condensed', Arial, sans-serif; font-weight: 600; line-height: .8; padding: .04em 0; white-space: nowrap; flex-shrink: 0; align-self: flex-start; max-width: 100%; }
 .time-digits { display: flex; align-items: baseline; justify-content: flex-start; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
 .time-hours, .time-minutes { letter-spacing: 0; flex-shrink: 0; }
-.time-colon { margin: 0 .05em; flex-shrink: 0; }
+.time-colon { color: var(--accent); margin: 0 .05em; flex-shrink: 0; }
 .time-period { display: block; font-size: .13em; font-weight: 600; letter-spacing: .08em; line-height: 1.2; text-align: right; margin-top: .15em; }
 .second-clock { display: flex; flex-direction: column; align-items: flex-start; padding-right: 1.1em; }
 /* Both tiles stretch to the row height and push their cards to the bottom, so the second-city
@@ -49,16 +51,16 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .second-time-row { display: flex; align-items: center; margin-top: auto; padding-top: .45em; }
 .second-time-row > strong, .work-countdown { display: inline-flex; align-items: baseline; font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 3.3em; line-height: 1.05; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .second-clock strong small { font-size: .3em; margin-left: .35em; }
-.second-date, .work-caption { font-size: .8em; margin-left: .6em; white-space: nowrap; }
+.second-date, .work-caption { color: var(--muted); font-size: .8em; margin-left: .6em; white-space: nowrap; }
 .second-date > span { display: block; line-height: 1.25; }
-.workday-block { display: flex; flex-direction: column; padding-left: 1.1em; border-left: 1px solid #111; }
+.workday-block { display: flex; flex-direction: column; padding-left: 1.1em; border-left: 1px solid var(--rule); }
 .work-progress { margin-top: .5em; }
-.work-bar { height: .55em; border: 1px solid #111; background: #fff; overflow: hidden; }
-.work-bar-fill { height: 100%; background: #111; }
-.work-bar-labels { display: flex; justify-content: space-between; font-size: .7em; line-height: 1.3; margin-top: .3em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.work-bar { height: .55em; border: 1px solid var(--rule); background: var(--card); overflow: hidden; }
+.work-bar-fill { height: 100%; background: var(--strong); }
+.work-bar-labels { color: var(--muted); display: flex; justify-content: space-between; font-size: .7em; line-height: 1.3; margin-top: .3em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .work-worked { padding: 0 .5em; }
 .work-active { display: flex; align-items: center; margin-top: auto; padding-top: .45em; }
-.work-start { font-size: 1.3em; min-height: 44px; padding: .35em 1.1em; margin-top: .4em; border: 1px solid #111; }
+.work-start { font-size: 1.3em; min-height: 44px; padding: .35em 1.1em; margin-top: .4em; border: 1px solid var(--strong); }
 .work-message { font-size: 1.9em; font-weight: 500; line-height: 1.2; margin: .3em 0 0; }
 .work-message:lang(en) { font-size: 1.4em; line-height: 1.25; }
 .stage--fullscreen .clock-panel { width: 100%; padding-right: 0; }
@@ -84,55 +86,56 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .trending-feed { height: 100%; display: flex; flex-direction: column; min-height: 0; }
 .trending-header { flex-shrink: 0; margin-bottom: .65em; padding-right: calc(44px + .8em); }
 .trending-header h2 { font-size: 1.2em; font-weight: 500; line-height: 1.3; margin: 0 0 .4em; }
-.trending-status { font-size: .72em; line-height: 1.4; }
+.trending-status { color: var(--muted); font-size: .72em; line-height: 1.4; }
 .trending-status strong { display: block; font-size: 1em; margin-top: .2em; }
 .trending-list { list-style: none; padding: 0; margin: 0; flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: space-between; }
 .trending-item { padding: .5em 0; min-height: 0; }
 .repo-heading { display: flex; align-items: baseline; font-size: 1.12em; font-weight: 600; line-height: 1.2; margin: 0; }
-.repo-rank { font-size: .65em; font-weight: 400; margin-right: .8em; flex-shrink: 0; }
-.repo-link { color: #111; text-decoration: none; display: block; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.repo-description { font-size: .92em; line-height: 1.35; margin: .35em 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; max-height: 2.7em; overflow: hidden; }
-.repo-meta { display: flex; align-items: baseline; justify-content: space-between; font-size: .8em; line-height: 1.3; }
+.repo-rank { color: var(--accent); font-size: .65em; font-weight: 400; margin-right: .8em; flex-shrink: 0; }
+.repo-link { color: var(--fg); text-decoration: none; display: block; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.repo-description { color: var(--muted); font-size: .92em; line-height: 1.35; margin: .35em 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; max-height: 2.7em; overflow: hidden; }
+.repo-meta { color: var(--muted); display: flex; align-items: baseline; justify-content: space-between; font-size: .8em; line-height: 1.3; }
 .repo-language { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: .5em; }
 .repo-stars { display: inline-flex; align-items: center; flex-shrink: 0; white-space: nowrap; }
-.repo-stars svg { width: 1em; height: 1em; margin-right: .25em; }
+.repo-stars svg { color: var(--accent); width: 1em; height: 1em; margin-right: .25em; }
 .repo-stars small { font-size: .85em; margin-left: .4em; }
-.trending-footer { display: flex; justify-content: space-between; flex-wrap: wrap; font-size: .7em; line-height: 1.4; margin-top: .65em; flex-shrink: 0; }
-.trending-footer a { color: #111; margin-left: .75em; }
-.weather-status { margin-left: 1.15em; font-size: .7em; line-height: 1.5; min-width: 0; }
+.trending-footer { color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; font-size: .7em; line-height: 1.4; margin-top: .65em; flex-shrink: 0; }
+.trending-footer a { color: var(--accent); margin-left: .75em; }
+.weather-status { color: var(--muted); margin-left: 1.15em; font-size: .7em; line-height: 1.5; min-width: 0; }
 .updated-time { display: block; }
 .update-notice { display: block; font-size: 1em; font-weight: bold; margin-top: .15em; }
-.settings-layer { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: rgba(255,255,255,.95); padding: 1.4em; display: flex; align-items: center; justify-content: center; }
-.settings-panel { width: 40em; max-width: 100%; max-height: 100%; overflow: auto; background: #fff; border: 2px solid #111; padding: 1.5em 1.8em; }
-.settings-panel header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 1em; border-bottom: 1px solid #111; }
-.settings-panel button { border: 1px solid #111; }
+.settings-layer { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: var(--overlay); padding: 1.4em; display: flex; align-items: center; justify-content: center; }
+.settings-panel { width: 40em; max-width: 100%; max-height: 100%; overflow: auto; background: var(--card); border: 2px solid var(--rule); padding: 1.5em 1.8em; }
+.settings-panel header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 1em; border-bottom: 1px solid var(--rule); }
+.settings-panel button { border: 1px solid var(--rule); }
+.settings-panel .filled-button { border-color: var(--strong); }
 .settings-panel button:focus-visible, .settings-panel select:focus-visible, .settings-panel a:focus-visible { outline-style: solid; }
 .settings-panel h2 { margin: 0; font-size: 1.6em; font-weight: 500; }
 .settings-fields { display: flex; flex-wrap: wrap; padding-top: .9em; }
 .settings-fields label { display: block; width: 50%; padding: .6em .7em .6em 0; font-size: .9em; }
-.settings-fields select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; border: 1px solid #111; background: #fff; }
+.settings-fields select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; border: 1px solid var(--rule); background: var(--card); }
 .settings-fields .wide-field { width: 100%; }
 .settings-fields .settings-hint { width: 100%; margin: 0 0 .3em; }
-.settings-panel p { font-size: .75em; line-height: 1.6; margin: .65em 0; }
-.settings-panel .display-info { border-top: 1px solid #111; padding-top: .65em; }
+.settings-panel p { color: var(--muted); font-size: .75em; line-height: 1.6; margin: .65em 0; }
+.settings-panel .display-info { border-top: 1px solid var(--rule); padding-top: .65em; }
 .settings-panel footer { display: flex; align-items: center; justify-content: space-between; margin-top: 1em; }
-.filled-button { background: #111; color: #fff; }
+.filled-button { background: var(--strong); color: var(--on-strong); }
 .break-panel { position: relative; width: 28em; padding-top: 1.2em; }
 .break-panel header { padding-right: 3em; }
 .break-panel h2 { display: flex; align-items: center; }
-.break-icon { width: 1.1em; height: 1.1em; margin-left: .4em; }
-.break-panel .break-close { position: absolute; top: .4em; right: .4em; display: inline-flex; align-items: center; justify-content: center; width: 2.6em; height: 2.6em; min-width: 44px; min-height: 44px; padding: 0; border: 0; }
+.break-icon { color: var(--accent); width: 1.1em; height: 1.1em; margin-left: .4em; }
+.break-panel .break-close { color: var(--accent); position: absolute; top: .4em; right: .4em; display: inline-flex; align-items: center; justify-content: center; width: 2.6em; height: 2.6em; min-width: 44px; min-height: 44px; padding: 0; border: 0; }
 .break-close svg { width: 1.5em; height: 1.5em; }
 .break-field { display: block; padding-top: 1.1em; font-size: .9em; }
-.break-field select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; border: 1px solid #111; background: #fff; }
+.break-field select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; border: 1px solid var(--rule); background: var(--card); }
 .break-actions { margin-top: 1.4em; }
 .break-actions button { min-width: 7em; }
 .break-running { text-align: center; padding: 1.4em 2em .8em; }
 .break-panel .break-caption { display: block; font-size: 1.6em; }
 .break-welcome { padding: 1.6em 2em 1.4em; }
 .break-panel .break-welcome .break-caption { line-height: 1.4; }
-.break-panel .break-countdown { font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 4.5em; font-weight: 600; line-height: 1.1; margin: .2em 0 0; font-variant-numeric: tabular-nums; }
-.settings-panel a { color: #111; font-size: .7em; margin-left: 1em; }
+.break-panel .break-countdown { font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 4.5em; font-weight: 600; line-height: 1.1; margin: .2em 0 0; font-variant-numeric: tabular-nums; color: var(--fg); }
+.settings-panel a { color: var(--accent); font-size: .7em; margin-left: 1em; }
 .compact .dashboard { padding: 1.4em 1.6em; }
 .compact .clock-panel { padding-right: 1.2em; }
 .compact .primary-clock { padding: .3em 0; }
@@ -140,171 +143,92 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .compact.stage--fullscreen .date-header { min-height: calc(44px + .9em); padding-right: calc(5 * 44px + 3 * .8em + 9em); }
 .stage--fullscreen .actions { flex-wrap: nowrap; }
 .compact.stage--fullscreen .clock-footer { top: 1.4em; }
-.stage.theme--dark { color: #fff; background: #000; }
-.stage.theme--dark button, .stage.theme--dark select { color: #fff; background: #000; }
-.stage.theme--dark button:active { color: #000; background: #fff; }
-.stage.theme--dark button:focus-visible, .stage.theme--dark select:focus-visible, .stage.theme--dark a:focus-visible { outline-color: #fff; }
-.stage.theme--dark .repo-link, .stage.theme--dark .trending-footer a, .stage.theme--dark .settings-panel a { color: #fff; }
-.break-progress { height: .9em; margin: 1em auto 0; border: 2px solid #111; background: #fff; overflow: hidden; }
-.break-progress-fill { height: 100%; background: #111; }
-.stage.theme--dark .break-progress { border-color: #fff; background: #000; }
-.stage.theme--dark .break-progress-fill { background: #fff; }
-.stage.theme--dark .settings-layer { background: rgba(0,0,0,.96); }
-.stage.theme--dark .settings-panel { background: #000; border-color: #fff; }
-.stage.theme--dark .settings-panel header, .stage.theme--dark .settings-panel .display-info, .stage.theme--dark .settings-panel button, .stage.theme--dark .settings-fields select, .stage.theme--dark .break-field select { border-color: #fff; }
-.stage.theme--dark .filled-button { color: #000; background: #fff; }
-.stage.theme--dark .work-start { border-color: #fff; }
-.stage.theme--dark .clock-tiles, .stage.theme--dark .workday-block, .stage.theme--dark .work-bar { border-color: #fff; }
-.stage.theme--dark .work-bar { background: #000; }
-.stage.theme--dark .work-bar-fill { background: #fff; }
-/* Soft colored light themes for normal monitors (issue #11). Each block repeats the same rules with
-   one palette, because CSS variables are not available on the Kindle targets. Order per palette:
-   page background, card, text, secondary text, accent, border/rule. */
-/* Sky (blue) */
-:root.theme--sky { color: #1c2d44; background: #eef4fb; }
-.stage.theme--sky { color: #1c2d44; background: #eef4fb; }
-.stage.theme--sky button, .stage.theme--sky select { color: #1c2d44; background: #ffffff; }
-.stage.theme--sky button:active { color: #fff; background: #2e6aac; }
-.stage.theme--sky button:focus-visible, .stage.theme--sky select:focus-visible, .stage.theme--sky a:focus-visible { outline-color: #2e6aac; }
-.stage.theme--sky .date-header, .stage.theme--sky .eyebrow, .stage.theme--sky .second-date, .stage.theme--sky .daily-temperature-range, .stage.theme--sky .weather-status, .stage.theme--sky .work-meta, .stage.theme--sky .trending-status, .stage.theme--sky .repo-description, .stage.theme--sky .repo-meta, .stage.theme--sky .trending-footer, .stage.theme--sky .settings-panel p { color: #56697f; }
-.stage.theme--sky .weather-icon, .stage.theme--sky .sun-symbol, .stage.theme--sky .time-colon, .stage.theme--sky .repo-rank, .stage.theme--sky .repo-stars svg, .stage.theme--sky .trending-footer a, .stage.theme--sky .settings-panel a, .stage.theme--sky .break-icon, .stage.theme--sky .break-close { color: #2e6aac; }
-.stage.theme--sky .repo-link, .stage.theme--sky .break-panel .break-countdown { color: #1c2d44; }
-.stage.theme--sky .icon-button { color: #2e6aac; background: #ffffff; border: 1px solid #2e6aac; border-radius: .6em; }
-.stage.theme--sky .icon-button:active { color: #fff; background: #2e6aac; }
+.break-progress { height: .9em; margin: 1em auto 0; border: 2px solid var(--rule); background: var(--card); overflow: hidden; }
+.break-progress-fill { height: 100%; background: var(--strong); }
+/* Portrait with the right column (issue #21): Trending drops below the clock panel. layout.js
+   picks a base size that should fit both; if it doesn't, the zoom check steps the zoom down and
+   the page can still scroll, so nothing is cut off. */
+.stage--stacked { overflow-y: auto; }
+.stage--stacked .dashboard { flex-direction: column; height: auto; min-height: 100%; }
+.stage--stacked .clock-panel { width: 100%; padding-right: 0; flex: 1 0 auto; }
+.stage--stacked .date-header { padding-right: 3em; }
+.stage--stacked .feeds-panel { width: 100%; flex: none; padding: 1.2em 0 0; margin-top: 1.2em; border-top: 1px solid var(--rule); }
+.stage--stacked .trending-feed { height: auto; }
+.stage--stacked .trending-header { padding-right: 0; }
+.stage--stacked .trending-item { padding: .35em 0; }
+.stage--stacked .repo-description { -webkit-line-clamp: 1; max-height: 1.35em; }
+/* Colored themes (issue #11): Trending, Settings and the icon buttons are rounded cards. */
+.stage--card .icon-button { color: var(--accent); background: var(--card); border: 1px solid var(--accent); border-radius: .6em; }
+.stage--card .icon-button:active { color: var(--on-strong); background: var(--strong); }
+.stage--card .feeds-panel { background: var(--card); border: 1px solid var(--rule); border-radius: .6em; padding: 1em 1.4em; }
+.stage--card .settings-panel { border-width: 1px; border-radius: .6em; }
 /* Sit the dark-mode toggle inside the Trending card's corner instead of across its border. */
-.stage.theme--sky .theme-toggle { top: 2.6em; right: 2.8em; }
-.stage.compact.theme--sky .theme-toggle { top: 1.9em; right: 2.1em; }
-.stage.stage--fullscreen.theme--sky .theme-toggle { top: .65em; right: .65em; }
-.stage.theme--sky .feeds-panel { background: #ffffff; border: 1px solid #c9d8ea; border-radius: .6em; padding: 1em 1.4em; }
-.stage.theme--sky .settings-layer { background: rgba(238,244,251,.95); }
-.stage.theme--sky .settings-panel { background: #ffffff; border: 1px solid #c9d8ea; border-radius: .6em; }
-.stage.theme--sky .settings-panel header, .stage.theme--sky .settings-panel .display-info, .stage.theme--sky .settings-panel button, .stage.theme--sky .settings-fields select, .stage.theme--sky .break-field select { border-color: #c9d8ea; }
-.stage.theme--sky .filled-button, .stage.theme--sky .settings-panel .filled-button, .stage.theme--sky .work-start { color: #fff; background: #2e6aac; border-color: #2e6aac; }
-.stage.theme--sky .break-progress { border-color: #c9d8ea; background: #ffffff; }
-.stage.theme--sky .break-progress-fill { background: #2e6aac; }
-.stage.theme--sky .clock-tiles, .stage.theme--sky .workday-block { border-color: #c9d8ea; }
-.stage.theme--sky .work-bar { border-color: #c9d8ea; background: #ffffff; }
-.stage.theme--sky .work-bar-fill { background: #2e6aac; }
-.stage.theme--sky .work-bar-labels, .stage.theme--sky .work-caption { color: #56697f; }
-/* Sage (green) */
-:root.theme--sage { color: #203427; background: #eef5ec; }
-.stage.theme--sage { color: #203427; background: #eef5ec; }
-.stage.theme--sage button, .stage.theme--sage select { color: #203427; background: #ffffff; }
-.stage.theme--sage button:active { color: #fff; background: #37754c; }
-.stage.theme--sage button:focus-visible, .stage.theme--sage select:focus-visible, .stage.theme--sage a:focus-visible { outline-color: #37754c; }
-.stage.theme--sage .date-header, .stage.theme--sage .eyebrow, .stage.theme--sage .second-date, .stage.theme--sage .daily-temperature-range, .stage.theme--sage .weather-status, .stage.theme--sage .work-meta, .stage.theme--sage .trending-status, .stage.theme--sage .repo-description, .stage.theme--sage .repo-meta, .stage.theme--sage .trending-footer, .stage.theme--sage .settings-panel p { color: #566b5c; }
-.stage.theme--sage .weather-icon, .stage.theme--sage .sun-symbol, .stage.theme--sage .time-colon, .stage.theme--sage .repo-rank, .stage.theme--sage .repo-stars svg, .stage.theme--sage .trending-footer a, .stage.theme--sage .settings-panel a, .stage.theme--sage .break-icon, .stage.theme--sage .break-close { color: #37754c; }
-.stage.theme--sage .repo-link, .stage.theme--sage .break-panel .break-countdown { color: #203427; }
-.stage.theme--sage .icon-button { color: #37754c; background: #ffffff; border: 1px solid #37754c; border-radius: .6em; }
-.stage.theme--sage .icon-button:active { color: #fff; background: #37754c; }
-/* Sit the dark-mode toggle inside the Trending card's corner instead of across its border. */
-.stage.theme--sage .theme-toggle { top: 2.6em; right: 2.8em; }
-.stage.compact.theme--sage .theme-toggle { top: 1.9em; right: 2.1em; }
-.stage.stage--fullscreen.theme--sage .theme-toggle { top: .65em; right: .65em; }
-.stage.theme--sage .feeds-panel { background: #ffffff; border: 1px solid #cfe0cc; border-radius: .6em; padding: 1em 1.4em; }
-.stage.theme--sage .settings-layer { background: rgba(238,245,236,.95); }
-.stage.theme--sage .settings-panel { background: #ffffff; border: 1px solid #cfe0cc; border-radius: .6em; }
-.stage.theme--sage .settings-panel header, .stage.theme--sage .settings-panel .display-info, .stage.theme--sage .settings-panel button, .stage.theme--sage .settings-fields select, .stage.theme--sage .break-field select { border-color: #cfe0cc; }
-.stage.theme--sage .filled-button, .stage.theme--sage .settings-panel .filled-button, .stage.theme--sage .work-start { color: #fff; background: #37754c; border-color: #37754c; }
-.stage.theme--sage .break-progress { border-color: #cfe0cc; background: #ffffff; }
-.stage.theme--sage .break-progress-fill { background: #37754c; }
-.stage.theme--sage .clock-tiles, .stage.theme--sage .workday-block { border-color: #cfe0cc; }
-.stage.theme--sage .work-bar { border-color: #cfe0cc; background: #ffffff; }
-.stage.theme--sage .work-bar-fill { background: #37754c; }
-.stage.theme--sage .work-bar-labels, .stage.theme--sage .work-caption { color: #566b5c; }
-/* Lavender (purple) */
-:root.theme--lavender { color: #2c2541; background: #f3f0fa; }
-.stage.theme--lavender { color: #2c2541; background: #f3f0fa; }
-.stage.theme--lavender button, .stage.theme--lavender select { color: #2c2541; background: #ffffff; }
-.stage.theme--lavender button:active { color: #fff; background: #6a4ca6; }
-.stage.theme--lavender button:focus-visible, .stage.theme--lavender select:focus-visible, .stage.theme--lavender a:focus-visible { outline-color: #6a4ca6; }
-.stage.theme--lavender .date-header, .stage.theme--lavender .eyebrow, .stage.theme--lavender .second-date, .stage.theme--lavender .daily-temperature-range, .stage.theme--lavender .weather-status, .stage.theme--lavender .work-meta, .stage.theme--lavender .trending-status, .stage.theme--lavender .repo-description, .stage.theme--lavender .repo-meta, .stage.theme--lavender .trending-footer, .stage.theme--lavender .settings-panel p { color: #655d80; }
-.stage.theme--lavender .weather-icon, .stage.theme--lavender .sun-symbol, .stage.theme--lavender .time-colon, .stage.theme--lavender .repo-rank, .stage.theme--lavender .repo-stars svg, .stage.theme--lavender .trending-footer a, .stage.theme--lavender .settings-panel a, .stage.theme--lavender .break-icon, .stage.theme--lavender .break-close { color: #6a4ca6; }
-.stage.theme--lavender .repo-link, .stage.theme--lavender .break-panel .break-countdown { color: #2c2541; }
-.stage.theme--lavender .icon-button { color: #6a4ca6; background: #ffffff; border: 1px solid #6a4ca6; border-radius: .6em; }
-.stage.theme--lavender .icon-button:active { color: #fff; background: #6a4ca6; }
-/* Sit the dark-mode toggle inside the Trending card's corner instead of across its border. */
-.stage.theme--lavender .theme-toggle { top: 2.6em; right: 2.8em; }
-.stage.compact.theme--lavender .theme-toggle { top: 1.9em; right: 2.1em; }
-.stage.stage--fullscreen.theme--lavender .theme-toggle { top: .65em; right: .65em; }
-.stage.theme--lavender .feeds-panel { background: #ffffff; border: 1px solid #dcd4ee; border-radius: .6em; padding: 1em 1.4em; }
-.stage.theme--lavender .settings-layer { background: rgba(243,240,250,.95); }
-.stage.theme--lavender .settings-panel { background: #ffffff; border: 1px solid #dcd4ee; border-radius: .6em; }
-.stage.theme--lavender .settings-panel header, .stage.theme--lavender .settings-panel .display-info, .stage.theme--lavender .settings-panel button, .stage.theme--lavender .settings-fields select, .stage.theme--lavender .break-field select { border-color: #dcd4ee; }
-.stage.theme--lavender .filled-button, .stage.theme--lavender .settings-panel .filled-button, .stage.theme--lavender .work-start { color: #fff; background: #6a4ca6; border-color: #6a4ca6; }
-.stage.theme--lavender .break-progress { border-color: #dcd4ee; background: #ffffff; }
-.stage.theme--lavender .break-progress-fill { background: #6a4ca6; }
-.stage.theme--lavender .clock-tiles, .stage.theme--lavender .workday-block { border-color: #dcd4ee; }
-.stage.theme--lavender .work-bar { border-color: #dcd4ee; background: #ffffff; }
-.stage.theme--lavender .work-bar-fill { background: #6a4ca6; }
-.stage.theme--lavender .work-bar-labels, .stage.theme--lavender .work-caption { color: #655d80; }
-/* Mint (teal) */
-:root.theme--mint { color: #1c3634; background: #eaf5f3; }
-.stage.theme--mint { color: #1c3634; background: #eaf5f3; }
-.stage.theme--mint button, .stage.theme--mint select { color: #1c3634; background: #ffffff; }
-.stage.theme--mint button:active { color: #fff; background: #1d7870; }
-.stage.theme--mint button:focus-visible, .stage.theme--mint select:focus-visible, .stage.theme--mint a:focus-visible { outline-color: #1d7870; }
-.stage.theme--mint .date-header, .stage.theme--mint .eyebrow, .stage.theme--mint .second-date, .stage.theme--mint .daily-temperature-range, .stage.theme--mint .weather-status, .stage.theme--mint .work-meta, .stage.theme--mint .trending-status, .stage.theme--mint .repo-description, .stage.theme--mint .repo-meta, .stage.theme--mint .trending-footer, .stage.theme--mint .settings-panel p { color: #526d69; }
-.stage.theme--mint .weather-icon, .stage.theme--mint .sun-symbol, .stage.theme--mint .time-colon, .stage.theme--mint .repo-rank, .stage.theme--mint .repo-stars svg, .stage.theme--mint .trending-footer a, .stage.theme--mint .settings-panel a, .stage.theme--mint .break-icon, .stage.theme--mint .break-close { color: #1d7870; }
-.stage.theme--mint .repo-link, .stage.theme--mint .break-panel .break-countdown { color: #1c3634; }
-.stage.theme--mint .icon-button { color: #1d7870; background: #ffffff; border: 1px solid #1d7870; border-radius: .6em; }
-.stage.theme--mint .icon-button:active { color: #fff; background: #1d7870; }
-/* Sit the dark-mode toggle inside the Trending card's corner instead of across its border. */
-.stage.theme--mint .theme-toggle { top: 2.6em; right: 2.8em; }
-.stage.compact.theme--mint .theme-toggle { top: 1.9em; right: 2.1em; }
-.stage.stage--fullscreen.theme--mint .theme-toggle { top: .65em; right: .65em; }
-.stage.theme--mint .feeds-panel { background: #ffffff; border: 1px solid #c5e1dc; border-radius: .6em; padding: 1em 1.4em; }
-.stage.theme--mint .settings-layer { background: rgba(234,245,243,.95); }
-.stage.theme--mint .settings-panel { background: #ffffff; border: 1px solid #c5e1dc; border-radius: .6em; }
-.stage.theme--mint .settings-panel header, .stage.theme--mint .settings-panel .display-info, .stage.theme--mint .settings-panel button, .stage.theme--mint .settings-fields select, .stage.theme--mint .break-field select { border-color: #c5e1dc; }
-.stage.theme--mint .filled-button, .stage.theme--mint .settings-panel .filled-button, .stage.theme--mint .work-start { color: #fff; background: #1d7870; border-color: #1d7870; }
-.stage.theme--mint .break-progress { border-color: #c5e1dc; background: #ffffff; }
-.stage.theme--mint .break-progress-fill { background: #1d7870; }
-.stage.theme--mint .clock-tiles, .stage.theme--mint .workday-block { border-color: #c5e1dc; }
-.stage.theme--mint .work-bar { border-color: #c5e1dc; background: #ffffff; }
-.stage.theme--mint .work-bar-fill { background: #1d7870; }
-.stage.theme--mint .work-bar-labels, .stage.theme--mint .work-caption { color: #526d69; }
-/* Flip-clock look (issue #13), chosen in Settings; the classic look above is untouched. Cards
-   have fixed widths so changing digits never moves the layout. The flip animation is a
-   progressive enhancement for normal monitors: the resting layers already show the new value,
-   so browsers without 3D transforms or animations (or with reduced motion) just switch digits. */
+.stage--card .theme-toggle { top: 2.6em; right: 2.8em; }
+.stage--card.compact .theme-toggle { top: 1.9em; right: 2.1em; }
+.stage--card.stage--fullscreen .theme-toggle, .stage--card.stage--stacked .theme-toggle { top: .65em; right: .65em; }
+/* Flip-clock look (issue #13), chosen in Settings. Cards have fixed widths so changing digits
+   never moves the layout. The resting layers already show the new value, so with
+   prefers-reduced-motion the digits simply switch. */
 .flip-clock { display: inline-flex; align-items: flex-start; white-space: nowrap; font-family: 'Roboto Condensed', Arial, sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; flex-shrink: 0; }
 .flip-clock--primary { align-self: flex-start; margin: .04em 0; }
 .flip-clock--second, .flip-clock--work { font-size: 3.1em; }
 .stage--fullscreen .flip-clock--second, .stage--fullscreen .flip-clock--work { font-size: 3.8em; }
-.flip-card { position: relative; display: block; width: 1.25em; height: 1.2em; flex-shrink: 0; color: #f2f2f2; perspective: 4em; }
+.flip-card { position: relative; display: block; width: 1.25em; height: 1.2em; flex-shrink: 0; color: var(--flip-digits); perspective: 4em; }
 .flip-card + .flip-card { margin-left: .12em; }
-.flip-half { position: absolute; left: 0; right: 0; height: .6em; overflow: hidden; background: #222; }
+.flip-half { position: absolute; left: 0; right: 0; height: .6em; overflow: hidden; background: var(--flip-card); }
 .flip-top { top: 0; border-radius: .08em .08em 0 0; }
 .flip-bottom { top: .6em; border-radius: 0 0 .08em .08em; }
 .flip-digits { display: block; height: 1.2em; line-height: 1.2em; text-align: center; }
 .flip-bottom .flip-digits { margin-top: -.6em; }
-.flip-flap { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.flip-flap { backface-visibility: hidden; }
 .flip-flap--top { transform-origin: 50% 100%; visibility: hidden; }
 .flip-flap--bottom { transform-origin: 50% 0; }
-.flip-hinge { position: absolute; left: 0; right: 0; top: .6em; height: .03em; min-height: 1px; margin-top: -.015em; background: #fff; }
-.flip-period { position: absolute; top: .3em; left: .35em; z-index: 1; font-size: .14em; letter-spacing: .06em; line-height: 1; color: #f2f2f2; }
-/* stylelint-disable property-disallowed-list, plugin/no-unsupported-browser-features -- the flip
-   animation is the one place that may animate (owner decision in issue #13); old browsers ignore it. */
+/* The hinge is drawn in the page background. */
+.flip-hinge { position: absolute; left: 0; right: 0; top: .6em; height: .03em; min-height: 1px; margin-top: -.015em; background: var(--bg); }
+.flip-period { position: absolute; top: .3em; left: .35em; z-index: 1; font-size: .14em; letter-spacing: .06em; line-height: 1; color: var(--flip-digits); }
 .flip-flap--top.flip-flap--turn { animation: flip-fold 150ms ease-in; }
 .flip-flap--bottom.flip-flap--turn { animation: flip-drop 150ms ease-out 150ms both; }
 @keyframes flip-fold { from { visibility: visible; transform: rotateX(0deg); } to { visibility: visible; transform: rotateX(-90deg); } }
 @keyframes flip-drop { from { transform: rotateX(90deg); } to { transform: rotateX(0deg); } }
 @media (prefers-reduced-motion: reduce) { .flip-flap--top.flip-flap--turn, .flip-flap--bottom.flip-flap--turn { animation: none; } }
-/* stylelint-enable property-disallowed-list, plugin/no-unsupported-browser-features */
-/* Flip-card colours per theme: card, digits, and a hinge in the page background. */
-.stage.theme--dark .flip-half { background: #1c1c1c; }
-.stage.theme--dark .flip-card, .stage.theme--dark .flip-period { color: #c4c4c4; }
-.stage.theme--dark .flip-hinge { background: #000; }
-.stage.theme--sky .flip-half { background: #2e6aac; }
-.stage.theme--sky .flip-card, .stage.theme--sky .flip-period { color: #fff; }
-.stage.theme--sky .flip-hinge { background: #eef4fb; }
-.stage.theme--sage .flip-half { background: #37754c; }
-.stage.theme--sage .flip-card, .stage.theme--sage .flip-period { color: #fff; }
-.stage.theme--sage .flip-hinge { background: #eef5ec; }
-.stage.theme--lavender .flip-half { background: #6a4ca6; }
-.stage.theme--lavender .flip-card, .stage.theme--lavender .flip-period { color: #fff; }
-.stage.theme--lavender .flip-hinge { background: #f3f0fa; }
-.stage.theme--mint .flip-half { background: #1d7870; }
-.stage.theme--mint .flip-card, .stage.theme--mint .flip-period { color: #fff; }
-.stage.theme--mint .flip-hinge { background: #eaf5f3; }
+/* Themes: one block of variables each. Light is the default; the others are theme--<name>
+   classes, and their page colours are repeated in THEME_COLORS (src/model.js) and index.html.
+   --bg page, --fg text, --muted secondary text, --accent icons and links, --card cards and
+   controls, --rule borders and rules, --strong filled buttons, bars, focus and pressed buttons,
+   --on-strong text on --strong, --overlay behind dialogs, --flip-card / --flip-digits the
+   flip cards. */
+:root {
+  --bg: #fff; --fg: #111; --muted: #111; --accent: #111; --card: #fff; --rule: #111;
+  --strong: #111; --on-strong: #fff; --overlay: rgba(255,255,255,.95);
+  --flip-card: #222; --flip-digits: #f2f2f2;
+}
+.theme--dark {
+  color-scheme: dark;
+  --bg: #000; --fg: #fff; --muted: #fff; --accent: #fff; --card: #000; --rule: #fff;
+  --strong: #fff; --on-strong: #000; --overlay: rgba(0,0,0,.96);
+  --flip-card: #1c1c1c; --flip-digits: #c4c4c4;
+}
+/* Sky (blue) */
+.theme--sky {
+  --bg: #eef4fb; --fg: #1c2d44; --muted: #56697f; --accent: #2e6aac; --card: #ffffff; --rule: #c9d8ea;
+  --strong: #2e6aac; --on-strong: #fff; --overlay: rgba(238,244,251,.95);
+  --flip-card: #2e6aac; --flip-digits: #fff;
+}
+/* Sage (green) */
+.theme--sage {
+  --bg: #eef5ec; --fg: #203427; --muted: #566b5c; --accent: #37754c; --card: #ffffff; --rule: #cfe0cc;
+  --strong: #37754c; --on-strong: #fff; --overlay: rgba(238,245,236,.95);
+  --flip-card: #37754c; --flip-digits: #fff;
+}
+/* Lavender (purple) */
+.theme--lavender {
+  --bg: #f3f0fa; --fg: #2c2541; --muted: #655d80; --accent: #6a4ca6; --card: #ffffff; --rule: #dcd4ee;
+  --strong: #6a4ca6; --on-strong: #fff; --overlay: rgba(243,240,250,.95);
+  --flip-card: #6a4ca6; --flip-digits: #fff;
+}
+/* Mint (teal) */
+.theme--mint {
+  --bg: #eaf5f3; --fg: #1c3634; --muted: #526d69; --accent: #1d7870; --card: #ffffff; --rule: #c5e1dc;
+  --strong: #1d7870; --on-strong: #fff; --overlay: rgba(234,245,243,.95);
+  --flip-card: #1d7870; --flip-digits: #fff;
+}

@@ -46,20 +46,33 @@ describe('app shell', () => {
     expect(render()).not.toContain('theme--');
     expect(render({ theme: 'dark', lightTheme: 'sage' })).not.toContain('theme--sage');
   });
-  it('rotates a portrait viewport into landscape by default', () => {
-    vi.stubGlobal('window', { innerWidth: 1072, innerHeight: 1448, devicePixelRatio: 1 });
-    expect(render()).toContain('transform:rotate(90deg)');
+  it('never rotates; a portrait viewport stacks Trending below the clock', () => {
+    vi.stubGlobal('window', { innerWidth: 768, innerHeight: 1024, devicePixelRatio: 2 });
+    const markup = render({ rotation: 'cw' });
+    expect(markup).not.toContain('rotate(');
+    expect(markup).toMatch(/<main class="stage stage--stacked" style="width:768px;height:1024px;font-size:15\.36px"/);
+    expect(markup).toContain('class="feeds-panel"');
+    expect(render({ showFeeds: false })).toContain('class="stage stage--fullscreen"');
+  });
+  it('marks the layout mode, compact width and card themes on the stage', () => {
+    expect(render()).toContain('<main class="stage stage--split"');
+    expect(render({ theme: 'dark' })).toContain('<main class="stage stage--split theme--dark"');
+    expect(render({ theme: 'sky' })).toContain('<main class="stage stage--split stage--card theme--sky"');
+    vi.stubGlobal('window', { innerWidth: 600, innerHeight: 400, devicePixelRatio: 1 });
+    expect(render({ theme: 'mint', showFeeds: false })).toContain('<main class="stage stage--fullscreen compact stage--card theme--mint"');
   });
 });
 
 describe('settings dialog', () => {
-  it('shows the current choices and the measured viewport', () => {
+  it('shows the current choices and the measured viewport, with no rotation or Kindle reference', () => {
     const settings = normalizeSettings({ language: 'en', rotation: 'ccw', showFeeds: false });
-    const markup = renderToStaticMarkup(<Settings settings={settings} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT.en} />);
-    expect(markup).toContain('role="dialog"');
-    expect(markup).toContain('<option value="ccw" selected="">');
-    expect(markup).toContain('<option value="hide" selected="">');
-    expect(markup).toContain('1448 × 1072 CSS px');
+    for (const t of [APP_TEXT.en, APP_TEXT.zh]) {
+      const markup = renderToStaticMarkup(<Settings settings={settings} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1280, 800)} t={t} />);
+      expect(markup).toContain('role="dialog"');
+      expect(markup).toContain('<option value="hide" selected="">');
+      expect(markup).toContain('1280 × 800 CSS px');
+      expect(markup).not.toMatch(/Kindle|1072|ccw|value="cw"/);
+    }
   });
   it('offers off / on / now for the break reminder', () => {
     const markup = renderToStaticMarkup(<Settings settings={normalizeSettings({ breakReminder: true })} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT.zh} />);
@@ -67,7 +80,7 @@ describe('settings dialog', () => {
   });
   it('offers the break notification only where the Notification API exists and the reminder is on', () => {
     const render = (settings, t = APP_TEXT.en) => renderToStaticMarkup(<Settings settings={normalizeSettings(settings)} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={t} />);
-    expect(render({ breakReminder: true })).not.toContain('Break notification'); // Kindle: no API
+    expect(render({ breakReminder: true })).not.toContain('Break notification'); // e.g. iOS Safari outside a home-screen app: no API
     vi.stubGlobal('window', { Notification: { permission: 'granted' } });
     try {
       expect(render({ breakReminder: false })).not.toContain('Break notification');

@@ -30,8 +30,16 @@ function overflows(bounds, nodes) {
   return false;
 }
 
-// The colored themes draw Trending as a bordered card, so its content must also stay inside the card.
-const CARD_THEMES = THEMES.filter((theme) => theme !== 'light' && theme !== 'dark');
+// The colored themes draw Trending (and buttons, Settings) as bordered cards: `stage--card`.
+export const CARD_THEMES = THEMES.filter((theme) => theme !== 'light' && theme !== 'dark');
+
+export function stageClass(viewport, theme) {
+  const classes = ['stage', `stage--${viewport.mode}`];
+  if (viewport.width < 650) classes.push('compact');
+  if (CARD_THEMES.includes(theme)) classes.push('stage--card');
+  if (theme !== 'light') classes.push(`theme--${theme}`);
+  return classes.join(' ');
+}
 export function stageOverflows(stage) {
   if (overflows(stage.getBoundingClientRect(), stage.querySelectorAll('.dashboard *'))) return true;
   // Flip cards are wider than the classic digits; keep them out of the Trending column.
@@ -51,12 +59,12 @@ export default function App() {
   const [settings, setSettings] = useState(() => normalizeSettings(readStored(SETTINGS_KEY)));
   const [now, setNow] = useState(new Date());
   const [showSettings, setShowSettings] = useState(false);
-  const viewport = useViewport(settings.rotation, settings.showFeeds, settings.zoom);
+  const viewport = useViewport(settings.showFeeds, settings.zoom);
   const zoomBy = (step) => setSettings((old) => ({ ...old, zoom: clampZoom(old.zoom + step) }));
   // Largest zoom that fit this layout; reset whenever the available space or content shape changes.
   const [zoomLimit, setZoomLimit] = useState(null);
   const stageRef = useRef(null);
-  const layoutKey = [viewport.width, viewport.height, settings.showFeeds, settings.language, settings.format, settings.theme, settings.clockStyle].join('|');
+  const layoutKey = [viewport.width, viewport.height, viewport.mode, settings.language, settings.format, settings.theme, settings.clockStyle].join('|');
   useEffect(() => { setZoomLimit(null); }, [layoutKey]);
   // Runs before paint, so an oversized zoom is never shown (and never leaves the controls off-screen).
   useLayoutEffect(() => {
@@ -114,7 +122,7 @@ export default function App() {
     return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', resume); window.removeEventListener('focus', resume); };
   }, []);
 
-  return <main ref={stageRef} className={`stage ${viewport.width < 650 ? 'compact' : ''} ${settings.showFeeds ? '' : 'stage--fullscreen'} ${settings.theme === 'light' ? '' : `theme--${settings.theme}`}`} style={viewport.style}>
+  return <main ref={stageRef} className={stageClass(viewport, settings.theme)} style={viewport.style}>
     <div className="dashboard" aria-hidden={showSettings || breakOpen ? 'true' : undefined}>
       <section className="clock-panel">
         <header className="date-header">
@@ -127,8 +135,8 @@ export default function App() {
           <CityHeading city={primary} entry={entries[primary.id]} now={now} language={settings.language} format={settings.format} label={t.primary} primary t={t} />
           <div className="primary-time">
             {flip
-              ? <LiveFlipClock city={primary} cityLabel={cityName(primary, settings.language)} format={settings.format} fontSize={flipTimeFontSize(viewport.width, viewport.height, settings.showFeeds, settings.zoom)} />
-              : <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, settings.showFeeds, settings.zoom)} />}
+              ? <LiveFlipClock city={primary} cityLabel={cityName(primary, settings.language)} format={settings.format} fontSize={flipTimeFontSize(viewport.width, viewport.height, viewport.mode, settings.zoom)} />
+              : <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, viewport.mode, settings.zoom)} />}
           </div>
         </div>
         <div className="clock-tiles">

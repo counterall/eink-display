@@ -9,7 +9,7 @@ export default function Settings({ settings, setSettings, close, viewport, t }) 
   const breakNowRef = useRef(false);
   breakNowRef.current = breakNow;
   const finish = () => close({ breakNow: breakNowRef.current });
-  // Desktop only: the row is absent where there is no Notification API (Kindle).
+  // The row is absent where there is no Notification API (e.g. iOS Safari outside a home-screen app).
   const [permission, setPermission] = useState(notificationPermission);
   const notifyOn = settings.breakNotification && permission === 'granted';
   const changeNotification = (on) => {
@@ -44,7 +44,6 @@ export default function Settings({ settings, setSettings, close, viewport, t }) 
         {['primary', 'secondary'].map((key) => <label key={key}>{t[key]}<select ref={key === 'primary' ? first : undefined} value={settings[key]} onChange={(event) => change(key, event.target.value)}>{CITIES.map((city) => <option key={city.id} value={city.id}>{cityName(city, settings.language)}</option>)}</select></label>)}
         <label>{t.language}<select value={settings.language} onChange={(event) => change('language', event.target.value)}><option value="zh">中文</option><option value="en">English</option></select></label>
         <label>{t.format}<select value={settings.format} onChange={(event) => change('format', event.target.value)}><option value="24">{t.hour24}</option><option value="12">{t.hour12}</option></select></label>
-        <label>{t.rotation}<select value={settings.rotation} onChange={(event) => change('rotation', event.target.value)}>{['auto', 'none', 'cw', 'ccw'].map((key) => <option key={key} value={key}>{t[key]}</option>)}</select></label>
         <label>{t.rightColumn}<select value={settings.showFeeds ? 'show' : 'hide'} onChange={(event) => change('showFeeds', event.target.value === 'show')}><option value="show">{t.show}</option><option value="hide">{t.hide}</option></select></label>
         <label>{t.theme}<select value={settings.theme} onChange={(event) => change('theme', event.target.value)}>{THEMES.map((key) => <option key={key} value={key}>{t[`theme_${key}`]}</option>)}</select></label>
         <label>{t.clockStyle}<select value={settings.clockStyle} onChange={(event) => change('clockStyle', event.target.value)}>{CLOCK_STYLES.map((key) => <option key={key} value={key}>{t[`clock_${key}`]}</option>)}</select></label>
@@ -53,7 +52,7 @@ export default function Settings({ settings, setSettings, close, viewport, t }) 
         {settings.breakReminder && permission === 'denied' && <p className="settings-hint">{t.notificationBlocked}</p>}
       </div>
       <p>{t.note}</p><p>{t.lofoten}</p>
-      <p className="display-info">{t.displayReference}<br />{t.viewport}: {Math.round(viewport.viewportWidth)} × {Math.round(viewport.viewportHeight)} CSS px · {t.layout}: {Math.round(viewport.width)} × {Math.round(viewport.height)} · {t.pixelRatio}: {window.devicePixelRatio || 1}</p>
+      <p className="display-info">{t.viewport}: {Math.round(viewport.width)} × {Math.round(viewport.height)} CSS px · {t.pixelRatio}: {window.devicePixelRatio || 1}</p>
       <footer><button className="filled-button" onClick={finish}>{t.close}</button><a href="https://open-meteo.com/" target="_blank" rel="noreferrer">{t.source}</a></footer>
     </section>
   </div>;

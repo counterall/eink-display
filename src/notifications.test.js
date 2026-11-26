@@ -12,7 +12,7 @@ function fakeNotification(permission = 'default', requestPermission) {
 }
 
 describe('notification API detection', () => {
-  it('is absent without a window or without Notification (Kindle)', () => {
+  it('is absent without a window or without Notification (e.g. iOS Safari in a tab)', () => {
     expect(notificationsSupported()).toBe(false);
     expect(notificationPermission()).toBe('unsupported');
     vi.stubGlobal('window', { innerWidth: 1448 });
@@ -34,19 +34,6 @@ describe('requesting permission', () => {
     await Promise.resolve(); await Promise.resolve();
     expect(done).toHaveBeenCalledTimes(1);
     expect(done).toHaveBeenCalledWith('granted');
-  });
-  it('supports the callback form (Safari 9)', () => {
-    vi.stubGlobal('window', { Notification: fakeNotification('default', (callback) => { callback('denied'); return undefined; }).Notification });
-    const done = vi.fn();
-    requestNotificationPermission(done);
-    expect(done).toHaveBeenCalledWith('denied');
-  });
-  it('answers only once when a browser calls back and resolves', async () => {
-    vi.stubGlobal('window', { Notification: fakeNotification('default', (callback) => { callback('granted'); return Promise.resolve('granted'); }).Notification });
-    const done = vi.fn();
-    requestNotificationPermission(done);
-    await Promise.resolve(); await Promise.resolve();
-    expect(done).toHaveBeenCalledTimes(1);
   });
   it('never throws and falls back to the current permission', async () => {
     const throwing = fakeNotification('default', () => { throw new Error('nope'); }).Notification;

@@ -21,7 +21,7 @@ export default function WorkdayBlock({ city, now, language, startedAt = null, on
   const remaining = `${pad(state.hours)}:${pad(state.minutes)}`;
   const at = (ms) => clock(cityDate(city, new Date(ms)), '24').digits;
   const progress = workProgress(startedAt, now.getTime());
-  // Plain percentage width, redrawn on the minute tick; no transition (Kindle).
+  // Plain percentage width, redrawn on the minute tick.
   const width = `${Math.round(progress.fraction * 10000) / 100}%`;
   return <section className="workday-block clock-tile" aria-label={t.title}>
     {label}

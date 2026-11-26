@@ -22,3 +22,14 @@ describe('deploy workflow triggers', () => {
     expect(triggers).toContain("- cron: '17 6 * * *'");
   });
 });
+
+describe('deploy workflow build steps', () => {
+  const build = between(workflow, '  build:', '  persist:');
+  it('runs install, Trending refresh, tests, CSS lint and build in that order', () => {
+    const steps = [...build.matchAll(/- run: (.+)/g)].map((match) => match[1].trim());
+    expect(steps).toEqual(['pnpm install --frozen-lockfile', 'pnpm refresh:trending', 'pnpm test', 'pnpm lint:css', 'pnpm build']);
+  });
+  it('no longer runs the removed legacy-syntax check (issue #21)', () => {
+    expect(workflow).not.toContain('check:legacy');
+  });
+});

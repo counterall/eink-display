@@ -1,12 +1,12 @@
 export const CITIES = [
-  { id: 'helsinki', zh: '赫尔辛基', en: 'Helsinki', lat: 60.1699, lon: 24.9384, zone: 'Europe/Helsinki', offset: 2, dst: true },
-  { id: 'xian', zh: '西安', en: 'Xi’an', lat: 34.3416, lon: 108.9398, zone: 'Asia/Shanghai', offset: 8 },
-  { id: 'london', zh: '伦敦', en: 'London', lat: 51.5074, lon: -0.1278, zone: 'Europe/London', offset: 0, dst: true },
-  { id: 'lofoten', zh: '罗弗敦群岛', en: 'Lofoten', lat: 68.2343, lon: 14.5682, zone: 'Europe/Oslo', offset: 1, dst: true },
-  { id: 'osaka', zh: '大阪', en: 'Osaka', lat: 34.6937, lon: 135.5023, zone: 'Asia/Tokyo', offset: 9 },
+  { id: 'helsinki', zh: '赫尔辛基', en: 'Helsinki', lat: 60.1699, lon: 24.9384, zone: 'Europe/Helsinki' },
+  { id: 'xian', zh: '西安', en: 'Xi’an', lat: 34.3416, lon: 108.9398, zone: 'Asia/Shanghai' },
+  { id: 'london', zh: '伦敦', en: 'London', lat: 51.5074, lon: -0.1278, zone: 'Europe/London' },
+  { id: 'lofoten', zh: '罗弗敦群岛', en: 'Lofoten', lat: 68.2343, lon: 14.5682, zone: 'Europe/Oslo' },
+  { id: 'osaka', zh: '大阪', en: 'Osaka', lat: 34.6937, lon: 135.5023, zone: 'Asia/Tokyo' },
 ];
 
-export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', rotation: 'auto', showFeeds: true, theme: 'light', lightTheme: 'light', zoom: 100, breakReminder: false, breakNotification: false, clockStyle: 'classic' };
+export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', showFeeds: true, theme: 'light', lightTheme: 'light', zoom: 100, breakReminder: false, breakNotification: false, clockStyle: 'classic' };
 export const CLOCK_STYLES = ['classic', 'flip'];
 // Page background per theme, also used for <meta name="theme-color">. The
 // inline bootstrap script in index.html repeats this table (tested to match).
@@ -25,16 +25,23 @@ export const cityById = (id) => CITIES.find((city) => city.id === id) || CITIES[
 export const cityName = (city, language) => city[language === 'zh' ? 'zh' : 'en'];
 export const pad = (n) => String(n).padStart(2, '0');
 
-// The preset cities use fixed offsets or the EU's common DST rule. Avoid Intl
-// and Date parsing of timezone-less API strings on old Kindle browsers.
+// Wall-clock time in the city's IANA zone, as a Date shifted so its getUTC* methods read that
+// local time (callers use getUTCHours() etc.). Intl handles each zone's DST rules.
+const zoneFormats = {};
+function zoneFormat(zone) {
+  if (!zoneFormats[zone]) {
+    zoneFormats[zone] = new Intl.DateTimeFormat('en-US', {
+      timeZone: zone, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric',
+    });
+  }
+  return zoneFormats[zone];
+}
+
 export function cityDate(city, now = new Date()) {
-  const year = now.getUTCFullYear();
-  const lastSunday = (month) => {
-    const end = new Date(Date.UTC(year, month + 1, 0));
-    return Date.UTC(year, month, end.getUTCDate() - end.getUTCDay(), 1);
-  };
-  const summer = city.dst && now.getTime() >= lastSunday(2) && now.getTime() < lastSunday(9);
-  return new Date(now.getTime() + (city.offset + (summer ? 1 : 0)) * 3600000);
+  const parts = {};
+  for (const part of zoneFormat(city.zone).formatToParts(now)) parts[part.type] = Number(part.value);
+  // hourCycle h23 should never give 24, but some engines did; treat it as midnight.
+  return new Date(Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour % 24, parts.minute, parts.second, now.getUTCMilliseconds()));
 }
 
 export function dateKey(date) {
@@ -92,7 +99,6 @@ export function normalizeSettings(value) {
   if (settings.primary === settings.secondary) settings.secondary = CITIES.find((city) => city.id !== settings.primary).id;
   if (['zh', 'en'].includes(value.language)) settings.language = value.language;
   if (['12', '24'].includes(value.format)) settings.format = value.format;
-  if (['auto', 'none', 'cw', 'ccw'].includes(value.rotation)) settings.rotation = value.rotation;
   if (typeof value.showFeeds === 'boolean') settings.showFeeds = value.showFeeds;
   if (THEMES.includes(value.theme)) settings.theme = value.theme;
   if (LIGHT_THEMES.includes(value.lightTheme)) settings.lightTheme = value.lightTheme;
