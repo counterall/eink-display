@@ -39,3 +39,15 @@ describe('same-origin Trending snapshot request', () => {
     await slow;
   });
 });
+
+describe('daily Trending snapshot request (issue #23)', () => {
+  it('reads the daily file from the same origin and validates it as daily', async () => {
+    vi.stubEnv('BASE_URL', '/eink-display/');
+    expect(trendingURL(0, 'daily')).toBe('/eink-display/data/github-trending-daily.json?v=0');
+    const calls = stubFetch(trendingData('daily'));
+    await expect(fetchTrending('daily')).resolves.toEqual(trendingData('daily'));
+    expect(calls[0].url).toMatch(/^\/eink-display\/data\/github-trending-daily\.json\?v=\d+$/);
+    stubFetch(trendingData('weekly'));
+    await expect(fetchTrending('daily')).rejects.toThrow('Invalid daily Trending snapshot');
+  });
+});

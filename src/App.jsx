@@ -11,7 +11,7 @@ import DigitalClock from './DigitalClock';
 import FlipClock, { LiveFlipClock } from './FlipClock';
 import TimeDigits from './TimeDigits';
 import CityHeading from './CityHeading';
-import TrendingFeed from './TrendingFeed';
+import TrendingCarousel from './TrendingFeed';
 import WorkdayBlock from './WorkdayBlock';
 import DisplayModeToggle from './DisplayModeToggle';
 import Settings from './Settings';
@@ -22,10 +22,18 @@ import { normalizeWorkState, workStartAt } from './workday';
 export const SETTINGS_KEY = 'kindle-settings-v1';
 export const WORK_KEY = 'kindle-work-v1';
 
-function overflows(bounds, nodes) {
+// Carousel slides (issue #23) sit side by side in a horizontally clipped track, and slide while
+// switching: only their height counts, for every slide, so the fit allows for the taller one. The
+// track's viewport clips them, so they must also end above its bottom (`clip`).
+const inTrack = (node) => typeof node.closest === 'function' && node.closest('.carousel-track') !== null;
+
+function overflows(bounds, nodes, clip = null) {
   for (let i = 0; i < nodes.length; i++) {
     const box = nodes[i].getBoundingClientRect();
-    if (box.width && (box.right > bounds.right + 1 || box.bottom > bounds.bottom + 1)) return true;
+    if (!box.width) continue;
+    const sliding = inTrack(nodes[i]);
+    if ((box.right > bounds.right + 1 && !sliding) || box.bottom > bounds.bottom + 1) return true;
+    if (sliding && clip && box.bottom > clip.bottom + 1) return true;
   }
   return false;
 }
@@ -44,7 +52,9 @@ export function stageClass(viewport, theme) {
 export const effectiveZoom = (saved, limit) => (limit === null ? saved : Math.min(saved, limit));
 
 export function stageOverflows(stage) {
-  if (overflows(stage.getBoundingClientRect(), stage.querySelectorAll('.dashboard *'))) return true;
+  const viewport = stage.querySelector('.carousel-viewport');
+  const clip = viewport ? viewport.getBoundingClientRect() : null;
+  if (overflows(stage.getBoundingClientRect(), stage.querySelectorAll('.dashboard *'), clip)) return true;
   // Flip cards are wider than the classic digits; keep them out of the Trending column.
   const panel = stage.querySelector('.clock-panel');
   if (panel && overflows(panel.getBoundingClientRect(), stage.querySelectorAll('.flip-clock'))) return true;
@@ -169,7 +179,7 @@ export default function App() {
           </div>
         </footer>
       </section>
-      {settings.showFeeds && <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingFeed language={settings.language} city={primary} now={now} /></aside>}
+      {settings.showFeeds && <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingCarousel language={settings.language} city={primary} now={now} interval={settings.carouselInterval} paused={showSettings || breakOpen} /></aside>}
     </div>
     {!showSettings && !breakOpen && <DisplayModeToggle theme={settings.theme} language={settings.language} onToggle={() => setSettings(toggleTheme)} />}
     {showSettings && <Settings settings={settings} setSettings={setSettings} close={(options) => { setShowSettings(false); if (options && options.breakNow) breakReminder.openNow(); }} viewport={viewport} t={t} />}

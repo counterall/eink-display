@@ -212,3 +212,33 @@ describe('zoom overflow check for the tiles', () => {
     expect(stageOverflows(stage(530))).toBe(true);
   });
 });
+
+describe('Trending carousel in the app (issue #23)', () => {
+  it('renders the carousel in the right column, and none when the column is hidden', () => {
+    expect(render()).toContain('class="trending-carousel"');
+    expect(render({ showFeeds: false })).not.toContain('trending-carousel');
+  });
+  it('ignores the clipped neighbour slide sideways but still fits its height', () => {
+    const node = (right, bottom, inTrack) => ({ getBoundingClientRect: () => ({ right, bottom, width: 10 }), closest: (selector) => (inTrack && selector === '.carousel-track' ? {} : null) });
+    const stage = (nodes) => ({ className: 'stage', getBoundingClientRect: () => ({ right: 120, bottom: 120 }), querySelector: () => null, querySelectorAll: (selector) => (selector === '.dashboard *' ? nodes : []) });
+    expect(stageOverflows(stage([node(240, 100, true)]))).toBe(false);
+    expect(stageOverflows(stage([node(240, 100, false)]))).toBe(true);
+    expect(stageOverflows(stage([node(240, 130, true)]))).toBe(true);
+  });
+  it('keeps slide content above the carousel viewport, which clips it', () => {
+    const node = (bottom, inTrack) => ({ getBoundingClientRect: () => ({ right: 50, bottom, width: 10 }), closest: () => (inTrack ? {} : null) });
+    const viewport = { getBoundingClientRect: () => ({ right: 100, bottom: 90 }) };
+    const stage = (nodes) => ({ className: 'stage', getBoundingClientRect: () => ({ right: 120, bottom: 120 }), querySelector: (selector) => (selector === '.carousel-viewport' ? viewport : null), querySelectorAll: (selector) => (selector === '.dashboard *' ? nodes : []) });
+    expect(stageOverflows(stage([node(89, true)]))).toBe(false);
+    expect(stageOverflows(stage([node(100, true)]))).toBe(true);
+    // The dots and footer below the viewport are not clipped by it.
+    expect(stageOverflows(stage([node(110, false)]))).toBe(false);
+  });
+  it('shows the interval setting under the right column only while it is shown', () => {
+    const settings = (saved) => renderToStaticMarkup(<Settings settings={normalizeSettings(saved)} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT[saved.language || 'zh']} />);
+    const zh = settings({ carouselInterval: 30 });
+    expect(zh).toMatch(/右侧资讯栏<select>.*?<\/select><\/label><label>轮播间隔<select><option value="10">10 分钟<\/option><option value="30" selected="">30 分钟<\/option><option value="60">1 小时<\/option><\/select><\/label>/);
+    expect(settings({ language: 'en' })).toContain('Carousel interval<select><option value="10" selected="">10 min</option><option value="30">30 min</option><option value="60">1 hour</option></select>');
+    expect(settings({ showFeeds: false })).not.toContain('轮播间隔');
+  });
+});

@@ -101,6 +101,36 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .repo-stars small { font-size: .85em; margin-left: .4em; }
 .trending-footer { color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; font-size: .7em; line-height: 1.4; margin-top: .65em; flex-shrink: 0; }
 .trending-footer a { color: var(--accent); margin-left: .75em; }
+/* Right-column carousel (issue #23): weekly and daily Trending side by side in one track. The
+   viewport clips the track, which slides ~400 ms between switches and not at all otherwise; the
+   track's height is the taller slide's. Arrows appear on mouse hover or keyboard focus and stay
+   visible on touch screens (hover: none); dots and the current slide's footer sit below. */
+.trending-carousel { position: relative; height: 100%; min-height: 0; display: flex; flex-direction: column; }
+.carousel-stage { position: relative; flex: 1; min-height: 0; }
+/* touch-action keeps horizontal swipes for the carousel. Desktop Safari has no touch input to
+   need it; iOS Safari supports it. */
+/* stylelint-disable-next-line plugin/no-unsupported-browser-features */
+.carousel-viewport { height: 100%; overflow: hidden; touch-action: pan-y; }
+.carousel-track { display: flex; height: 100%; transition: transform 400ms ease-out; }
+.carousel-slide { flex: 0 0 100%; min-width: 0; }
+.carousel-arrow { position: absolute; top: 50%; z-index: 1; transform: translateY(-50%); color: var(--accent); background: var(--card); border: 1px solid var(--rule); border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity 150ms ease-out; }
+.carousel-arrow--previous { left: 0; }
+.carousel-arrow--next { right: 0; }
+.trending-carousel:hover .carousel-arrow, .trending-carousel:has(:focus-visible) .carousel-arrow { opacity: 1; pointer-events: auto; }
+.carousel-arrow:hover { border-color: var(--accent); }
+.carousel-arrow:active { color: var(--on-strong); background: var(--strong); }
+/* The dots row is shorter than the 44px dot buttons: their hit areas reach into the last list
+   item's bottom padding instead of taking more height from the list. */
+.carousel-dots { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; height: 1.5em; margin-top: -.3em; }
+.carousel-dot { display: inline-flex; align-items: center; justify-content: center; width: 2em; height: 2em; min-width: 44px; min-height: 44px; padding: 0; background: transparent; }
+.carousel-dot:active { background: transparent; }
+.carousel-dot-mark { display: block; width: .7em; height: .7em; border: 2px solid var(--accent); border-radius: 50%; transition: transform 150ms ease-out; }
+.carousel-dot:hover .carousel-dot-mark { transform: scale(1.25); }
+.carousel-dot[aria-current='true'] .carousel-dot-mark { background: var(--accent); }
+.trending-carousel .trending-footer { margin-top: .15em; }
+.trending-carousel .trending-item { padding: .4em 0; }
+@media (hover: none) { .carousel-arrow { opacity: 1; pointer-events: auto; } }
+@media (prefers-reduced-motion: reduce) { .carousel-track, .carousel-arrow, .carousel-dot-mark { transition: none; } }
 .weather-status { color: var(--muted); margin-left: 1.15em; font-size: .7em; line-height: 1.5; min-width: 0; }
 .updated-time { display: block; }
 .update-notice { display: block; font-size: 1em; font-weight: bold; margin-top: .15em; }
@@ -155,6 +185,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage--stacked .date-header { padding-right: 3em; }
 .stage--stacked .feeds-panel { width: 100%; flex: none; padding: 1.2em 0 0; margin-top: 1.2em; border-top: 1px solid var(--rule); }
 .stage--stacked .trending-feed { height: auto; }
+.stage--stacked .trending-carousel, .stage--stacked .carousel-viewport, .stage--stacked .carousel-track { height: auto; }
 .stage--stacked .trending-header { padding-right: 0; }
 .stage--stacked .trending-item { padding: .35em 0; }
 .stage--stacked .repo-description { -webkit-line-clamp: 1; max-height: 1.35em; }
@@ -162,6 +193,8 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage--card .icon-button { color: var(--accent); background: var(--card); border: 1px solid var(--accent); border-radius: .6em; }
 .stage--card .icon-button:active { color: var(--on-strong); background: var(--strong); }
 .stage--card .feeds-panel { background: var(--card); border: 1px solid var(--rule); border-radius: .6em; padding: 1em 1.4em; }
+.stage--card .carousel-arrow { color: var(--accent); border-color: var(--accent); border-radius: 50%; }
+.stage--card .carousel-arrow:active { color: var(--on-strong); background: var(--strong); }
 .stage--card .settings-panel { border-width: 1px; border-radius: .6em; }
 /* Sit the dark-mode toggle inside the Trending card's corner instead of across its border. */
 .stage--card .theme-toggle { top: 2.6em; right: 2.8em; }

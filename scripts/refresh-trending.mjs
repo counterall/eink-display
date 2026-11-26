@@ -1,10 +1,11 @@
 import { load } from 'cheerio';
 import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isTrendingData, repositoryURL, TRENDING_LIMIT, TRENDING_SOURCE } from '../src/trendingData.js';
+import { isTrendingData, repositoryURL, TRENDING_LIMIT, TRENDING_PERIOD_NAMES, TRENDING_PERIODS } from '../src/trendingData.js';
 
-export const DEFAULT_OUTPUT = fileURLToPath(new URL('../public/data/github-trending.json', import.meta.url));
+export const DEFAULT_DIRECTORY = fileURLToPath(new URL('../public/data/', import.meta.url));
+export const DEFAULT_OUTPUT = join(DEFAULT_DIRECTORY, TRENDING_PERIODS.weekly.file);
 const cleanText = (text) => text.replace(/\s+/g, ' ').trim();
 
 function parseCount(text) {
@@ -13,7 +14,9 @@ function parseCount(text) {
   return Number(value);
 }
 
-export function parseTrending(html, now = new Date()) {
+export function parseTrending(html, now = new Date(), period = 'weekly') {
+  const config = TRENDING_PERIODS[period];
+  if (!config) throw new Error(`Unknown Trending period: ${period}`);
   const $ = load(html);
   const repositories = [];
   for (const element of $('article.Box-row').toArray()) {
@@ -24,37 +27,38 @@ export function parseTrending(html, now = new Date()) {
     const path = /^\/([^/]+)\/([^/]+)\/?$/.exec(href);
     if (!path || !repositoryURL(path[1], path[2])) throw new Error('Unexpected repository link in Trending HTML');
     const [, owner, name] = path;
-    const weeklyText = cleanText(article.find('.float-sm-right').last().text());
-    const weekly = /^([\d,]+)\s+stars?\s+this\s+week$/i.exec(weeklyText);
-    if (!weekly) throw new Error('Weekly star counts are missing; the source markup may have changed');
+    const gained = config.starsText.exec(cleanText(article.find('.float-sm-right').last().text()));
+    if (!gained) throw new Error(`${period === 'daily' ? 'Daily' : 'Weekly'} star counts are missing; the source markup may have changed`);
     repositories.push({
       rank: repositories.length + 1,
       owner, name, url: repositoryURL(owner, name),
       description: cleanText(article.children('p').first().text()).slice(0, 600),
       language: cleanText(article.find('[itemprop="programmingLanguage"]').first().text()) || null,
       stars: parseCount(article.find(`a[href="/${owner}/${name}/stargazers"]`).first().text()),
-      weeklyStars: parseCount(weekly[1]),
+      [config.starsField]: parseCount(gained[1]),
     });
   }
-  const data = { schemaVersion: 1, source: TRENDING_SOURCE, period: 'weekly', generatedAt: now.toISOString(), repositories };
-  if (!isTrendingData(data)) throw new Error(`Expected ${TRENDING_LIMIT} distinct, complete weekly repositories`);
+  const data = { schemaVersion: 1, source: config.source, period, generatedAt: now.toISOString(), repositories };
+  if (!isTrendingData(data, period)) throw new Error(`Expected ${TRENDING_LIMIT} distinct, complete ${period} repositories`);
   return data;
 }
 
-export async function refreshTrending({ outputPath = DEFAULT_OUTPUT, fetchImpl = globalThis.fetch, now = new Date() } = {}) {
+// Scrapes one list and atomically replaces its snapshot. On any failure the last good file is
+// kept untouched (same generatedAt); with no valid snapshot to fall back on, it throws.
+export async function refreshTrending({ period = 'weekly', outputPath = join(DEFAULT_DIRECTORY, TRENDING_PERIODS[period].file), fetchImpl = globalThis.fetch, now = new Date() } = {}) {
   let cached = null;
   try {
     const candidate = JSON.parse(await readFile(outputPath, 'utf8'));
-    if (isTrendingData(candidate)) cached = candidate;
+    if (isTrendingData(candidate, period)) cached = candidate;
   } catch { /* The first run may not have a snapshot yet. */ }
 
   try {
-    const response = await fetchImpl(TRENDING_SOURCE, {
+    const response = await fetchImpl(TRENDING_PERIODS[period].source, {
       headers: { Accept: 'text/html', 'Accept-Language': 'en-US,en;q=0.9', 'User-Agent': 'KindleDisplayTrending/1.0 (+https://github.com/trending)' },
       signal: AbortSignal.timeout(25000),
     });
     if (!response.ok) throw new Error(`GitHub returned HTTP ${response.status}`);
-    const data = parseTrending(await response.text(), now);
+    const data = parseTrending(await response.text(), now, period);
     await mkdir(dirname(outputPath), { recursive: true });
     const temporary = `${outputPath}.tmp-${process.pid}`;
     try {
@@ -71,16 +75,34 @@ export async function refreshTrending({ outputPath = DEFAULT_OUTPUT, fetchImpl =
   }
 }
 
+// Every list is refreshed on its own: one failing never stops or rolls back the others.
+// Each result is the refreshTrending result, or { failed: true, error } when the list has
+// neither fresh data nor a valid snapshot.
+export async function refreshAllTrending({ directory = DEFAULT_DIRECTORY, fetchImpl = globalThis.fetch, now = new Date() } = {}) {
+  const results = {};
+  for (const period of TRENDING_PERIOD_NAMES) {
+    const outputPath = join(directory, TRENDING_PERIODS[period].file);
+    try {
+      results[period] = { ...(await refreshTrending({ period, outputPath, fetchImpl, now })), outputPath };
+    } catch (error) {
+      results[period] = { failed: true, error: error.message, outputPath };
+    }
+  }
+  return results;
+}
+
+const annotate = (message) => message.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  try {
-    const result = await refreshTrending();
-    if (result.cached) {
-      const message = `Trending refresh failed: ${result.error}. Keeping snapshot from ${result.data.generatedAt}.`;
+  const results = await refreshAllTrending();
+  for (const [period, result] of Object.entries(results)) {
+    if (result.failed) {
+      console.error(`Cannot generate ${period} Trending data and no valid cached snapshot exists: ${result.error}`);
+      process.exitCode = 1;
+    } else if (result.cached) {
+      const message = `${period} Trending refresh failed: ${result.error}. Keeping snapshot from ${result.data.generatedAt}.`;
       console.warn(message);
-      if (process.env.GITHUB_ACTIONS === 'true') console.log(`::warning::${message.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A')}`);
-    } else console.log(`Saved weekly Top ${result.data.repositories.length} to ${DEFAULT_OUTPUT} (${result.data.generatedAt}).`);
-  } catch (error) {
-    console.error(`Cannot generate Trending data and no valid cached snapshot exists: ${error.message}`);
-    process.exitCode = 1;
+      if (process.env.GITHUB_ACTIONS === 'true') console.log(`::warning::${annotate(message)}`);
+    } else console.log(`Saved ${period} Top ${result.data.repositories.length} to ${result.outputPath} (${result.data.generatedAt}).`);
   }
 }

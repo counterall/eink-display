@@ -23,6 +23,7 @@ export const APP_TEXT = {
     breakNotification: '休息通知', notificationBlocked: '通知已被浏览器屏蔽，请在浏览器设置中允许本站通知。',
     theme: '主题', theme_light: '浅色', theme_dark: '深色', theme_sky: '天蓝', theme_sage: '鼠尾草绿', theme_lavender: '薰衣草紫', theme_mint: '薄荷绿',
     clockStyle: '时钟样式', clock_classic: '经典', clock_flip: '翻页',
+    carouselInterval: '轮播间隔', interval_10: '10 分钟', interval_30: '30 分钟', interval_60: '1 小时',
   },
   en: {
     primary: 'PRIMARY CITY', secondary: 'SECOND CITY', today: 'Today', swap: 'Swap cities', settings: 'Settings',
@@ -43,12 +44,19 @@ export const APP_TEXT = {
     breakNotification: 'Break notification', notificationBlocked: 'Notifications are blocked. Allow them for this site in the browser settings.',
     theme: 'Theme', theme_light: 'Light', theme_dark: 'Dark', theme_sky: 'Sky', theme_sage: 'Sage', theme_lavender: 'Lavender', theme_mint: 'Mint',
     clockStyle: 'Clock style', clock_classic: 'Classic', clock_flip: 'Flip',
+    carouselInterval: 'Carousel interval', interval_10: '10 min', interval_30: '30 min', interval_60: '1 hour',
   },
 };
 
 export const TRENDING_TEXT = {
-  zh: { title: 'GitHub · 本周热门', updated: '榜单更新', week: '本周', source: '查看官方周榜', note: '官方榜单顺序 · 每日更新', loading: '正在读取榜单…', failed: '暂时无法读取榜单', cached: '读取失败 · 保留上次榜单', stale: '榜单更新可能已延迟', description: '暂无项目简介', language: '未标注语言' },
-  en: { title: 'GitHub · Weekly trending', updated: 'Updated', week: 'this week', source: 'View official list', note: 'Official ranking · updated daily', loading: 'Loading repositories…', failed: 'Trending is unavailable', cached: 'Offline · keeping the last snapshot', stale: 'Snapshot may be outdated', description: 'No description provided', language: 'Not specified' },
+  zh: { title_weekly: 'GitHub · 本周热门', title_daily: 'GitHub · 今日热门', updated: '榜单更新', stars_weekly: '本周', stars_daily: '今日', source_weekly: '查看官方周榜', source_daily: '查看官方日榜', note: '官方榜单顺序 · 每日更新', loading: '正在读取榜单…', failed: '暂时无法读取榜单', cached: '读取失败 · 保留上次榜单', stale: '榜单更新可能已延迟', description: '暂无项目简介', language: '未标注语言' },
+  en: { title_weekly: 'GitHub · Weekly trending', title_daily: 'GitHub · Daily trending', updated: 'Updated', stars_weekly: 'this week', stars_daily: 'today', source_weekly: 'View official list', source_daily: 'View official list', note: 'Official ranking · updated daily', loading: 'Loading repositories…', failed: 'Trending is unavailable', cached: 'Offline · keeping the last snapshot', stale: 'Snapshot may be outdated', description: 'No description provided', language: 'Not specified' },
+};
+
+// Right-column carousel (issue #23). {n}, {total} and {name} are filled in by TrendingCarousel.
+export const CAROUSEL_TEXT = {
+  zh: { label: 'GitHub 热门轮播', previous: '上一张', next: '下一张', slide: '第 {n} 张，共 {total} 张：{name}', slideGroup: '第 {n} 张，共 {total} 张', name_weekly: '本周热门', name_daily: '今日热门' },
+  en: { label: 'GitHub trending carousel', previous: 'Previous slide', next: 'Next slide', slide: 'Slide {n} of {total}: {name}', slideGroup: 'Slide {n} of {total}', name_weekly: 'weekly trending', name_daily: 'daily trending' },
 };
 
 export const WORKDAY_TEXT = {

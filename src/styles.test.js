@@ -62,3 +62,21 @@ describe('theme variables (issue #21)', () => {
     expect(rule('.stage--stacked .feeds-panel')).toMatch(/width:\s*100%/);
   });
 });
+
+describe('Trending carousel styles (issue #23)', () => {
+  it('slides the track for about 400 ms, and swaps instantly with reduced motion', () => {
+    expect(rule('.carousel-track')).toMatch(/transition:\s*transform 400ms ease-out/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{ \.carousel-track[^{]*\{ transition: none; \} \}/);
+  });
+  it('shows the arrows on hover or focus, and always on touch screens', () => {
+    expect(rule('.carousel-arrow')).toMatch(/opacity:\s*0/);
+    expect(css).toContain('.trending-carousel:hover .carousel-arrow, .trending-carousel:has(:focus-visible) .carousel-arrow { opacity: 1;');
+    expect(css).toMatch(/@media \(hover: none\) \{ \.carousel-arrow \{ opacity: 1;/);
+    expect(rule('.carousel-arrow')).toMatch(/background:\s*var\(--card\)/);
+    expect(rule('.carousel-arrow')).toMatch(/border-radius:\s*50%/);
+  });
+  it('gives each dot a 44px hit area and lets stacked slides take the taller height', () => {
+    expect(rule('.carousel-dot')).toMatch(/min-width:\s*44px; min-height:\s*44px/);
+    expect(rule('.stage--stacked .trending-carousel, .stage--stacked .carousel-viewport, .stage--stacked .carousel-track')).toMatch(/height:\s*auto/);
+  });
+});

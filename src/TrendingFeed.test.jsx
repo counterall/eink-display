@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { cityById } from './model';
-import { TrendingContent } from './TrendingFeed';
+import { TrendingCarousel, TrendingContent } from './TrendingFeed';
 import { trendingData } from '../tests/trending-fixtures';
 
 const props = { data: trendingData(), status: 'ready', language: 'zh', city: cityById('helsinki'), now: new Date('2026-11-06T12:00Z') };
@@ -47,5 +47,70 @@ describe('weekly Trending panel', () => {
     expect(markup).not.toContain('<script>');
     expect(markup).toContain('&lt;script&gt;');
     expect(markup).toContain('rel="noopener noreferrer"');
+  });
+});
+
+describe('daily Trending slide (issue #23)', () => {
+  it('uses the daily title, star wording and official daily link', () => {
+    const zh = render({ period: 'daily', data: trendingData('daily') });
+    expect(zh).toContain('GitHub · 今日热门');
+    expect(zh).toContain('+100');
+    expect(zh).toContain('今日');
+    expect(zh).toContain('https://github.com/trending?since=daily');
+    const en = render({ period: 'daily', data: trendingData('daily'), language: 'en' });
+    expect(en).toContain('GitHub · Daily trending');
+    expect(en).toContain('<small>today</small>');
+  });
+  it('gives each slide its own heading id', () => {
+    expect(render()).toContain('id="trending-weekly-title"');
+    expect(render({ period: 'daily', data: trendingData('daily') })).toContain('aria-labelledby="trending-daily-title"');
+  });
+  it('marks a stale daily snapshot after 48 hours like the weekly one', () => {
+    expect(render({ period: 'daily', data: trendingData('daily'), now: new Date('2026-11-08T06:17:01Z') })).toContain('榜单更新可能已延迟');
+    expect(render({ period: 'daily', data: trendingData('daily'), now: new Date('2026-11-08T06:16:59Z') })).not.toContain('榜单更新可能已延迟');
+  });
+});
+
+describe('Trending carousel markup (issue #23)', () => {
+  const slide = (s) => <TrendingContent {...props} period={s.period} data={trendingData(s.period)} footer={false} />;
+  const carousel = (overrides = {}) => renderToStaticMarkup(<TrendingCarousel language="zh" city={props.city} now={props.now} interval={10} renderSlide={slide} {...overrides} />);
+  it('puts both slides, weekly first, in one track with the daily slide inert and hidden', () => {
+    const markup = carousel();
+    expect(markup).toContain('class="carousel-track" style="transform:translateX(0%)"');
+    const slides = [...markup.matchAll(/<div class="carousel-slide[^"]*"[^>]*>/g)].map((match) => match[0]);
+    expect(slides).toHaveLength(2);
+    expect(slides[0]).toContain('carousel-slide--current');
+    expect(slides[0]).not.toContain('inert');
+    expect(slides[0]).not.toContain('aria-hidden');
+    expect(slides[1]).toContain('inert=""');
+    expect(slides[1]).toContain('aria-hidden="true"');
+    expect(markup.indexOf('GitHub · 本周热门')).toBeLessThan(markup.indexOf('GitHub · 今日热门'));
+  });
+  it('has one dot per slide with a spoken position and the current one marked', () => {
+    const markup = carousel();
+    const dots = [...markup.matchAll(/<button[^>]*class="carousel-dot"[^>]*>/g)].map((match) => match[0]);
+    expect(dots).toHaveLength(2);
+    expect(dots[0]).toContain('aria-label="第 1 张，共 2 张：本周热门"');
+    expect(dots[0]).toContain('aria-current="true"');
+    expect(dots[1]).toContain('aria-label="第 2 张，共 2 张：今日热门"');
+    expect(dots[1]).not.toContain('aria-current');
+    const en = carousel({ language: 'en' });
+    expect(en).toContain('aria-label="Slide 1 of 2: weekly trending"');
+    expect(en).toContain('aria-label="Slide 2 of 2: daily trending"');
+    expect(en).toContain('aria-roledescription="carousel"');
+  });
+  it('has previous / next icon buttons and one footer for the current slide', () => {
+    const markup = carousel({ language: 'en' });
+    expect(markup).toMatch(/class="icon-button carousel-arrow carousel-arrow--previous"[^>]*aria-label="Previous slide"/);
+    expect(markup).toMatch(/class="icon-button carousel-arrow carousel-arrow--next"[^>]*aria-label="Next slide"/);
+    expect(markup.match(/class="trending-footer"/g)).toHaveLength(1);
+    expect(markup).toContain('https://github.com/trending?since=weekly');
+    expect(markup).not.toContain('https://github.com/trending?since=daily');
+    expect(markup.match(/id="trending-[a-z]+-title"/g)).toEqual(['id="trending-weekly-title"', 'id="trending-daily-title"']);
+  });
+  it('drops arrows and dots for a single slide', () => {
+    const markup = carousel({ slides: [{ id: 'weekly', period: 'weekly' }] });
+    expect(markup).not.toContain('carousel-dot');
+    expect(markup).not.toContain('carousel-arrow');
   });
 });
