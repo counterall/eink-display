@@ -47,7 +47,7 @@ describe('theme variables (issue #21)', () => {
     expect(outside).not.toMatch(/#[0-9a-f]{3,6}\b|rgba?\(/i);
   });
   it('keeps the pressed break close button readable (white on the filled background)', () => {
-    expect(rule('.break-panel .break-close:active')).toMatch(/color:\s*var\(--on-strong\)/);
+    expect(rule('.settings-panel .break-close:active')).toMatch(/color:\s*var\(--on-strong\)/);
   });
   it('animates the flip cards, but not with reduced motion', () => {
     expect(rule('.flip-flap--top.flip-flap--turn')).toMatch(/animation:\s*flip-fold/);
@@ -141,5 +141,63 @@ describe('resting break pill (issue #29)', () => {
   });
   it('shows mm:ss at 4.2em', () => {
     expect(rule('.break-panel--pill .break-countdown, .break-panel--pill .flip-clock--break')).toMatch(/font-size:\s*4\.2em/);
+  });
+});
+
+describe('glass dialogs (issue #33)', () => {
+  const themes = ['sky', 'sage', 'lavender', 'mint'];
+  const alpha = (value) => Number(value.match(/rgba\([^)]*,\s*([\d.]+)\)/)[1]);
+  const rgb = (value) => value.match(/rgba\((\d+),\s*(\d+),\s*(\d+)/).slice(1).map(Number);
+  const hex = (value) => (value.length === 4 ? [1, 2, 3].map((i) => value[i] + value[i]) : [value.slice(1, 3), value.slice(3, 5), value.slice(5, 7)]).map((part) => parseInt(part, 16));
+  const all = () => [['light', light], ['dark', variables(block('.theme--dark'))], ...themes.map((theme) => [theme, variables(block(`.theme--${theme}`))])];
+  it('tints the backdrop lightly with the theme page colour instead of the near-opaque wash', () => {
+    expect(rule('.settings-layer')).toMatch(/background:\s*var\(--overlay\)/);
+    for (const [, vars] of all()) {
+      expect(rgb(vars['--overlay'])).toEqual(hex(vars['--bg']));
+      expect(alpha(vars['--overlay'])).toBeGreaterThanOrEqual(0.25);
+      expect(alpha(vars['--overlay'])).toBeLessThanOrEqual(0.3);
+    }
+  });
+  it('makes the panels thicker glass than the pill: ~60% white, ~40% smoked in dark', () => {
+    const panel = rule('.settings-panel');
+    expect(panel).toMatch(/background:\s*var\(--glass-panel\)/);
+    expect(panel).toMatch(/-webkit-backdrop-filter:\s*blur\(\d+px\) saturate\(160%\)/);
+    expect(panel).toMatch(/(^|[^-])backdrop-filter:\s*blur\(\d+px\) saturate\(160%\)/);
+    expect(panel).toMatch(/border:\s*1px solid var\(--glass-border\)/);
+    expect(panel).toMatch(/border-radius:\s*1\.4em/);
+    expect(panel).toMatch(/box-shadow:[^;]*var\(--glass-shadow\)/);
+    for (const [theme, vars] of all()) {
+      if (theme === 'dark') { expect(rgb(vars['--glass-panel'])).toEqual(rgb(vars['--glass'])); expect(alpha(vars['--glass-panel'])).toBe(0.4); }
+      else { expect(rgb(vars['--glass-panel'])).toEqual([255, 255, 255]); expect(alpha(vars['--glass-panel'])).toBe(0.6); }
+    }
+    // The card themes' small radius no longer reaches the dialogs.
+    expect(css).not.toContain('.stage--card .settings-panel');
+  });
+  it('outlines dropdowns and the secondary button in the accent colour (35% / 55%)', () => {
+    for (const [, vars] of all()) {
+      expect(rgb(vars['--glass-field-line'])).toEqual(hex(vars['--accent']));
+      expect(alpha(vars['--glass-field-line'])).toBe(0.35);
+      expect(rgb(vars['--glass-button-line'])).toEqual(hex(vars['--accent']));
+      expect(alpha(vars['--glass-button-line'])).toBe(0.55);
+    }
+    const select = rule('.settings-panel select');
+    expect(select).toMatch(/background:\s*var\(--glass-field\)/);
+    expect(select).toMatch(/border:\s*1\.25px solid var\(--glass-field-line\)/);
+    expect(select).toMatch(/border-radius:\s*\.6em/);
+    const secondary = rule('.break-actions button:not(.filled-button)');
+    expect(secondary).toMatch(/background:\s*var\(--glass-field\)/);
+    expect(secondary).toMatch(/border:\s*1\.25px solid var\(--glass-button-line\)/);
+    expect(secondary).toMatch(/border-radius:\s*\.6em/);
+    expect(rule('.settings-panel .filled-button')).toMatch(/border-color:\s*var\(--strong\)/);
+  });
+  it('gives the dialog close buttons a transparent background', () => {
+    const close = rule('.settings-panel .break-close');
+    expect(close).toMatch(/background:\s*transparent/);
+    expect(close).toMatch(/color:\s*var\(--accent\)/);
+    expect(close).toMatch(/min-width:\s*44px; min-height:\s*44px/);
+  });
+  it('leaves the resting pill as it was', () => {
+    expect(rule('.break-layer--resting')).toMatch(/background:\s*none/);
+    expect(rule('.break-layer--resting .break-panel--pill')).toMatch(/background:\s*var\(--glass\)/);
   });
 });

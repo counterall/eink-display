@@ -1,3 +1,4 @@
+import { X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { CITIES, CLOCK_STYLES, THEMES, cityName, withTheme } from './model';
 import { CAROUSEL_INTERVALS } from './carousel';
@@ -40,7 +41,7 @@ export default function Settings({ settings, setSettings, close, viewport, t }) 
       if (event.shiftKey && document.activeElement === firstControl) { event.preventDefault(); lastControl.focus(); }
       else if (!event.shiftKey && document.activeElement === lastControl) { event.preventDefault(); firstControl.focus(); }
     }}>
-      <header><h2 id="settings-title">{t.settings}</h2></header>
+      <header><h2 id="settings-title">{t.settings}</h2><button type="button" className="break-close settings-close" aria-label={t.closeDialog} title={t.closeDialog} onClick={finish}><X strokeWidth={1.8} aria-hidden="true" /></button></header>
       <div className="settings-fields">
         {['primary', 'secondary'].map((key) => <label key={key}>{t[key]}<select ref={key === 'primary' ? first : undefined} value={settings[key]} onChange={(event) => change(key, event.target.value)}>{CITIES.map((city) => <option key={city.id} value={city.id}>{cityName(city, settings.language)}</option>)}</select></label>)}
         <label>{t.language}<select value={settings.language} onChange={(event) => change('language', event.target.value)}><option value="zh">中文</option><option value="en">English</option></select></label>
