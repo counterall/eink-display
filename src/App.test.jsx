@@ -178,9 +178,24 @@ describe('fit overflow check in the flip look', () => {
     const stage = (flipRight) => ({
       className: 'stage',
       getBoundingClientRect: () => ({ right: 1448, bottom: 1072 }),
-      querySelector: (selector) => (selector === '.clock-panel' ? box(724, 1072) : null),
+      querySelector: (selector) => (selector === '.clock-panel' ? { ...box(724, 1072), querySelectorAll: (s) => (s === '.flip-clock' ? [box(flipRight, 300)] : []) } : null),
       querySelectorAll: (selector) => (selector === '.flip-clock' ? [box(flipRight, 300)] : selector === '.dashboard *' ? [box(flipRight, 300)] : []),
     });
+    expect(stageOverflows(stage(700))).toBe(false);
+    expect(stageOverflows(stage(780))).toBe(true);
+  });
+  it('ignores the resting pill, whose flip clock sits outside the clock panel (issue #31)', () => {
+    const pillClock = box(800, 120);
+    const mainClock = (right) => box(right, 300);
+    const stage = (mainRight) => {
+      const panel = { ...box(724, 1072), querySelectorAll: (selector) => (selector === '.flip-clock' ? [mainClock(mainRight)] : []) };
+      return {
+        className: 'stage',
+        getBoundingClientRect: () => ({ right: 1448, bottom: 1072 }),
+        querySelector: (selector) => (selector === '.clock-panel' ? panel : null),
+        querySelectorAll: (selector) => (selector === '.flip-clock' ? [mainClock(mainRight), pillClock] : selector === '.dashboard *' ? [mainClock(mainRight)] : []),
+      };
+    };
     expect(stageOverflows(stage(700))).toBe(false);
     expect(stageOverflows(stage(780))).toBe(true);
   });
@@ -215,7 +230,7 @@ describe('fit overflow check for the tiles', () => {
       return {
         className: 'stage',
         getBoundingClientRect: () => ({ right: 1448, bottom: 1072 }),
-        querySelector: (selector) => (selector === '.clock-panel' ? box(724, 1072) : null),
+        querySelector: (selector) => (selector === '.clock-panel' ? { ...box(724, 1072), querySelectorAll: () => [] } : null),
         querySelectorAll: (selector) => (selector === '.clock-tile' ? [tile] : []),
       };
     };
