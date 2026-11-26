@@ -11,7 +11,7 @@ import DigitalClock from './DigitalClock';
 import FlipClock, { LiveFlipClock } from './FlipClock';
 import TimeDigits from './TimeDigits';
 import CityHeading from './CityHeading';
-import TrendingFeed from './TrendingFeed';
+import TrendingCarousel from './TrendingFeed';
 import WorkdayBlock from './WorkdayBlock';
 import DisplayModeToggle from './DisplayModeToggle';
 import Settings from './Settings';
@@ -22,10 +22,14 @@ import { normalizeWorkState, workStartAt } from './workday';
 export const SETTINGS_KEY = 'kindle-settings-v1';
 export const WORK_KEY = 'kindle-work-v1';
 
+// Carousel slides (issue #23) sit side by side in a horizontally clipped track, and slide while
+// switching: only their height counts, for every slide, so the fit allows for the taller one.
+const inTrack = (node) => typeof node.closest === 'function' && node.closest('.carousel-track') !== null;
+
 function overflows(bounds, nodes) {
   for (let i = 0; i < nodes.length; i++) {
     const box = nodes[i].getBoundingClientRect();
-    if (box.width && (box.right > bounds.right + 1 || box.bottom > bounds.bottom + 1)) return true;
+    if (box.width && ((box.right > bounds.right + 1 && !inTrack(nodes[i])) || box.bottom > bounds.bottom + 1)) return true;
   }
   return false;
 }
@@ -169,7 +173,7 @@ export default function App() {
           </div>
         </footer>
       </section>
-      {settings.showFeeds && <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingFeed language={settings.language} city={primary} now={now} /></aside>}
+      {settings.showFeeds && <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingCarousel language={settings.language} city={primary} now={now} interval={settings.carouselInterval} paused={showSettings || breakOpen} /></aside>}
     </div>
     {!showSettings && !breakOpen && <DisplayModeToggle theme={settings.theme} language={settings.language} onToggle={() => setSettings(toggleTheme)} />}
     {showSettings && <Settings settings={settings} setSettings={setSettings} close={(options) => { setShowSettings(false); if (options && options.breakNow) breakReminder.openNow(); }} viewport={viewport} t={t} />}

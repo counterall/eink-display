@@ -22,9 +22,21 @@
 - 该区块使用现有时钟刷新，不增加网络请求；休眠恢复后重新按当前时间计算，倒计时不显示秒。
 - `fullscreen-time` 与 `top-feeds` 分支均只构建验证，自动提交快照和 Pages 发布仍仅允许 `main`。
 
-## top-feeds 分支：GitHub 周榜
+## 右侧轮播：GitHub 周榜与日榜
 
-右侧 50% 显示 GitHub Trending 周榜 Top 5：仓库名称、最多两行简介、主要语言和本周新增 Stars，保留官方榜单顺序，不改用仓库搜索或按 Stars 重排。界面中英文随设置切换，项目简介保留原文。点击仓库可打开项目页面。
+右侧 50% 是两张幻灯片的轮播：「GitHub · 本周热门 / Weekly trending」（第 1 张）与「GitHub · 今日热门 / Daily trending」（第 2 张），各为 GitHub Trending Top 5：仓库名称、最多两行简介、主要语言和本期新增 Stars（周榜「+N 本周 / this week」，日榜「+N 今日 / today」），保留官方榜单顺序，不改用仓库搜索或按 Stars 重排。界面中英文随设置切换，项目简介保留原文。点击仓库可打开项目页面。
+
+- 每张幻灯片有各自的更新时间、离线 / 过期提示（两者均为超过 48 小时视为过期）；下方的说明与「查看官方周榜 / 日榜」链接跟随当前幻灯片（日榜链接为 `github.com/trending?since=daily`）。
+- 每隔「轮播间隔」自动切到下一张，最后一张之后回到第一张。计时从**上一次切换**算起，任何手动切换（箭头、圆点、键盘、滑动）都会重新计时。复用每分钟一次的时钟，没有额外的计时器，因此切换最多可能晚约 1 分钟。刷新页面后总是从周榜开始，不记住当前幻灯片。
+- 设置窗口或休息窗口打开时、鼠标停在轮播上时暂停自动切换；离开后若已到时间，在下一次分钟刷新时切换。
+- 切换为约 400 ms 的水平滑动（ease-out），两次切换之间完全静止；系统要求减少动态效果（`prefers-reduced-motion: reduce`）时直接切换。
+- 左右两侧中部是圆形的上一张 / 下一张图标按钮（与其他图标按钮同尺寸，主题色实心背景，不透出列表文字）。使用鼠标时悬停在轮播上（或键盘焦点在轮播内）才显示；触屏设备（`hover: none`）始终显示，并可左右滑动切换，滑动不会同时打开仓库链接。焦点在轮播内时，键盘左 / 右方向键切换。
+- 页脚上方居中为圆点，一张一个：当前为实心、其余为空心，可点击，点击区域不小于 44 px；屏幕阅读器读作「第 1 张，共 2 张：本周热门」/「Slide 1 of 2: weekly trending」并标明当前项。
+- 两张幻灯片并排放在同一轨道中，面板高度取较高的一张，切换时下方内容不跳动；屏幕外的幻灯片设为 `inert` 和 `aria-hidden`（不可聚焦、不被朗读）。竖屏堆叠布局中轮播位于时钟下方，全宽，箭头与圆点相同。放大受限检查同时考虑两张幻灯片的高度。
+- 箭头、圆点及悬停 / 焦点状态使用各主题的颜色变量。
+- 隐藏右栏（全屏时间）时没有轮播，不自动切换，也不轮询任何榜单。
+- 设置中「右侧资讯栏」下方为「轮播间隔 / Carousel interval」：10 分钟（默认）/ 30 分钟 / 1 小时，没有「关闭」选项，只在右栏显示时出现。保存在 `kindle-settings-v1` 的 `carouselInterval`（10 | 30 | 60），旧设置或无法识别的值按 10 处理；修改从下一次切换起生效。
+- 要增加第三张幻灯片，只需在 `src/carousel.js` 的 `CAROUSEL_SLIDES` 中加一项（另需该榜单的数据配置与文字）。
 
 左侧两座城市的名称行均采用「城市名称靠左、日出日落图标与时间居中、天气图标及当前气温靠右」的布局，今日最低–最高温在当前气温下方以较小字号辅助显示。当前气温为最近一次天气更新时的实况数据，每两小时更新，不表示逐分钟实时数据。日出日落不显示文字标签，但保留无障碍名称和悬停提示。极昼、极夜使用太阳 / 月亮图标和 24h 提示。
 
@@ -32,7 +44,7 @@
 
 `top-feeds` / `fullscreen-time` 推送和手动运行只执行数据获取、测试、构建和 artifact 上传，不发布 Pages，也不自动提交文件。只有 `main` 允许持久保存榜单和发布主站；定时任务仅在工作流进入默认分支后生效。
 
-面向现代桌面和平板浏览器的时钟、天气与 GitHub 周榜看板（不再支持 Kindle 或其他电子墨水屏）。React + Vite + pnpm，纯静态网页，无自建后端、无需天气 API key。
+面向现代桌面和平板浏览器的时钟、天气与 GitHub 周榜 / 日榜看板（不再支持 Kindle 或其他电子墨水屏）。React + Vite + pnpm，纯静态网页，无自建后端、无需天气 API key。
 
 ## 本地运行
 
@@ -57,7 +69,7 @@ pnpm preview
 
 ## 功能
 
-- 默认主城市 Helsinki、第二城市 Xi’an，主城市时间最大，每分钟更新。左侧时间与城市天气区域、右侧周榜资讯区域按 50% / 50% 分配。
+- 默认主城市 Helsinki、第二城市 Xi’an，主城市时间最大，每分钟更新。左侧时间与城市天气区域、右侧榜单轮播区域按 50% / 50% 分配。
 - 布局与缩放：页面不旋转，始终铺满浏览器视口；所有尺寸以 em 表示，基础字号按 CSS 视口计算（`src/layout.js`）：
   - 横向且显示右栏（双栏）：以 1448 × 1072 为参考，基础字号 24px × min(宽 / 1448, 高 / 1072)。1448 × 1072 时与原来完全相同；1280 × 800 约 17.9px，1920 × 1080 约 24.2px，2560 × 1440 约 32px。
   - 竖向且显示右栏（堆叠，平板竖放）：时间区在上、周榜移到下方占满宽度，以 1072 × 1720 为参考（768 × 1024 约 14.3px）；周榜每条简介只显示一行、行距略收紧。万一仍放不下，放大受限检查会自动降低缩放，页面也可上下滚动，不会裁掉内容。
@@ -127,26 +139,26 @@ pnpm preview
 
 `base: './'` 兼容仓库子路径，无需硬编码仓库名。若用于组织项目，正式部署前请与 infra 团队确认托管规范。
 
-## 周榜的数据生成与每日更新
+## 周榜与日榜的数据生成与每日更新
 
 ```text
 GitHub Actions / 本地 pnpm refresh:trending
-  → 读取 https://github.com/trending?since=weekly
-  → 生成 public/data/github-trending.json
+  → 读取 https://github.com/trending?since=weekly 与 https://github.com/trending?since=daily
+  → 生成 public/data/github-trending.json（周榜）与 public/data/github-trending-daily.json（日榜）
   → pnpm build 将 JSON 复制到 dist/data/
   → GitHub Pages 提供同域静态 JSON
-  → 浏览器每小时检查一次 JSON，恢复页面时按需补查
+  → 浏览器每小时检查一次两个 JSON，恢复页面时按需补查
 ```
 
 - HTML 只在 Node.js 脚本中解析（Cheerio 为构建依赖），浏览器不抓取 GitHub HTML（github.com/trending 不返回 CORS 头，GitHub 也没有 Trending API），不需要 CORS 代理、额外服务器、API key 或浏览器端 GitHub token。
-- 脚本严格校验五条完整、无重复的仓库数据、周榜 Stars、排名和 GitHub 仓库链接。源码变动、403 / 429、网络错误或结果不完整时，不覆盖已保存文件，也不伪造新的更新时间。首轮没有有效快照且抓取失败时，命令会失败，避免发布空榜单。
-- `public/data/github-trending.json` 应提交到仓库；不能加入 `.gitignore`。它是 Actions 全新运行环境中的持久备份，而非依赖上一次 runner 的临时目录或缓存。
+- 脚本严格校验五条完整、无重复的仓库数据、本期新增 Stars（周榜解析「N stars this week」为 `weeklyStars`，日榜解析「N stars today」为 `dailyStars`）、排名和 GitHub 仓库链接。两个榜单各自抓取、校验和原子写入：一个失败时另一个照常更新，失败的那个保留上次成功的文件。源码变动、403 / 429、网络错误或结果不完整时，不覆盖已保存文件，也不伪造新的更新时间。某个榜单没有有效快照且抓取失败时，命令最终会失败（另一个榜单仍已写入），避免发布空榜单。
+- `public/data/github-trending.json` 与 `public/data/github-trending-daily.json` 都应提交到仓库；不能加入 `.gitignore`。它是 Actions 全新运行环境中的持久备份，而非依赖上一次 runner 的临时目录或缓存。
 - 合并到 `main` 后，工作流计划在每天 **06:17 UTC** 运行（赫尔辛基冬季 08:17、夏季 09:17）。GitHub 定时任务可能延迟，不是严格准点调度。推送 `main` 或手动运行 `main` 也会刷新。
-- `main` 的构建测试通过后，仅把该 JSON 文件的变化自动提交回 `main`，同一工作流接着发布已构建的网站。不依赖 bot 提交再触发第二个工作流，也不执行 force push。
+- `main` 的构建测试通过后，仅把这两个 JSON 文件的变化以「chore: refresh Trending snapshots」自动提交回 `main`，同一工作流接着发布已构建的网站。不依赖 bot 提交再触发第二个工作流，也不执行 force push。
 - 因为定时任务会产生快照 bot 提交，本地继续开发前应先同步远端 `main`；榜单文件发生合并冲突时可用脚本重新生成，不要强制覆盖远端历史。
 - 自动保存需要工作流的 `contents: write` 权限。仓库或组织分支保护若禁止 bot 直接推送，持久化步骤会明确失败，需要仓库管理员安排允许的更新方式；不要为此关闭分支保护。
 - 功能分支与 `main` 使用不同并发组，功能分支构建不会取消主站部署。发布 job 和自动提交步骤均限定为 `refs/heads/main`。
-- 浏览器独立保留最后成功快照；读取 JSON 失败不清空榜单，也不让旧部署文件覆盖更新的浏览器缓存。超过 48 小时显示延迟提示，时间使用主城市时区。
+- 浏览器为两个榜单分别保留最后成功快照（`kindle-trending-weekly-v1`、`kindle-trending-daily-v1`），页面打开时就读取两个榜单，切换幻灯片不会出现加载状态；读取 JSON 失败不清空榜单，也不让旧部署文件覆盖更新的浏览器缓存。超过 48 小时显示延迟提示，时间使用主城市时区。
 - 当前数据是官方网页快照，不是 GitHub 官方 Trending API；页面结构仍可能变化，需要维护解析器。组织项目启用定时任务与自动提交前请联系 infra 团队确认规范。
 
 ## 目标浏览器
@@ -157,7 +169,7 @@ GitHub Actions / 本地 pnpm refresh:trending
 
 天气和周榜请求使用 `fetch`，以 `AbortController` 实现超时（天气 20 秒、周榜 15 秒）。
 
-localStorage 键名保留原来的 `kindle-` 前缀（`kindle-settings-v1`、`kindle-work-v1`、`kindle-break-v1`、`kindle-weather-v1`、`kindle-trending-weekly-v1`），以便已保存的设置和缓存继续有效。
+localStorage 键名保留原来的 `kindle-` 前缀（`kindle-settings-v1`、`kindle-work-v1`、`kindle-break-v1`、`kindle-weather-v1`、`kindle-trending-weekly-v1`、`kindle-trending-daily-v1`），以便已保存的设置和缓存继续有效。
 
 ## 天气来源与边界
 
@@ -177,11 +189,12 @@ localStorage 键名保留原来的 `kindle-` 前缀（`kindle-settings-v1`、`ki
 - `src/CityHeading.jsx`：两地城市名称、居中日出日落（第二城市半宽块中另起一行）及右对齐的当前气温与日温度范围。
 - `src/CityHeading.test.jsx`：名称行排列、当前气温、12/24 小时日照事件及极昼极夜测试。
 - `scripts/refresh-trending.mjs`：抓取官方 HTML、校验和原子写入快照，失败时保留旧文件。
-- `public/data/github-trending.json`：已保存的最后一次成功周榜快照，随网站部署。
-- `src/trendingData.js`：前后端共用的数据格式与仓库链接校验。
+- `public/data/github-trending.json`、`public/data/github-trending-daily.json`：已保存的最后一次成功周榜 / 日榜快照，随网站部署。
+- `src/trendingData.js`：前后端共用的榜单配置（`TRENDING_PERIODS`：来源、文件、缓存键、Stars 字段）、数据格式与仓库链接校验。
 - `src/http.js`：带 `AbortController` 超时的 JSON `fetch`，天气与周榜共用。
 - `src/trending.js`、`src/useTrending.js`：同域 JSON 请求、定期检查和浏览器缓存。
-- `src/TrendingFeed.jsx`：无边框周榜列表与更新时间、离线和过期提示。
+- `src/TrendingFeed.jsx`：榜单列表与更新时间、离线和过期提示，以及右侧轮播（箭头、圆点、键盘、滑动、悬停暂停）。
+- `src/carousel.js`：幻灯片列表、轮播间隔与切换计时（纯函数，测试见 `src/carousel.test.js`）。
 - `src/layout.js`：布局模式（双栏 / 堆叠 / 全屏时间）、按视口计算的基础字号与主时钟字号。
 - `src/layout.test.js`：常见桌面与平板视口（横向、竖向）的字号、缩放及时钟宽度测试。
 - `src/FlipCard.jsx`、`src/FlipClock.jsx`：翻页时钟卡片与动画、主城市每秒计时；测试见 `src/FlipClock.test.jsx`。

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { trendingData } from '../tests/trending-fixtures';
-import { formatStars, isTrendingData, newerTrending, repositoryURL, shouldResumeTrending, TRENDING_POLL_MS, TRENDING_RETRY_MS } from './trendingData';
+import { formatStars, isTrendingData, newerTrending, periodStars, repositoryURL, shouldResumeTrending, TRENDING_PERIODS, TRENDING_POLL_MS, TRENDING_RETRY_MS } from './trendingData';
 
 describe('Trending snapshot validation', () => {
   it('accepts the exact five-repository weekly schema', () => {
@@ -51,6 +51,28 @@ describe('Trending snapshot validation', () => {
     expect(newerTrending(older, current)).toBe(current);
     expect(newerTrending(current, {})).toBe(current);
     expect(newerTrending(null, current)).toBe(current);
+  });
+  it('validates the daily list with its own source, period and dailyStars (issue #23)', () => {
+    const daily = trendingData('daily');
+    expect(isTrendingData(daily, 'daily')).toBe(true);
+    expect(isTrendingData(daily)).toBe(false);
+    expect(isTrendingData(trendingData(), 'daily')).toBe(false);
+    expect(isTrendingData({ ...daily, source: TRENDING_PERIODS.weekly.source }, 'daily')).toBe(false);
+    const missing = trendingData('daily');
+    delete missing.repositories[2].dailyStars;
+    expect(isTrendingData(missing, 'daily')).toBe(false);
+    expect(isTrendingData(daily, 'monthly')).toBe(false);
+    expect(periodStars(daily.repositories[0], 'daily')).toBe(100);
+    expect(periodStars(trendingData().repositories[0], 'weekly')).toBe(1000);
+    expect(TRENDING_PERIODS.daily.source).toBe('https://github.com/trending?since=daily');
+    expect(TRENDING_PERIODS.daily.cacheKey).not.toBe(TRENDING_PERIODS.weekly.cacheKey);
+    expect(TRENDING_PERIODS.weekly.cacheKey).toBe('kindle-trending-weekly-v1');
+  });
+  it('keeps the newer daily snapshot and never mixes up the lists', () => {
+    const current = trendingData('daily');
+    const older = { ...current, generatedAt: '2026-11-05T06:17:00.000Z' };
+    expect(newerTrending(current, older, 'daily')).toBe(current);
+    expect(newerTrending(null, trendingData(), 'daily')).toBeNull();
   });
   it('formats counts without depending on Intl', () => {
     expect(formatStars(0)).toBe('0');

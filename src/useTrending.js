@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { readStored, writeStored } from './model';
 import { fetchTrending } from './trending';
-import { isTrendingData, newerTrending, shouldResumeTrending, TRENDING_POLL_MS } from './trendingData';
+import { isTrendingData, newerTrending, periodConfig, shouldResumeTrending, TRENDING_POLL_MS } from './trendingData';
 
-const CACHE_KEY = 'kindle-trending-weekly-v1';
-
-export default function useTrending() {
+// One list ('weekly' | 'daily'): its own cache key, hourly polling and newer-cache-wins rule.
+// The carousel mounts one per slide up front, so switching never shows a loading state.
+export default function useTrending(period = 'weekly') {
+  const cacheKey = periodConfig(period).cacheKey;
   const [data, setData] = useState(() => {
-    const cached = readStored(CACHE_KEY);
-    return isTrendingData(cached) ? cached : null;
+    const cached = readStored(cacheKey);
+    return isTrendingData(cached, period) ? cached : null;
   });
   const [status, setStatus] = useState('loading');
   const dataRef = useRef(data);
@@ -22,10 +23,10 @@ export default function useTrending() {
       inflight = true;
       lastAttempt = Date.now();
       setStatus('loading');
-      fetchTrending().then((incoming) => {
-        const next = newerTrending(dataRef.current, incoming);
+      fetchTrending(period).then((incoming) => {
+        const next = newerTrending(dataRef.current, incoming, period);
         dataRef.current = next;
-        writeStored(CACHE_KEY, next);
+        writeStored(cacheKey, next);
         failed = false;
         if (active) { setData(next); setStatus('ready'); }
       }).catch(() => {
@@ -48,6 +49,6 @@ export default function useTrending() {
       window.removeEventListener('online', resume);
       document.removeEventListener('visibilitychange', resume);
     };
-  }, []);
+  }, [period, cacheKey]);
   return { data, status };
 }

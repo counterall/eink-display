@@ -33,3 +33,19 @@ describe('deploy workflow build steps', () => {
     expect(workflow).not.toContain('check:legacy');
   });
 });
+
+describe('deploy workflow Trending snapshots (issue #23)', () => {
+  const build = between(workflow, '  build:', '  persist:');
+  const persist = between(workflow, '  persist:', '  deploy:');
+  it('uploads both the weekly and the daily snapshot from the build job', () => {
+    expect(build).toContain('public/data/github-trending.json');
+    expect(build).toContain('public/data/github-trending-daily.json');
+  });
+  it('commits both files on main with the renamed bot message', () => {
+    expect(persist).toContain('cp snapshot/github-trending.json public/data/github-trending.json');
+    expect(persist).toContain('cp snapshot/github-trending-daily.json public/data/github-trending-daily.json');
+    expect(persist).toContain('git add public/data/github-trending.json public/data/github-trending-daily.json');
+    expect(persist).toContain("commit -m 'chore: refresh Trending snapshots'");
+    expect(workflow).not.toContain('refresh weekly Trending snapshot');
+  });
+});

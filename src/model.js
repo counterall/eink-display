@@ -1,3 +1,5 @@
+import { CAROUSEL_INTERVALS, DEFAULT_CAROUSEL_INTERVAL } from './carousel';
+
 export const CITIES = [
   { id: 'helsinki', zh: '赫尔辛基', en: 'Helsinki', lat: 60.1699, lon: 24.9384, zone: 'Europe/Helsinki' },
   { id: 'xian', zh: '西安', en: 'Xi’an', lat: 34.3416, lon: 108.9398, zone: 'Asia/Shanghai' },
@@ -6,7 +8,7 @@ export const CITIES = [
   { id: 'osaka', zh: '大阪', en: 'Osaka', lat: 34.6937, lon: 135.5023, zone: 'Asia/Tokyo' },
 ];
 
-export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', showFeeds: true, theme: 'light', lightTheme: 'light', zoom: 100, breakReminder: false, breakNotification: false, clockStyle: 'classic' };
+export const DEFAULT_SETTINGS = { primary: 'helsinki', secondary: 'xian', language: 'zh', format: '24', showFeeds: true, theme: 'light', lightTheme: 'light', zoom: 100, breakReminder: false, breakNotification: false, clockStyle: 'classic', carouselInterval: DEFAULT_CAROUSEL_INTERVAL };
 export const CLOCK_STYLES = ['classic', 'flip'];
 // Page background per theme, also used for <meta name="theme-color">. The
 // inline bootstrap script in index.html repeats this table (tested to match).
@@ -107,6 +109,7 @@ export function normalizeSettings(value) {
   if (typeof value.breakReminder === 'boolean') settings.breakReminder = value.breakReminder;
   if (typeof value.breakNotification === 'boolean') settings.breakNotification = value.breakNotification;
   if (CLOCK_STYLES.includes(value.clockStyle)) settings.clockStyle = value.clockStyle;
+  if (CAROUSEL_INTERVALS.includes(value.carouselInterval)) settings.carouselInterval = value.carouselInterval;
   return settings;
 }
 

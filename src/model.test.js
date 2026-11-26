@@ -272,3 +272,12 @@ describe('clock style setting', () => {
     for (const clockStyle of ['Flip', 'split', '', null, true]) expect(normalizeSettings({ clockStyle }).clockStyle).toBe('classic');
   });
 });
+
+describe('carousel interval setting (issue #23)', () => {
+  it('defaults to 10 minutes, keeps 10 / 30 / 60, and normalizes old or unknown values to 10', () => {
+    expect(DEFAULT_SETTINGS.carouselInterval).toBe(10);
+    expect(normalizeSettings({ theme: 'dark', showFeeds: true }).carouselInterval).toBe(10);
+    for (const carouselInterval of [10, 30, 60]) expect(normalizeSettings({ carouselInterval }).carouselInterval).toBe(carouselInterval);
+    for (const carouselInterval of [0, 5, 15, '30', null, true, NaN, 600]) expect(normalizeSettings({ carouselInterval }).carouselInterval).toBe(10);
+  });
+});
