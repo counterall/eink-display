@@ -147,15 +147,23 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .updated-time { display: block; }
 .update-notice { display: block; font-size: 1em; font-weight: bold; margin-top: .15em; }
 .settings-layer { position: absolute; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background: var(--overlay); padding: 1.4em; display: flex; align-items: center; justify-content: center; }
-.settings-panel { width: 40em; max-width: 100%; max-height: 100%; overflow: auto; background: var(--card); border: 2px solid var(--rule); padding: 1.5em 1.8em; }
-.settings-panel header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 1em; border-bottom: 1px solid var(--rule); }
+/* Settings, the break prompt and the new-day welcome are frosted glass over a light tint of the
+   page (issue #33): a thicker fill than the resting pill so small text and dropdowns stay readable. */
+.settings-panel { position: relative; width: 40em; max-width: 100%; max-height: 100%; overflow: auto; background: var(--glass-panel); -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%); border: 1px solid var(--glass-border); border-radius: 1.4em; box-shadow: 0 .4em 1.6em var(--glass-shadow); padding: 1.5em 1.8em; }
+.settings-panel header { padding-right: 3em; display: flex; align-items: center; justify-content: space-between; padding-bottom: 1em; border-bottom: 1px solid var(--rule); }
 .settings-panel button { border: 1px solid var(--rule); }
-.settings-panel .filled-button { border-color: var(--strong); }
+.settings-panel .filled-button { border-color: var(--strong); border-radius: .6em; }
+/* Glass fields: a white border would vanish on white glass, so outlines use the accent colour. */
+.settings-panel select { background: var(--glass-field); border: 1.25px solid var(--glass-field-line); border-radius: .6em; }
+/* Some browsers take the open list colour from the select: keep it solid. */
+.settings-panel option { color: var(--fg); background: var(--card); }
+.break-actions button:not(.filled-button) { background: var(--glass-field); border: 1.25px solid var(--glass-button-line); border-radius: .6em; }
+.break-actions button:not(.filled-button):active { color: var(--on-strong); background: var(--strong); }
 .settings-panel button:focus-visible, .settings-panel select:focus-visible, .settings-panel a:focus-visible { outline-style: solid; }
 .settings-panel h2 { margin: 0; font-size: 1.6em; font-weight: 500; }
 .settings-fields { display: flex; flex-wrap: wrap; padding-top: .9em; }
 .settings-fields label { display: block; width: 50%; padding: .6em .7em .6em 0; font-size: .9em; }
-.settings-fields select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; border: 1px solid var(--rule); background: var(--card); }
+.settings-fields select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; }
 .settings-fields .wide-field { width: 100%; }
 .settings-fields .settings-hint { width: 100%; margin: 0 0 .3em; }
 .settings-panel p { color: var(--muted); font-size: .75em; line-height: 1.6; margin: .65em 0; }
@@ -166,11 +174,12 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .break-panel header { padding-right: 3em; }
 .break-panel h2 { display: flex; align-items: center; }
 .break-icon { color: var(--accent); width: 1.1em; height: 1.1em; margin-left: .4em; }
-.break-panel .break-close { color: var(--accent); position: absolute; top: .4em; right: .4em; display: inline-flex; align-items: center; justify-content: center; width: 2.6em; height: 2.6em; min-width: 44px; min-height: 44px; padding: 0; border: 0; }
-.break-panel .break-close:active { color: var(--on-strong); }
+.settings-panel .break-close { color: var(--accent); background: transparent; position: absolute; top: .4em; right: .4em; display: inline-flex; align-items: center; justify-content: center; width: 2.6em; height: 2.6em; min-width: 44px; min-height: 44px; padding: 0; border: 0; }
+.settings-panel .break-close:active { background: var(--strong); color: var(--on-strong); }
+.settings-panel .settings-close { top: .9em; right: .9em; }
 .break-close svg { width: 1.5em; height: 1.5em; }
 .break-field { display: block; padding-top: 1.1em; font-size: .9em; }
-.break-field select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; border: 1px solid var(--rule); background: var(--card); }
+.break-field select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; }
 .break-actions { margin-top: 1.4em; }
 .break-actions button { min-width: 7em; }
 .break-running { text-align: center; padding: 1.4em 2em .8em; }
@@ -203,7 +212,6 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage--card .icon-button:active { color: var(--on-strong); background: var(--strong); }
 .stage--card .feeds-panel { background: var(--card); border: 1px solid var(--rule); border-radius: .6em; padding: 1em 1.4em; }
 .stage--card .carousel-arrow-disc { border-color: var(--accent); }
-.stage--card .settings-panel { border-width: 1px; border-radius: .6em; }
 /* Sit the dark-mode toggle inside the Trending card's corner instead of across its border. */
 .stage--card .theme-toggle { top: 2.6em; right: 2.8em; }
 .stage--card.compact .theme-toggle { top: 1.9em; right: 2.1em; }
@@ -251,47 +259,55 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
    classes, and their page colours are repeated in THEME_COLORS (src/model.js) and index.html.
    --bg page, --fg text, --muted secondary text, --accent icons and links, --card cards and
    controls, --rule borders and rules, --strong filled buttons, bars, focus and pressed buttons,
-   --on-strong text on --strong, --overlay behind dialogs, --flip-card / --flip-digits the
-   flip cards, --glass / --glass-border / --glass-shadow / --glass-track the resting break pill. The light block is also on .stage, so a stage without a theme class is light even
+   --on-strong text on --strong, --overlay the light tint behind dialogs, --flip-card / --flip-digits the
+   flip cards, --glass / --glass-border / --glass-shadow / --glass-track the resting break pill,
+   --glass-panel / --glass-field / --glass-field-line / --glass-button-line the glass dialogs
+   (panel fill, dropdown and secondary-button fill, their accent outlines). The light block is also on .stage, so a stage without a theme class is light even
    in the frame before App removes the old theme class from <html>. */
 :root, .stage {
   --bg: #fff; --fg: #111; --muted: #111; --accent: #111; --card: #fff; --rule: #111;
-  --strong: #111; --on-strong: #fff; --overlay: rgba(255,255,255,.95);
+  --strong: #111; --on-strong: #fff; --overlay: rgba(255,255,255,.28);
   --flip-card: #222; --flip-digits: #f2f2f2;
   --glass: rgba(255,255,255,.18); --glass-border: rgba(255,255,255,.7); --glass-shadow: rgba(17,17,17,.16); --glass-track: rgba(17,17,17,.12);
+  --glass-panel: rgba(255,255,255,.6); --glass-field: rgba(255,255,255,.7); --glass-field-line: rgba(17,17,17,.35); --glass-button-line: rgba(17,17,17,.55);
 }
 .theme--dark {
   color-scheme: dark;
   --bg: #000; --fg: #fff; --muted: #fff; --accent: #fff; --card: #000; --rule: #fff;
-  --strong: #fff; --on-strong: #000; --overlay: rgba(0,0,0,.96);
+  --strong: #fff; --on-strong: #000; --overlay: rgba(0,0,0,.28);
   --flip-card: #1c1c1c; --flip-digits: #c4c4c4;
   --glass: rgba(28,28,30,.28); --glass-border: rgba(255,255,255,.18); --glass-shadow: rgba(0,0,0,.6); --glass-track: rgba(255,255,255,.2);
+  --glass-panel: rgba(28,28,30,.4); --glass-field: rgba(44,44,46,.7); --glass-field-line: rgba(255,255,255,.35); --glass-button-line: rgba(255,255,255,.55);
 }
 /* Sky (blue) */
 .theme--sky {
   --bg: #eef4fb; --fg: #1c2d44; --muted: #56697f; --accent: #2e6aac; --card: #ffffff; --rule: #c9d8ea;
-  --strong: #2e6aac; --on-strong: #fff; --overlay: rgba(238,244,251,.95);
+  --strong: #2e6aac; --on-strong: #fff; --overlay: rgba(238,244,251,.28);
   --flip-card: #2e6aac; --flip-digits: #fff;
   --glass: rgba(255,255,255,.18); --glass-border: rgba(255,255,255,.7); --glass-shadow: rgba(28,45,68,.16); --glass-track: rgba(28,45,68,.12);
+  --glass-panel: rgba(255,255,255,.6); --glass-field: rgba(255,255,255,.7); --glass-field-line: rgba(46,106,172,.35); --glass-button-line: rgba(46,106,172,.55);
 }
 /* Sage (green) */
 .theme--sage {
   --bg: #eef5ec; --fg: #203427; --muted: #566b5c; --accent: #37754c; --card: #ffffff; --rule: #cfe0cc;
-  --strong: #37754c; --on-strong: #fff; --overlay: rgba(238,245,236,.95);
+  --strong: #37754c; --on-strong: #fff; --overlay: rgba(238,245,236,.28);
   --flip-card: #37754c; --flip-digits: #fff;
   --glass: rgba(255,255,255,.18); --glass-border: rgba(255,255,255,.7); --glass-shadow: rgba(32,52,39,.16); --glass-track: rgba(32,52,39,.12);
+  --glass-panel: rgba(255,255,255,.6); --glass-field: rgba(255,255,255,.7); --glass-field-line: rgba(55,117,76,.35); --glass-button-line: rgba(55,117,76,.55);
 }
 /* Lavender (purple) */
 .theme--lavender {
   --bg: #f3f0fa; --fg: #2c2541; --muted: #655d80; --accent: #6a4ca6; --card: #ffffff; --rule: #dcd4ee;
-  --strong: #6a4ca6; --on-strong: #fff; --overlay: rgba(243,240,250,.95);
+  --strong: #6a4ca6; --on-strong: #fff; --overlay: rgba(243,240,250,.28);
   --flip-card: #6a4ca6; --flip-digits: #fff;
   --glass: rgba(255,255,255,.18); --glass-border: rgba(255,255,255,.7); --glass-shadow: rgba(44,37,65,.16); --glass-track: rgba(44,37,65,.12);
+  --glass-panel: rgba(255,255,255,.6); --glass-field: rgba(255,255,255,.7); --glass-field-line: rgba(106,76,166,.35); --glass-button-line: rgba(106,76,166,.55);
 }
 /* Mint (teal) */
 .theme--mint {
   --bg: #eaf5f3; --fg: #1c3634; --muted: #526d69; --accent: #1d7870; --card: #ffffff; --rule: #c5e1dc;
-  --strong: #1d7870; --on-strong: #fff; --overlay: rgba(234,245,243,.95);
+  --strong: #1d7870; --on-strong: #fff; --overlay: rgba(234,245,243,.28);
   --flip-card: #1d7870; --flip-digits: #fff;
   --glass: rgba(255,255,255,.18); --glass-border: rgba(255,255,255,.7); --glass-shadow: rgba(28,54,52,.16); --glass-track: rgba(28,54,52,.12);
+  --glass-panel: rgba(255,255,255,.6); --glass-field: rgba(255,255,255,.7); --glass-field-line: rgba(29,120,112,.35); --glass-button-line: rgba(29,120,112,.55);
 }

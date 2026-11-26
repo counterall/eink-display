@@ -38,7 +38,7 @@ function overflows(bounds, nodes, clip = null) {
   return false;
 }
 
-// The colored themes draw Trending (and buttons, Settings) as bordered cards: `stage--card`.
+// The colored themes draw Trending (and the icon buttons) as bordered cards: `stage--card`.
 export const CARD_THEMES = THEMES.filter((theme) => theme !== 'light' && theme !== 'dark');
 
 export function stageClass(viewport, theme) {
