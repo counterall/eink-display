@@ -8,6 +8,10 @@ const rule = (selector) => {
   return match ? match[1] : null;
 };
 
+const block = rule;
+const variables = (text) => Object.fromEntries([...text.matchAll(/(--[\w-]+):\s*([^;]+);/g)].map(([, name, value]) => [name, value.trim()]));
+const light = variables(css.match(/\n:root, \.stage \{\n([^}]*)\}/)[1]);
+
 describe('clock footer spacing (issue #17)', () => {
   it('leaves a wider gap between the bottom tiles and the action buttons', () => {
     expect(rule('.clock-footer')).toMatch(/padding-top:\s*1\.8em/);
@@ -24,13 +28,6 @@ describe('clock footer spacing (issue #17)', () => {
 });
 
 describe('theme variables (issue #21)', () => {
-  const block = (selector) => {
-    const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const match = css.match(new RegExp(`(?:^|\\n)${escaped}\\s*\\{([^}]*)\\}`));
-    return match ? match[1] : null;
-  };
-  const variables = (text) => Object.fromEntries([...text.matchAll(/(--[\w-]+):\s*([^;]+);/g)].map(([, name, value]) => [name, value.trim()]));
-  const light = variables(css.match(/\n:root, \.stage \{\n([^}]*)\}/)[1]);
   it('defines the same variables for every theme, light on :root', () => {
     expect(Object.keys(light).length).toBeGreaterThan(8);
     for (const theme of ['dark', 'sky', 'sage', 'lavender', 'mint']) {
@@ -122,10 +119,25 @@ describe('resting break pill (issue #29)', () => {
   it('is frosted glass with rounded ends, from per-theme glass colours', () => {
     const pill = rule('.break-layer--resting .break-panel--pill');
     expect(pill).toMatch(/background:\s*var\(--glass\)/);
-    expect(pill).toMatch(/-webkit-backdrop-filter:\s*blur\(18px\) saturate\(160%\)/);
-    expect(pill).toMatch(/(^|[^-])backdrop-filter:\s*blur\(18px\) saturate\(160%\)/);
+    expect(pill).toMatch(/-webkit-backdrop-filter:\s*blur\(8px\) saturate\(160%\)/);
+    expect(pill).toMatch(/(^|[^-])backdrop-filter:\s*blur\(8px\) saturate\(160%\)/);
     expect(pill).toMatch(/border:\s*1px solid var\(--glass-border\)/);
     expect(pill).toMatch(/border-radius:\s*1\.4em/);
+  });
+  it('is see-through: glass alpha .18 in the light themes, .28 in dark (issue #31)', () => {
+    const alpha = (selector) => Number(variables(block(selector))['--glass'].match(/rgba\([^)]*,\s*([\d.]+)\)/)[1]);
+    expect(Number(light['--glass'].match(/rgba\([^)]*,\s*([\d.]+)\)/)[1])).toBe(0.18);
+    for (const theme of ['sky', 'sage', 'lavender', 'mint']) expect(alpha(`.theme--${theme}`)).toBe(0.18);
+    expect(alpha('.theme--dark')).toBe(0.28);
+  });
+  it('gives the pill close button no background of its own, even when pressed (issue #31)', () => {
+    const close = rule('.break-layer--resting .break-panel--pill .break-close');
+    expect(close).toMatch(/background:\s*transparent/);
+    expect(close).toMatch(/border:\s*0/);
+    expect(close).toMatch(/color:\s*var\(--accent\)/);
+    const pressed = rule('.break-layer--resting .break-panel--pill .break-close:active');
+    expect(pressed).toMatch(/background:\s*transparent/);
+    expect(pressed).toMatch(/color:\s*var\(--accent\)/);
   });
   it('shows mm:ss at 4.2em', () => {
     expect(rule('.break-panel--pill .break-countdown, .break-panel--pill .flip-clock--break')).toMatch(/font-size:\s*4\.2em/);

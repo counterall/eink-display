@@ -57,9 +57,11 @@ export function stageOverflows(stage) {
   const viewport = stage.querySelector('.carousel-viewport');
   const clip = viewport ? viewport.getBoundingClientRect() : null;
   if (overflows(stage.getBoundingClientRect(), stage.querySelectorAll('.dashboard *'), clip)) return true;
-  // Flip cards are wider than the classic digits; keep them out of the Trending column.
+  // Flip cards are wider than the classic digits; keep them out of the Trending column. Only the
+  // clock panel's own cards count: the resting pill's flip clock (in .break-layer) sits top centre,
+  // across the column line, and must not shrink the page (issue #31).
   const panel = stage.querySelector('.clock-panel');
-  if (panel && overflows(panel.getBoundingClientRect(), stage.querySelectorAll('.flip-clock'))) return true;
+  if (panel && overflows(panel.getBoundingClientRect(), panel.querySelectorAll('.flip-clock'))) return true;
   // The second-city and work tiles sit side by side: their time must not run into the neighbour.
   const tiles = stage.querySelectorAll('.clock-tile');
   for (let i = 0; i < tiles.length; i++) {
