@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import App, { SETTINGS_KEY, WORK_KEY } from './App';
 import BreakDialog from './BreakDialog';
 import { BREAK_KEY, notifyDueBreak } from './useBreakReminder';
-import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, pendingDueAt, formatRemaining, shouldNotifyBreak } from './breaks';
+import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, pendingDueAt, formatRemaining, nextRemainingSecondDelay, shouldNotifyBreak } from './breaks';
 
 const ms = (iso) => new Date(iso).getTime();
 
@@ -140,6 +140,14 @@ describe('break countdown arithmetic', () => {
     expect(formatRemaining(-5000)).toBe('00:00');
     expect(formatRemaining(NaN)).toBe('00:00');
   });
+  it('ticks the resting countdown when the rounded-up second changes', () => {
+    const end = 10 * 60000;
+    expect(nextRemainingSecondDelay(end, 0)).toBe(20); // exact second: one harmless extra tick
+    expect(nextRemainingSecondDelay(end, 1)).toBe(999 + 20); // 09:59.999 shows 10:00 until 09:59.000
+    expect(nextRemainingSecondDelay(end, 400)).toBe(600 + 20);
+    expect(formatRemaining(end - 400 - 600)).toBe('09:59');
+    expect(nextRemainingSecondDelay(end, end + 300)).toBe(720); // past the end stays in 0–1s
+  });
   it('recovers from missing or corrupt saved state', () => {
     expect(normalizeBreakState(null)).toEqual({ closedAt: null, endsAt: null, duration: null, notifiedFor: null });
     expect(normalizeBreakState({ closedAt: 'now', endsAt: 'soon', duration: 12 })).toEqual({ closedAt: null, endsAt: null, duration: null, notifiedFor: null });
@@ -268,9 +276,11 @@ describe('break reminder in the app', () => {
     const resting = renderApp({ breakReminder: true }, { closedAt: ms('2026-11-06T09:00Z'), endsAt: Date.now() + 5 * 60000, duration: 10 });
     expect(resting).toContain('break-layer--resting');
     expect(resting).toContain('class="theme-toggle"');
+    expect(resting).toContain('<div class="dashboard">');
     const prompt = renderApp({ breakReminder: true });
     expect(prompt).toContain('Take a break');
     expect(prompt).not.toContain('class="theme-toggle"');
+    expect(prompt).toContain('<div class="dashboard" aria-hidden="true">');
   });
   it('does not prompt after the eight-hour session is over', () => {
     vi.setSystemTime(new Date('2026-11-06T16:30:00Z')); // 18:30, session ended 18:00

@@ -37,6 +37,12 @@ export function formatRemaining(msLeft) {
   return `${two(Math.floor(seconds / 60))}:${two(seconds % 60)}`;
 }
 
+// Delay until the remaining time drops to the next whole second (where the rounded-up
+// mm:ss changes), plus a small margin so the tick lands after the change.
+export function nextRemainingSecondDelay(endsAt, nowMs) {
+  return ((endsAt - nowMs) % 1000 + 1000) % 1000 + 20;
+}
+
 export function normalizeBreakState(value) {
   const state = { closedAt: null, endsAt: null, duration: null, notifiedFor: null };
   if (!value || typeof value !== 'object') return state;

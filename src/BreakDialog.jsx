@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Coffee, X } from 'lucide-react';
-import { BREAK_DURATIONS, elapsedPercent, formatRemaining } from './breaks';
+import { BREAK_DURATIONS, elapsedPercent, formatRemaining, nextRemainingSecondDelay } from './breaks';
 import { BREAK_TEXT, pick } from './i18n';
 import TimeDigits from './TimeDigits';
 import FlipClock from './FlipClock';
-
-// Wait until the remaining time drops to the next whole second (plus a small margin).
-const nextRemainingSecondDelay = (endsAt, nowMs) => ((endsAt - nowMs) % 1000 + 1000) % 1000 + 20;
 
 // The resting countdown: only mm:ss (classic digits or flip cards, like the work
 // countdown) and the elapsed bar. It ticks once a second on its own, computed from the

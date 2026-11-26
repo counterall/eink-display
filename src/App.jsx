@@ -140,7 +140,7 @@ export default function App() {
   }, []);
 
   return <main ref={stageRef} className={stageClass(viewport, settings.theme)} style={viewport.style}>
-    <div className="dashboard" aria-hidden={showSettings || breakOpen ? 'true' : undefined}>
+    <div className="dashboard" aria-hidden={showSettings || breakBlocking ? 'true' : undefined}>
       <section className="clock-panel">
         <header className="date-header">
           <span>{dateText.weekdayFirst ? dateText.weekday : dateText.date}</span>
