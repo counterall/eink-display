@@ -110,3 +110,24 @@ describe('overlay stacking (issue #27)', () => {
     for (const value of others) expect(overlay).toBeGreaterThan(value);
   });
 });
+
+describe('resting break pill (issue #29)', () => {
+  it('drops the dimming overlay and lets clicks through to the page, except on the pill', () => {
+    const layer = rule('.break-layer--resting');
+    expect(layer).toMatch(/background:\s*none/);
+    expect(layer).toMatch(/pointer-events:\s*none/);
+    expect(layer).toMatch(/align-items:\s*flex-start/);
+    expect(rule('.break-layer--resting .break-panel--pill')).toMatch(/pointer-events:\s*auto/);
+  });
+  it('is frosted glass with rounded ends, from per-theme glass colours', () => {
+    const pill = rule('.break-layer--resting .break-panel--pill');
+    expect(pill).toMatch(/background:\s*var\(--glass\)/);
+    expect(pill).toMatch(/-webkit-backdrop-filter:\s*blur\(18px\) saturate\(160%\)/);
+    expect(pill).toMatch(/(^|[^-])backdrop-filter:\s*blur\(18px\) saturate\(160%\)/);
+    expect(pill).toMatch(/border:\s*1px solid var\(--glass-border\)/);
+    expect(pill).toMatch(/border-radius:\s*1\.4em/);
+  });
+  it('shows mm:ss at 4.2em', () => {
+    expect(rule('.break-panel--pill .break-countdown, .break-panel--pill .flip-clock--break')).toMatch(/font-size:\s*4\.2em/);
+  });
+});

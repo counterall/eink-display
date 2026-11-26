@@ -101,6 +101,8 @@ export default function App() {
   const breakReminder = useBreakReminder(settings.breakReminder, work.startedAt, now, { enabled: settings.breakNotification, title: pick(BREAK_TEXT, settings.language).notification });
   const breakMode = welcome ? 'welcome' : breakReminder.mode;
   const breakOpen = !showSettings && breakMode !== null;
+  // The resting pill leaves the page usable; only the prompt and welcome dialogs cover it.
+  const breakBlocking = breakOpen && breakMode !== 'running';
   const primaryDate = cityDate(primary, now), secondaryDate = cityDate(secondary, now);
   const primaryTime = clock(primaryDate, settings.format), secondaryTime = clock(secondaryDate, settings.format);
   const flip = settings.clockStyle === 'flip';
@@ -138,7 +140,7 @@ export default function App() {
   }, []);
 
   return <main ref={stageRef} className={stageClass(viewport, settings.theme)} style={viewport.style}>
-    <div className="dashboard" aria-hidden={showSettings || breakOpen ? 'true' : undefined}>
+    <div className="dashboard" aria-hidden={showSettings || breakBlocking ? 'true' : undefined}>
       <section className="clock-panel">
         <header className="date-header">
           <span>{dateText.weekdayFirst ? dateText.weekday : dateText.date}</span>
@@ -178,10 +180,10 @@ export default function App() {
           </div>
         </footer>
       </section>
-      {settings.showFeeds && <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingCarousel language={settings.language} city={primary} now={now} interval={settings.carouselInterval} paused={showSettings || breakOpen} /></aside>}
+      {settings.showFeeds && <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingCarousel language={settings.language} city={primary} now={now} interval={settings.carouselInterval} paused={showSettings || breakBlocking} /></aside>}
     </div>
-    {!showSettings && !breakOpen && <DisplayModeToggle theme={settings.theme} language={settings.language} onToggle={() => setSettings(toggleTheme)} />}
+    {!showSettings && !breakBlocking && <DisplayModeToggle theme={settings.theme} language={settings.language} onToggle={() => setSettings(toggleTheme)} />}
     {showSettings && <Settings settings={settings} setSettings={setSettings} close={(options) => { setShowSettings(false); if (options && options.breakNow) breakReminder.openNow(); }} viewport={viewport} t={t} />}
-    {breakOpen && <BreakDialog mode={breakMode} minutesLeft={breakReminder.minutesLeft} elapsed={breakReminder.elapsed} language={settings.language} onDismiss={() => { if (welcome) setWelcome(false); breakReminder.dismiss(); }} onStart={breakReminder.start} />}
+    {breakOpen && <BreakDialog mode={breakMode} endsAt={breakReminder.endsAt} duration={breakReminder.duration} clockStyle={settings.clockStyle} language={settings.language} onDismiss={() => { if (welcome) setWelcome(false); breakReminder.dismiss(); }} onStart={breakReminder.start} />}
   </main>;
 }

@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import App, { SETTINGS_KEY, WORK_KEY } from './App';
 import BreakDialog from './BreakDialog';
 import { BREAK_KEY, notifyDueBreak } from './useBreakReminder';
-import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, pendingDueAt, remainingMinutes, shouldNotifyBreak } from './breaks';
+import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, pendingDueAt, formatRemaining, nextRemainingSecondDelay, shouldNotifyBreak } from './breaks';
 
 const ms = (iso) => new Date(iso).getTime();
 
@@ -128,13 +128,25 @@ describe('notifying a due reminder', () => {
 });
 
 describe('break countdown arithmetic', () => {
-  it('rounds the remaining time up to whole minutes and stops at zero', () => {
+  it('formats the time left as mm:ss, rounding up to whole seconds and stopping at 00:00', () => {
+    expect(formatRemaining(10 * 60000)).toBe('10:00');
+    expect(formatRemaining(10 * 60000 - 1)).toBe('10:00');
+    expect(formatRemaining(10 * 60000 - 1000)).toBe('09:59');
+    expect(formatRemaining(9 * 60000 + 1)).toBe('09:01');
+    expect(formatRemaining(30 * 60000)).toBe('30:00');
+    expect(formatRemaining(61000)).toBe('01:01');
+    expect(formatRemaining(1)).toBe('00:01');
+    expect(formatRemaining(0)).toBe('00:00');
+    expect(formatRemaining(-5000)).toBe('00:00');
+    expect(formatRemaining(NaN)).toBe('00:00');
+  });
+  it('ticks the resting countdown when the rounded-up second changes', () => {
     const end = 10 * 60000;
-    expect(remainingMinutes(end, 0)).toBe(10);
-    expect(remainingMinutes(end, 1)).toBe(10);
-    expect(remainingMinutes(end, 9 * 60000 + 1)).toBe(1);
-    expect(remainingMinutes(end, end)).toBe(0);
-    expect(remainingMinutes(end, end + 5000)).toBe(0);
+    expect(nextRemainingSecondDelay(end, 0)).toBe(20); // exact second: one harmless extra tick
+    expect(nextRemainingSecondDelay(end, 1)).toBe(999 + 20); // 09:59.999 shows 10:00 until 09:59.000
+    expect(nextRemainingSecondDelay(end, 400)).toBe(600 + 20);
+    expect(formatRemaining(end - 400 - 600)).toBe('09:59');
+    expect(nextRemainingSecondDelay(end, end + 300)).toBe(720); // past the end stays in 0–1s
   });
   it('recovers from missing or corrupt saved state', () => {
     expect(normalizeBreakState(null)).toEqual({ closedAt: null, endsAt: null, duration: null, notifiedFor: null });
@@ -158,7 +170,11 @@ describe('break countdown arithmetic', () => {
 });
 
 describe('break dialog', () => {
-  const render = (props) => renderToStaticMarkup(<BreakDialog language="zh" minutesLeft={0} onDismiss={() => {}} onStart={() => {}} {...props} />);
+  const NOW = ms('2026-11-06T10:30:00Z');
+  beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(NOW); });
+  afterEach(() => { vi.useRealTimers(); });
+  const render = (props) => renderToStaticMarkup(<BreakDialog language="zh" onDismiss={() => {}} onStart={() => {}} {...props} />);
+  const resting = (left, props = {}) => render({ mode: 'running', endsAt: NOW + left, duration: 10, ...props });
   it('prompts with the coffee title, three durations and both actions', () => {
     const markup = render({ mode: 'prompt' });
     expect(markup).toContain('Take a break');
@@ -167,17 +183,39 @@ describe('break dialog', () => {
     expect(markup.indexOf('下次吧')).toBeLessThan(markup.indexOf('开始吧'));
     expect(markup).toContain('class="break-close"');
   });
-  it('replaces the prompt with the running countdown, keeping only the close button', () => {
-    const markup = render({ mode: 'running', minutesLeft: 14 });
-    expect(markup).toContain('继续休息');
-    expect(markup).toContain('>14分钟</p>');
+  it('replaces the prompt with a resting pill: only mm:ss, the bar and the close button', () => {
+    const markup = resting(14 * 60000 + 30500, { duration: 15 });
+    expect(markup).toContain('<span class="time-hours">14</span><span class="time-colon">:</span><span class="time-minutes">31</span>');
+    expect(markup).toMatch(/class="break-countdown"[^>]*role="timer"/);
+    // No visible caption or minutes suffix; the name is kept for screen readers only.
+    expect(markup).not.toMatch(/>[^<]*继续休息[^<]*</);
+    expect(markup).not.toContain('分钟');
+    expect(markup).toContain('aria-label="继续休息 14:31"');
+    expect(markup).not.toContain('<h2');
     expect(markup).not.toContain('<select');
     expect(markup).not.toContain('下次吧');
     expect(markup).toContain('class="break-close"');
     expect(markup).toContain('aria-label="关闭"');
   });
+  it('is a non-blocking pill: its own layer without the dimming overlay, not modal', () => {
+    const markup = resting(9 * 60000);
+    expect(markup).toContain('class="settings-layer break-layer break-layer--resting"');
+    expect(markup).toContain('class="settings-panel break-panel break-panel--pill"');
+    expect(markup).not.toContain('aria-modal="true"');
+    expect(render({ mode: 'prompt' })).toContain('aria-modal="true"');
+    expect(render({ mode: 'prompt' })).not.toContain('break-layer--resting');
+    expect(render({ mode: 'welcome' })).not.toContain('break-panel--pill');
+  });
+  it('uses flip cards for mm:ss when the flip clock style is on', () => {
+    const markup = resting(9 * 60000 + 59000, { clockStyle: 'flip' });
+    expect(markup).toContain('flip-clock--break');
+    expect(markup).toMatch(/flip-card--hours"><span class="flip-half flip-top" aria-hidden="true"><span class="flip-digits">09</);
+    expect(markup).toMatch(/flip-card--minutes"><span class="flip-half flip-top" aria-hidden="true"><span class="flip-digits">59</);
+    expect(markup).toContain('aria-label="继续休息 09:59"');
+    expect(markup).not.toContain('time-digits');
+  });
   it('shows a progress bar under the countdown filled to the elapsed share', () => {
-    const markup = render({ mode: 'running', minutesLeft: 8, elapsed: 47.5 });
+    const markup = resting(5.25 * 60000);
     expect(markup.indexOf('break-countdown')).toBeLessThan(markup.indexOf('break-progress'));
     expect(markup).toContain('role="progressbar"');
     expect(markup).toContain('aria-valuenow="48"');
@@ -195,7 +233,9 @@ describe('break dialog', () => {
   it('is localized in English', () => {
     expect(render({ mode: 'welcome', language: 'en' })).toContain('A new day begins. Remember to take breaks!');
     expect(render({ mode: 'prompt', language: 'en' })).toContain('Maybe later');
-    expect(render({ mode: 'running', language: 'en', minutesLeft: 3 })).toContain('>3 min</p>');
+    const en = resting(3 * 60000, { language: 'en' });
+    expect(en).toContain('aria-label="Keep resting 03:00"');
+    expect(en).not.toContain(' min');
   });
 });
 
@@ -227,10 +267,20 @@ describe('break reminder in the app', () => {
   });
   it('restores a running break after reload and ignores a finished one', () => {
     const running = renderApp({ breakReminder: true }, { closedAt: ms('2026-11-06T09:00Z'), endsAt: Date.now() + 14.5 * 60000, duration: 15 });
-    expect(running).toContain('继续休息');
-    expect(running).toContain('>15分钟</p>');
+    expect(running).toContain('break-panel--pill');
+    expect(running).toContain('<span class="time-hours">14</span><span class="time-colon">:</span><span class="time-minutes">30</span>');
     expect(running).toMatch(/aria-valuenow="3".*style="width:3\.33/);
     expect(renderApp({ breakReminder: true }, { closedAt: ms('2026-11-06T09:45Z'), endsAt: Date.now() - 1 })).not.toContain('break-panel');
+  });
+  it('keeps the page usable while resting: theme toggle shown, only blocking dialogs hide it', () => {
+    const resting = renderApp({ breakReminder: true }, { closedAt: ms('2026-11-06T09:00Z'), endsAt: Date.now() + 5 * 60000, duration: 10 });
+    expect(resting).toContain('break-layer--resting');
+    expect(resting).toContain('class="theme-toggle"');
+    expect(resting).toContain('<div class="dashboard">');
+    const prompt = renderApp({ breakReminder: true });
+    expect(prompt).toContain('Take a break');
+    expect(prompt).not.toContain('class="theme-toggle"');
+    expect(prompt).toContain('<div class="dashboard" aria-hidden="true">');
   });
   it('does not prompt after the eight-hour session is over', () => {
     vi.setSystemTime(new Date('2026-11-06T16:30:00Z')); // 18:30, session ended 18:00

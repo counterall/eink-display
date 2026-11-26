@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { readStored, writeStored } from './model';
-import { breakDue, elapsedPercent, nextBreakAt, normalizeBreakState, pendingDueAt, remainingMinutes, shouldNotifyBreak } from './breaks';
+import { breakDue, nextBreakAt, normalizeBreakState, pendingDueAt, shouldNotifyBreak } from './breaks';
 import { notificationPermission, pageInView, showBreakNotification } from './notifications';
 
 export const BREAK_KEY = 'kindle-break-v1';
@@ -32,7 +32,8 @@ export default function useBreakReminder(enabled, startedAt, now, notification =
   const running = enabled && state.endsAt !== null && state.endsAt > nowMs;
   useEffect(() => {
     if (!running) return undefined;
-    // Re-render at each remaining-minute boundary and exactly at the end.
+    // Re-render at each remaining-minute boundary and exactly at the end (the
+    // resting pill keeps its own once-a-second tick for mm:ss).
     const untilBoundary = (state.endsAt - Date.now()) % 60000 || 60000;
     const timer = setTimeout(() => setNowMs(Date.now()), Math.max(50, untilBoundary + 20));
     return () => clearTimeout(timer);
@@ -69,8 +70,9 @@ export default function useBreakReminder(enabled, startedAt, now, notification =
 
   return {
     mode: running ? 'running' : prompt ? 'prompt' : null,
-    minutesLeft: running ? remainingMinutes(state.endsAt, nowMs) : 0,
-    elapsed: running ? elapsedPercent(state.endsAt, state.duration, nowMs) : 0,
+    // The running break's end time and length, for the resting pill's own seconds tick.
+    endsAt: running ? state.endsAt : null,
+    duration: running ? state.duration : null,
     openNow: () => setForced(true),
     // Closing any reminder window (including the "new day" one) restarts the hour.
     dismiss: close,
