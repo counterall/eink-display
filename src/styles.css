@@ -112,7 +112,11 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 /* stylelint-disable-next-line plugin/no-unsupported-browser-features */
 .carousel-viewport { height: 100%; overflow: hidden; touch-action: pan-y; }
 .carousel-track { display: flex; height: 100%; transition: transform 400ms ease-out; }
-.carousel-slide { flex: 0 0 100%; min-width: 0; }
+/* Issue #35: the next slide starts at the viewport edge, which can fall on a subpixel, so a 1px
+   column of it showed beside the current one. Off-screen slides are hidden once the slide has
+   finished (the delay keeps the outgoing one visible while it moves); the incoming one shows at once. */
+.carousel-slide { flex: 0 0 100%; min-width: 0; visibility: hidden; transition: visibility 0s linear 400ms; }
+.carousel-slide--current { visibility: visible; transition: none; }
 /* Issue #25: the button is a transparent 44px hit box; only the 1.6em disc inside it is drawn. */
 .carousel-arrow { position: absolute; top: 50%; z-index: 1; transform: translateY(-50%); display: inline-flex; align-items: center; justify-content: center; width: 2em; height: 2em; min-width: 44px; min-height: 44px; padding: 0; color: var(--accent); background: transparent; border: 0; opacity: 0; pointer-events: none; transition: opacity 150ms ease-out; }
 .carousel-arrow--previous { left: .25em; }
@@ -142,7 +146,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
   .trending-carousel .carousel-arrow .carousel-arrow-disc { border-color: transparent; }
   .trending-carousel .carousel-arrow:active, .trending-carousel .carousel-arrow:focus-visible { opacity: 1; }
 }
-@media (prefers-reduced-motion: reduce) { .carousel-track, .carousel-arrow, .carousel-dot-mark { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .carousel-track, .carousel-slide, .carousel-arrow, .carousel-dot-mark { transition: none; } }
 .weather-status { color: var(--muted); margin-left: 1.15em; font-size: .7em; line-height: 1.5; min-width: 0; }
 .updated-time { display: block; }
 .update-notice { display: block; font-size: 1em; font-weight: bold; margin-top: .15em; }
@@ -150,6 +154,12 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 /* Settings, the break prompt and the new-day welcome are frosted glass over a light tint of the
    page (issue #33): a thicker fill than the resting pill so small text and dropdowns stay readable. */
 .settings-panel { position: relative; width: 40em; max-width: 100%; max-height: 100%; overflow: auto; background: var(--glass-panel); -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%); border: 1px solid var(--glass-border); border-radius: 1.4em; box-shadow: 0 .4em 1.6em var(--glass-shadow); padding: 1.5em 1.8em; }
+/* Issue #35: the settings form scrolls (only on very small viewports) inside an inner wrapper, so the
+   panel's rounded corners clip the scrollbar. The ✕ stays pinned to the panel. */
+.settings-panel--form { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+.settings-scroll { min-height: 0; overflow: auto; padding: 1.2em 1.8em; }
+.settings-panel--form header { padding-bottom: .7em; }
+.settings-panel--form footer { margin-top: .8em; }
 .settings-panel header { padding-right: 3em; display: flex; align-items: center; justify-content: space-between; padding-bottom: 1em; border-bottom: 1px solid var(--rule); }
 .settings-panel button { border: 1px solid var(--rule); }
 .settings-panel .filled-button { border-color: var(--strong); border-radius: .6em; }
@@ -161,12 +171,12 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .break-actions button:not(.filled-button):active { color: var(--on-strong); background: var(--strong); }
 .settings-panel button:focus-visible, .settings-panel select:focus-visible, .settings-panel a:focus-visible { outline-style: solid; }
 .settings-panel h2 { margin: 0; font-size: 1.6em; font-weight: 500; }
-.settings-fields { display: flex; flex-wrap: wrap; padding-top: .9em; }
-.settings-fields label { display: block; width: 50%; padding: .6em .7em .6em 0; font-size: .9em; }
+.settings-fields { display: flex; flex-wrap: wrap; padding-top: .6em; }
+.settings-fields label { display: block; width: 50%; padding: .45em .7em .45em 0; font-size: .9em; }
 .settings-fields select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; }
 .settings-fields .wide-field { width: 100%; }
 .settings-fields .settings-hint { width: 100%; margin: 0 0 .3em; }
-.settings-panel p { color: var(--muted); font-size: .75em; line-height: 1.6; margin: .65em 0; }
+.settings-panel p { color: var(--muted); font-size: .75em; line-height: 1.6; margin: .5em 0; }
 .settings-panel .display-info { border-top: 1px solid var(--rule); padding-top: .65em; }
 .settings-panel footer { display: flex; align-items: center; justify-content: space-between; margin-top: 1em; }
 .filled-button { background: var(--strong); color: var(--on-strong); }

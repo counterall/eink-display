@@ -209,3 +209,39 @@ describe('glass dialogs (issue #33)', () => {
     expect(css.indexOf('.break-layer--resting .break-panel--pill {')).toBeGreaterThan(css.indexOf('.settings-panel {'));
   });
 });
+
+describe('carousel edge and settings fit (issue #35)', () => {
+  it('hides the off-screen slide once the 400 ms slide has finished, so no subpixel column of it shows', () => {
+    const slide = rule('.carousel-slide');
+    expect(slide).toMatch(/visibility:\s*hidden/);
+    expect(slide).toMatch(/transition:\s*visibility 0s linear 400ms/);
+    const current = rule('.carousel-slide--current');
+    expect(current).toMatch(/visibility:\s*visible/);
+    expect(current).toMatch(/transition:\s*none/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{ [^{]*\.carousel-slide[,\s][^{]*\{ transition: none; \} \}/);
+  });
+  it('scrolls the settings form inside an inner wrapper so a scrollbar stays inside the rounded corners', () => {
+    const outer = rule('.settings-panel--form');
+    expect(outer).toMatch(/overflow:\s*hidden/);
+    expect(outer).toMatch(/display:\s*flex/);
+    expect(outer).toMatch(/flex-direction:\s*column/);
+    expect(outer).toMatch(/padding:\s*0/);
+    const inner = rule('.settings-scroll');
+    expect(inner).toMatch(/overflow:\s*auto/);
+    expect(inner).toMatch(/min-height:\s*0/);
+    // The glass itself is unchanged.
+    expect(rule('.settings-panel')).toMatch(/border-radius:\s*1\.4em/);
+    expect(css.indexOf('.settings-panel--form {')).toBeGreaterThan(css.indexOf('.settings-panel {'));
+  });
+  it('uses tighter vertical spacing so the form fits a ~900px-high viewport', () => {
+    expect(rule('.settings-panel--form header')).toMatch(/padding-bottom:\s*\.7em/);
+    expect(rule('.settings-fields')).toMatch(/padding-top:\s*\.6em/);
+    expect(rule('.settings-fields label')).toMatch(/padding:\s*\.45em \.7em \.45em 0/);
+    expect(rule('.settings-panel p')).toMatch(/margin:\s*\.5em 0/);
+    expect(rule('.settings-panel--form footer')).toMatch(/margin-top:\s*\.8em/);
+    // The break prompt shares .settings-panel: its header and footer spacing stay as they were.
+    expect(rule('.settings-panel header')).toMatch(/padding-bottom:\s*1em/);
+    expect(rule('.settings-panel footer')).toMatch(/margin-top:\s*1em/);
+    expect(rule('.settings-scroll')).toMatch(/padding:\s*1\.2em 1\.8em/);
+  });
+});

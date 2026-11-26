@@ -26,6 +26,16 @@ const findAll = (node, test, found = []) => {
   return found;
 };
 
+describe("settings scroll wrapper (issue #35)", () => {
+  beforeEach(() => vi.stubGlobal("window", { innerWidth: 1448, innerHeight: 1072, devicePixelRatio: 1 }));
+  afterEach(() => vi.unstubAllGlobals());
+  it("wraps the whole form in .settings-scroll inside the glass panel", () => {
+    const markup = renderToStaticMarkup(<Settings {...props(() => {})} />);
+    expect(markup).toMatch(/<section class="settings-panel settings-panel--form"[^>]*><div class="settings-scroll"><header>/);
+    expect(markup).toMatch(/<\/footer><\/div><\/section>/);
+  });
+});
+
 describe('settings close button (issue #33)', () => {
   beforeEach(() => vi.stubGlobal('window', { innerWidth: 1448, innerHeight: 1072, devicePixelRatio: 1 }));
   afterEach(() => vi.unstubAllGlobals());

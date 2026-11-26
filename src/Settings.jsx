@@ -34,13 +34,14 @@ export default function Settings({ settings, setSettings, close, viewport, t }) 
     return next;
   });
   return <div className="settings-layer">
-    <section className="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settings-title" onKeyDown={(event) => {
+    <section className="settings-panel settings-panel--form" role="dialog" aria-modal="true" aria-labelledby="settings-title" onKeyDown={(event) => {
       if (event.key !== 'Tab') return;
       const controls = event.currentTarget.querySelectorAll('button, select, a');
       const firstControl = controls[0], lastControl = controls[controls.length - 1];
       if (event.shiftKey && document.activeElement === firstControl) { event.preventDefault(); lastControl.focus(); }
       else if (!event.shiftKey && document.activeElement === lastControl) { event.preventDefault(); firstControl.focus(); }
     }}>
+      <div className="settings-scroll">
       <header><h2 id="settings-title">{t.settings}</h2><button type="button" className="break-close settings-close" aria-label={t.closeDialog} title={t.closeDialog} onClick={finish}><X strokeWidth={1.8} aria-hidden="true" /></button></header>
       <div className="settings-fields">
         {['primary', 'secondary'].map((key) => <label key={key}>{t[key]}<select ref={key === 'primary' ? first : undefined} value={settings[key]} onChange={(event) => change(key, event.target.value)}>{CITIES.map((city) => <option key={city.id} value={city.id}>{cityName(city, settings.language)}</option>)}</select></label>)}
@@ -57,6 +58,7 @@ export default function Settings({ settings, setSettings, close, viewport, t }) 
       <p>{t.note}</p><p>{t.lofoten}</p>
       <p className="display-info">{t.viewport}: {Math.round(viewport.width)} × {Math.round(viewport.height)} CSS px · {t.pixelRatio}: {window.devicePixelRatio || 1}</p>
       <footer><button className="filled-button" onClick={finish}>{t.close}</button><a href="https://open-meteo.com/" target="_blank" rel="noreferrer">{t.source}</a></footer>
+      </div>
     </section>
   </div>;
 }
