@@ -112,8 +112,8 @@ export function TrendingCarousel({ language, city, now, interval, paused = false
       </div>
       {count > 1 && <>
         {/* Issue #25: a transparent 44px hit box around a small disc, so the arrows cover less of the list. */}
-        <button type="button" className="carousel-arrow carousel-arrow--previous" title={c.previous} aria-label={c.previous} onClick={() => step(-1)}><span className="carousel-arrow-disc" aria-hidden="true"><ChevronLeft aria-hidden="true" /></span></button>
-        <button type="button" className="carousel-arrow carousel-arrow--next" title={c.next} aria-label={c.next} onClick={() => step(1)}><span className="carousel-arrow-disc" aria-hidden="true"><ChevronRight aria-hidden="true" /></span></button>
+        <button type="button" className="carousel-arrow carousel-arrow--previous" title={c.previous} aria-label={c.previous} onClick={() => step(-1)}><span className="carousel-arrow-disc" aria-hidden="true"><ChevronLeft aria-hidden="true" strokeWidth={1.8} /></span></button>
+        <button type="button" className="carousel-arrow carousel-arrow--next" title={c.next} aria-label={c.next} onClick={() => step(1)}><span className="carousel-arrow-disc" aria-hidden="true"><ChevronRight aria-hidden="true" strokeWidth={1.8} /></span></button>
       </>}
     </div>
     {count > 1 && <div className="carousel-dots">
