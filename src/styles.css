@@ -157,8 +157,10 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 /* Issue #35: the settings form scrolls (only on very small viewports) inside an inner wrapper, so the
    panel's rounded corners clip the scrollbar. The ✕ stays pinned to the panel. */
 .settings-panel--form { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
-.settings-scroll { min-height: 0; overflow: auto; padding: 1.3em 1.8em; }
-.settings-panel header { padding-right: 3em; display: flex; align-items: center; justify-content: space-between; padding-bottom: .7em; border-bottom: 1px solid var(--rule); }
+.settings-scroll { min-height: 0; overflow: auto; padding: 1.2em 1.8em; }
+.settings-panel--form header { padding-bottom: .7em; }
+.settings-panel--form footer { margin-top: .8em; }
+.settings-panel header { padding-right: 3em; display: flex; align-items: center; justify-content: space-between; padding-bottom: 1em; border-bottom: 1px solid var(--rule); }
 .settings-panel button { border: 1px solid var(--rule); }
 .settings-panel .filled-button { border-color: var(--strong); border-radius: .6em; }
 /* Glass fields: a white border would vanish on white glass, so outlines use the accent colour. */
@@ -170,13 +172,13 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .settings-panel button:focus-visible, .settings-panel select:focus-visible, .settings-panel a:focus-visible { outline-style: solid; }
 .settings-panel h2 { margin: 0; font-size: 1.6em; font-weight: 500; }
 .settings-fields { display: flex; flex-wrap: wrap; padding-top: .6em; }
-.settings-fields label { display: block; width: 50%; padding: .5em .7em .5em 0; font-size: .9em; }
+.settings-fields label { display: block; width: 50%; padding: .45em .7em .45em 0; font-size: .9em; }
 .settings-fields select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; }
 .settings-fields .wide-field { width: 100%; }
 .settings-fields .settings-hint { width: 100%; margin: 0 0 .3em; }
 .settings-panel p { color: var(--muted); font-size: .75em; line-height: 1.6; margin: .5em 0; }
 .settings-panel .display-info { border-top: 1px solid var(--rule); padding-top: .65em; }
-.settings-panel footer { display: flex; align-items: center; justify-content: space-between; margin-top: .8em; }
+.settings-panel footer { display: flex; align-items: center; justify-content: space-between; margin-top: 1em; }
 .filled-button { background: var(--strong); color: var(--on-strong); }
 .break-panel { position: relative; width: 28em; padding-top: 1.2em; }
 .break-panel header { padding-right: 3em; }

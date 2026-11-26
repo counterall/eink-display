@@ -234,11 +234,14 @@ describe('carousel edge and settings fit (issue #35)', () => {
     expect(css.indexOf('.settings-panel--form {')).toBeGreaterThan(css.indexOf('.settings-panel {'));
   });
   it('uses tighter vertical spacing so the form fits a ~900px-high viewport', () => {
-    expect(rule('.settings-panel header')).toMatch(/padding-bottom:\s*\.7em/);
+    expect(rule('.settings-panel--form header')).toMatch(/padding-bottom:\s*\.7em/);
     expect(rule('.settings-fields')).toMatch(/padding-top:\s*\.6em/);
-    expect(rule('.settings-fields label')).toMatch(/padding:\s*\.5em \.7em \.5em 0/);
+    expect(rule('.settings-fields label')).toMatch(/padding:\s*\.45em \.7em \.45em 0/);
     expect(rule('.settings-panel p')).toMatch(/margin:\s*\.5em 0/);
-    expect(rule('.settings-panel footer')).toMatch(/margin-top:\s*\.8em/);
-    expect(rule('.settings-scroll')).toMatch(/padding:\s*1\.3em 1\.8em/);
+    expect(rule('.settings-panel--form footer')).toMatch(/margin-top:\s*\.8em/);
+    // The break prompt shares .settings-panel: its header and footer spacing stay as they were.
+    expect(rule('.settings-panel header')).toMatch(/padding-bottom:\s*1em/);
+    expect(rule('.settings-panel footer')).toMatch(/margin-top:\s*1em/);
+    expect(rule('.settings-scroll')).toMatch(/padding:\s*1\.2em 1\.8em/);
   });
 });
