@@ -225,6 +225,15 @@ describe('Trending carousel in the app (issue #23)', () => {
     expect(stageOverflows(stage([node(240, 100, false)]))).toBe(true);
     expect(stageOverflows(stage([node(240, 130, true)]))).toBe(true);
   });
+  it('keeps slide content above the carousel viewport, which clips it', () => {
+    const node = (bottom, inTrack) => ({ getBoundingClientRect: () => ({ right: 50, bottom, width: 10 }), closest: () => (inTrack ? {} : null) });
+    const viewport = { getBoundingClientRect: () => ({ right: 100, bottom: 90 }) };
+    const stage = (nodes) => ({ className: 'stage', getBoundingClientRect: () => ({ right: 120, bottom: 120 }), querySelector: (selector) => (selector === '.carousel-viewport' ? viewport : null), querySelectorAll: (selector) => (selector === '.dashboard *' ? nodes : []) });
+    expect(stageOverflows(stage([node(89, true)]))).toBe(false);
+    expect(stageOverflows(stage([node(100, true)]))).toBe(true);
+    // The dots and footer below the viewport are not clipped by it.
+    expect(stageOverflows(stage([node(110, false)]))).toBe(false);
+  });
   it('shows the interval setting under the right column only while it is shown', () => {
     const settings = (saved) => renderToStaticMarkup(<Settings settings={normalizeSettings(saved)} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT[saved.language || 'zh']} />);
     const zh = settings({ carouselInterval: 30 });

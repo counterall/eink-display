@@ -23,13 +23,17 @@ export const SETTINGS_KEY = 'kindle-settings-v1';
 export const WORK_KEY = 'kindle-work-v1';
 
 // Carousel slides (issue #23) sit side by side in a horizontally clipped track, and slide while
-// switching: only their height counts, for every slide, so the fit allows for the taller one.
+// switching: only their height counts, for every slide, so the fit allows for the taller one. The
+// track's viewport clips them, so they must also end above its bottom (`clip`).
 const inTrack = (node) => typeof node.closest === 'function' && node.closest('.carousel-track') !== null;
 
-function overflows(bounds, nodes) {
+function overflows(bounds, nodes, clip = null) {
   for (let i = 0; i < nodes.length; i++) {
     const box = nodes[i].getBoundingClientRect();
-    if (box.width && ((box.right > bounds.right + 1 && !inTrack(nodes[i])) || box.bottom > bounds.bottom + 1)) return true;
+    if (!box.width) continue;
+    const sliding = inTrack(nodes[i]);
+    if ((box.right > bounds.right + 1 && !sliding) || box.bottom > bounds.bottom + 1) return true;
+    if (sliding && clip && box.bottom > clip.bottom + 1) return true;
   }
   return false;
 }
@@ -48,7 +52,9 @@ export function stageClass(viewport, theme) {
 export const effectiveZoom = (saved, limit) => (limit === null ? saved : Math.min(saved, limit));
 
 export function stageOverflows(stage) {
-  if (overflows(stage.getBoundingClientRect(), stage.querySelectorAll('.dashboard *'))) return true;
+  const viewport = stage.querySelector('.carousel-viewport');
+  const clip = viewport ? viewport.getBoundingClientRect() : null;
+  if (overflows(stage.getBoundingClientRect(), stage.querySelectorAll('.dashboard *'), clip)) return true;
   // Flip cards are wider than the classic digits; keep them out of the Trending column.
   const panel = stage.querySelector('.clock-panel');
   if (panel && overflows(panel.getBoundingClientRect(), stage.querySelectorAll('.flip-clock'))) return true;

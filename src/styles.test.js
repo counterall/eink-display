@@ -70,7 +70,7 @@ describe('Trending carousel styles (issue #23)', () => {
   });
   it('shows the arrows on hover or focus, and always on touch screens', () => {
     expect(rule('.carousel-arrow')).toMatch(/opacity:\s*0/);
-    expect(css).toContain('.trending-carousel:hover .carousel-arrow, .trending-carousel:focus-within .carousel-arrow { opacity: 1;');
+    expect(css).toContain('.trending-carousel:hover .carousel-arrow, .trending-carousel:has(:focus-visible) .carousel-arrow { opacity: 1;');
     expect(css).toMatch(/@media \(hover: none\) \{ \.carousel-arrow \{ opacity: 1;/);
     expect(rule('.carousel-arrow')).toMatch(/background:\s*var\(--card\)/);
     expect(rule('.carousel-arrow')).toMatch(/border-radius:\s*50%/);

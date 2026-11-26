@@ -54,27 +54,42 @@ export function TrendingCarousel({ language, city, now, interval, paused = false
   const count = slides.length;
   const [state, setState] = useState(() => initialCarousel(Date.now(), interval));
   const [hovered, setHovered] = useState(false);
+  // Keyboard focus inside the panel also pauses rotation, so a switch never makes the focused
+  // link inert under a keyboard user.
+  const [keyboardFocus, setKeyboardFocus] = useState(false);
   const touch = useRef(null);
   const swiped = useRef(false);
+  const dots = useRef([]);
+  const focusDot = useRef(false);
   const index = Math.min(state.index, count - 1);
   useEffect(() => {
-    setState((old) => tickCarousel(old, { count, nowMs: now.getTime(), interval, paused: paused || hovered }));
+    setState((old) => tickCarousel(old, { count, nowMs: now.getTime(), interval, paused: paused || hovered || keyboardFocus }));
   }, [now]);
+  // A key pressed on a link in the outgoing slide: that slide turns inert and would drop focus to
+  // the page, so move it to the new slide's dot.
+  useEffect(() => {
+    if (!focusDot.current) return;
+    focusDot.current = false;
+    if (dots.current[index]) dots.current[index].focus();
+  }, [index]);
   const go = (target) => setState((old) => goToSlide(old, target, { count, nowMs: Date.now(), interval }));
   const step = (direction) => go(index + direction);
   const name = (slide) => c[`name_${slide.id}`] || slide.id;
   const draw = renderSlide || ((slide) => <TrendingSlide period={slide.period} language={language} city={city} now={now} />);
   return <section className="trending-carousel" aria-roledescription="carousel" aria-label={c.label}
     onKeyDown={(event) => {
-      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      if ((event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
       event.preventDefault();
+      if (event.target.closest && event.target.closest('.carousel-slide')) focusDot.current = true;
       step(event.key === 'ArrowLeft' ? -1 : 1);
     }}
     onPointerEnter={(event) => { if (event.pointerType === 'mouse') setHovered(true); }}
-    onPointerLeave={(event) => { if (event.pointerType === 'mouse') setHovered(false); }}>
+    onPointerLeave={(event) => { if (event.pointerType === 'mouse') setHovered(false); }}
+    onFocus={(event) => { let visible = false; try { visible = event.target.matches(':focus-visible'); } catch { /* old engines */ } setKeyboardFocus(visible); }}
+    onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setKeyboardFocus(false); }}>
     <div className="carousel-stage">
       <div className="carousel-viewport"
-        onPointerDown={(event) => { touch.current = event.pointerType === 'mouse' ? null : { x: event.clientX, y: event.clientY }; }}
+        onPointerDown={(event) => { swiped.current = false; touch.current = event.pointerType === 'mouse' ? null : { x: event.clientX, y: event.clientY }; }}
         onPointerCancel={() => { touch.current = null; }}
         onPointerUp={(event) => {
           const start = touch.current;
@@ -83,8 +98,8 @@ export function TrendingCarousel({ language, city, now, interval, paused = false
           const direction = swipeDirection(event.clientX - start.x, event.clientY - start.y);
           if (!direction) return;
           // A swipe that ends on a repository link must not also open it.
+          // Cleared by the next pointerdown, so a later real tap still opens its link.
           swiped.current = true;
-          setTimeout(() => { swiped.current = false; }, 500);
           step(direction);
         }}
         onClickCapture={(event) => { if (swiped.current) { swiped.current = false; event.preventDefault(); event.stopPropagation(); } }}>
@@ -102,7 +117,7 @@ export function TrendingCarousel({ language, city, now, interval, paused = false
       </>}
     </div>
     {count > 1 && <div className="carousel-dots">
-      {slides.map((slide, i) => <button key={slide.id} type="button" className="carousel-dot"
+      {slides.map((slide, i) => <button key={slide.id} ref={(node) => { dots.current[i] = node; }} type="button" className="carousel-dot"
         aria-label={fill(c.slide, { n: i + 1, total: count, name: name(slide) })} title={name(slide)}
         aria-current={i === index ? 'true' : undefined} onClick={() => go(i)}><span className="carousel-dot-mark" aria-hidden="true" /></button>)}
     </div>}

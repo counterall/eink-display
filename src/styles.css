@@ -113,19 +113,22 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .carousel-viewport { height: 100%; overflow: hidden; touch-action: pan-y; }
 .carousel-track { display: flex; height: 100%; transition: transform 400ms ease-out; }
 .carousel-slide { flex: 0 0 100%; min-width: 0; }
-.carousel-arrow { position: absolute; top: 50%; z-index: 1; margin-top: -1.7em; color: var(--accent); background: var(--card); border: 1px solid var(--rule); border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity 150ms ease-out; }
+.carousel-arrow { position: absolute; top: 50%; z-index: 1; transform: translateY(-50%); color: var(--accent); background: var(--card); border: 1px solid var(--rule); border-radius: 50%; opacity: 0; pointer-events: none; transition: opacity 150ms ease-out; }
 .carousel-arrow--previous { left: 0; }
 .carousel-arrow--next { right: 0; }
-.trending-carousel:hover .carousel-arrow, .trending-carousel:focus-within .carousel-arrow { opacity: 1; pointer-events: auto; }
+.trending-carousel:hover .carousel-arrow, .trending-carousel:has(:focus-visible) .carousel-arrow { opacity: 1; pointer-events: auto; }
 .carousel-arrow:hover { border-color: var(--accent); }
 .carousel-arrow:active { color: var(--on-strong); background: var(--strong); }
-.carousel-dots { display: flex; justify-content: center; flex-shrink: 0; margin-top: .2em; }
+/* The dots row is shorter than the 44px dot buttons: their hit areas reach into the last list
+   item's bottom padding instead of taking more height from the list. */
+.carousel-dots { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; height: 1.5em; margin-top: -.3em; }
 .carousel-dot { display: inline-flex; align-items: center; justify-content: center; width: 2em; height: 2em; min-width: 44px; min-height: 44px; padding: 0; background: transparent; }
 .carousel-dot:active { background: transparent; }
 .carousel-dot-mark { display: block; width: .7em; height: .7em; border: 2px solid var(--accent); border-radius: 50%; transition: transform 150ms ease-out; }
 .carousel-dot:hover .carousel-dot-mark { transform: scale(1.25); }
 .carousel-dot[aria-current='true'] .carousel-dot-mark { background: var(--accent); }
-.trending-carousel .trending-footer { margin-top: .2em; }
+.trending-carousel .trending-footer { margin-top: .15em; }
+.trending-carousel .trending-item { padding: .4em 0; }
 @media (hover: none) { .carousel-arrow { opacity: 1; pointer-events: auto; } }
 @media (prefers-reduced-motion: reduce) { .carousel-track, .carousel-arrow, .carousel-dot-mark { transition: none; } }
 .weather-status { color: var(--muted); margin-left: 1.15em; font-size: .7em; line-height: 1.5; min-width: 0; }
