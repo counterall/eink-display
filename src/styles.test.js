@@ -100,3 +100,13 @@ describe('Trending carousel styles (issue #23)', () => {
     expect(rule('.stage--stacked .trending-carousel, .stage--stacked .carousel-viewport, .stage--stacked .carousel-track')).toMatch(/height:\s*auto/);
   });
 });
+
+describe('overlay stacking (issue #27)', () => {
+  it('puts the settings/break overlay above every other z-index on the stage', () => {
+    const overlay = Number(rule('.settings-layer').match(/z-index:\s*(-?\d+)/)?.[1]);
+    expect(overlay).toBeGreaterThan(0);
+    const others = [...css.replace(/(?:^|\n)\.settings-layer\s*\{[^}]*\}/, '').matchAll(/z-index:\s*(-?\d+)/g)].map(([, value]) => Number(value));
+    expect(others.length).toBeGreaterThan(0);
+    for (const value of others) expect(overlay).toBeGreaterThan(value);
+  });
+});
