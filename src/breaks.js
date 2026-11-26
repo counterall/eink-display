@@ -29,8 +29,12 @@ export function pendingDueAt(startedAt, state, nowMs) {
   return nextBreakAt(startedAt, state.closedAt);
 }
 
-export function remainingMinutes(endsAt, nowMs) {
-  return Math.max(0, Math.ceil((endsAt - nowMs) / 60000));
+// Time left in a running break as "MM:SS", rounded up to whole seconds (so the
+// display reads 00:00 only once the break is over) and never below 00:00.
+export function formatRemaining(msLeft) {
+  const seconds = Number.isFinite(msLeft) ? Math.max(0, Math.ceil(msLeft / 1000)) : 0;
+  const two = (value) => String(value).padStart(2, '0');
+  return `${two(Math.floor(seconds / 60))}:${two(seconds % 60)}`;
 }
 
 export function normalizeBreakState(value) {

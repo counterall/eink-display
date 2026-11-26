@@ -177,7 +177,6 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .break-panel .break-caption { display: block; font-size: 1.6em; }
 .break-welcome { padding: 1.6em 2em 1.4em; }
 .break-panel .break-welcome .break-caption { line-height: 1.4; }
-.break-panel .break-countdown { font-family: 'Roboto Condensed', Arial, sans-serif; font-size: 4.5em; font-weight: 600; line-height: 1.1; margin: .2em 0 0; font-variant-numeric: tabular-nums; color: var(--fg); }
 .settings-panel a { color: var(--accent); font-size: .7em; margin-left: 1em; }
 .compact .dashboard { padding: 1.4em 1.6em; }
 .compact .clock-panel { padding-right: 1.2em; }
@@ -186,8 +185,6 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .compact.stage--fullscreen .date-header { min-height: calc(44px + .9em); padding-right: calc(5 * 44px + 3 * .8em + 9em); }
 .stage--fullscreen .actions { flex-wrap: nowrap; }
 .compact.stage--fullscreen .clock-footer { top: 1.4em; }
-.break-progress { height: .9em; margin: 1em auto 0; border: 2px solid var(--rule); background: var(--card); overflow: hidden; }
-.break-progress-fill { height: 100%; background: var(--strong); }
 /* Portrait with the right column (issue #21): Trending drops below the clock panel. layout.js
    picks a base size that should fit both; if it doesn't, the automatic fit shrinks the page and
    it can still scroll, so nothing is cut off. */
@@ -211,6 +208,17 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .stage--card .theme-toggle { top: 2.6em; right: 2.8em; }
 .stage--card.compact .theme-toggle { top: 1.9em; right: 2.1em; }
 .stage--card.stage--fullscreen .theme-toggle, .stage--card.stage--stacked .theme-toggle { top: .65em; right: .65em; }
+/* Resting break (issue #29): a frosted-glass pill pinned top centre. No dimming overlay, and only
+   the pill takes clicks, so the page behind stays readable and usable. After the .stage--card
+   panel rule so its corner radius doesn't apply. Prompt and welcome keep the centred dialog. */
+.break-layer--resting { background: none; pointer-events: none; align-items: flex-start; padding: 1em; }
+.break-layer--resting .break-panel--pill { pointer-events: auto; width: auto; overflow: visible; padding: .5em 2.8em .85em; background: var(--glass); -webkit-backdrop-filter: blur(18px) saturate(160%); backdrop-filter: blur(18px) saturate(160%); border: 1px solid var(--glass-border); border-radius: 1.4em; box-shadow: 0 .4em 1.6em var(--glass-shadow); }
+.break-panel--pill .break-running { padding: 0; }
+.break-panel--pill .break-close { top: .15em; right: .15em; width: 2em; height: 2em; }
+.break-countdown { display: inline-flex; align-items: baseline; font-family: 'Roboto Condensed', Arial, sans-serif; line-height: 1.05; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--fg); }
+.break-panel--pill .break-countdown, .break-panel--pill .flip-clock--break { font-size: 4.2em; }
+.break-progress { height: .35em; margin-top: .45em; border-radius: .35em; background: var(--glass-track); overflow: hidden; }
+.break-progress-fill { height: 100%; border-radius: inherit; background: var(--strong); }
 /* Flip-clock look (issue #13), chosen in Settings. Cards have fixed widths so changing digits
    never moves the layout. The resting layers already show the new value, so with
    prefers-reduced-motion the digits simply switch. */
@@ -241,40 +249,46 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
    --bg page, --fg text, --muted secondary text, --accent icons and links, --card cards and
    controls, --rule borders and rules, --strong filled buttons, bars, focus and pressed buttons,
    --on-strong text on --strong, --overlay behind dialogs, --flip-card / --flip-digits the
-   flip cards. The light block is also on .stage, so a stage without a theme class is light even
+   flip cards, --glass / --glass-border / --glass-shadow / --glass-track the resting break pill. The light block is also on .stage, so a stage without a theme class is light even
    in the frame before App removes the old theme class from <html>. */
 :root, .stage {
   --bg: #fff; --fg: #111; --muted: #111; --accent: #111; --card: #fff; --rule: #111;
   --strong: #111; --on-strong: #fff; --overlay: rgba(255,255,255,.95);
   --flip-card: #222; --flip-digits: #f2f2f2;
+  --glass: rgba(255,255,255,.45); --glass-border: rgba(255,255,255,.7); --glass-shadow: rgba(17,17,17,.16); --glass-track: rgba(17,17,17,.12);
 }
 .theme--dark {
   color-scheme: dark;
   --bg: #000; --fg: #fff; --muted: #fff; --accent: #fff; --card: #000; --rule: #fff;
   --strong: #fff; --on-strong: #000; --overlay: rgba(0,0,0,.96);
   --flip-card: #1c1c1c; --flip-digits: #c4c4c4;
+  --glass: rgba(28,28,30,.45); --glass-border: rgba(255,255,255,.18); --glass-shadow: rgba(0,0,0,.6); --glass-track: rgba(255,255,255,.2);
 }
 /* Sky (blue) */
 .theme--sky {
   --bg: #eef4fb; --fg: #1c2d44; --muted: #56697f; --accent: #2e6aac; --card: #ffffff; --rule: #c9d8ea;
   --strong: #2e6aac; --on-strong: #fff; --overlay: rgba(238,244,251,.95);
   --flip-card: #2e6aac; --flip-digits: #fff;
+  --glass: rgba(255,255,255,.45); --glass-border: rgba(255,255,255,.7); --glass-shadow: rgba(28,45,68,.16); --glass-track: rgba(28,45,68,.12);
 }
 /* Sage (green) */
 .theme--sage {
   --bg: #eef5ec; --fg: #203427; --muted: #566b5c; --accent: #37754c; --card: #ffffff; --rule: #cfe0cc;
   --strong: #37754c; --on-strong: #fff; --overlay: rgba(238,245,236,.95);
   --flip-card: #37754c; --flip-digits: #fff;
+  --glass: rgba(255,255,255,.45); --glass-border: rgba(255,255,255,.7); --glass-shadow: rgba(32,52,39,.16); --glass-track: rgba(32,52,39,.12);
 }
 /* Lavender (purple) */
 .theme--lavender {
   --bg: #f3f0fa; --fg: #2c2541; --muted: #655d80; --accent: #6a4ca6; --card: #ffffff; --rule: #dcd4ee;
   --strong: #6a4ca6; --on-strong: #fff; --overlay: rgba(243,240,250,.95);
   --flip-card: #6a4ca6; --flip-digits: #fff;
+  --glass: rgba(255,255,255,.45); --glass-border: rgba(255,255,255,.7); --glass-shadow: rgba(44,37,65,.16); --glass-track: rgba(44,37,65,.12);
 }
 /* Mint (teal) */
 .theme--mint {
   --bg: #eaf5f3; --fg: #1c3634; --muted: #526d69; --accent: #1d7870; --card: #ffffff; --rule: #c5e1dc;
   --strong: #1d7870; --on-strong: #fff; --overlay: rgba(234,245,243,.95);
   --flip-card: #1d7870; --flip-digits: #fff;
+  --glass: rgba(255,255,255,.45); --glass-border: rgba(255,255,255,.7); --glass-shadow: rgba(28,54,52,.16); --glass-track: rgba(28,54,52,.12);
 }
