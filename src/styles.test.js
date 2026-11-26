@@ -68,12 +68,32 @@ describe('Trending carousel styles (issue #23)', () => {
     expect(rule('.carousel-track')).toMatch(/transition:\s*transform 400ms ease-out/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{ \.carousel-track[^{]*\{ transition: none; \} \}/);
   });
-  it('shows the arrows on hover or focus, and always on touch screens', () => {
+  it('shows the arrows on hover or focus, and at half strength on touch screens (issue #25)', () => {
     expect(rule('.carousel-arrow')).toMatch(/opacity:\s*0/);
     expect(css).toContain('.trending-carousel:hover .carousel-arrow, .trending-carousel:has(:focus-visible) .carousel-arrow { opacity: 1;');
-    expect(css).toMatch(/@media \(hover: none\) \{ \.carousel-arrow \{ opacity: 1;/);
-    expect(rule('.carousel-arrow')).toMatch(/background:\s*var\(--card\)/);
-    expect(rule('.carousel-arrow')).toMatch(/border-radius:\s*50%/);
+    const touch = css.match(/@media \(hover: none\) \{([\s\S]*?)\n\}/)[1];
+    // Half strength even while a tap leaves :hover stuck on the carousel.
+    expect(touch).toContain('.carousel-arrow, .trending-carousel:hover .carousel-arrow { opacity: .5; pointer-events: auto; }');
+    expect(touch).toContain('.trending-carousel .carousel-arrow .carousel-arrow-disc { border-color: transparent; }');
+    // Pressed or keyboard-focused arrows are full strength on touch screens too.
+    expect(touch).toContain('.trending-carousel .carousel-arrow:active, .trending-carousel .carousel-arrow:focus-visible { opacity: 1; }');
+  });
+  it('draws a small 1.6em disc inside a transparent 44px hit box, 0.25em from the edges (issue #25)', () => {
+    const arrow = rule('.carousel-arrow');
+    expect(arrow).toMatch(/min-width:\s*44px; min-height:\s*44px/);
+    expect(arrow).toMatch(/background:\s*transparent/);
+    expect(arrow).toMatch(/border:\s*0/);
+    expect(rule('.carousel-arrow--previous')).toMatch(/left:\s*\.25em/);
+    expect(rule('.carousel-arrow--next')).toMatch(/right:\s*\.25em/);
+    const disc = rule('.carousel-arrow-disc');
+    expect(disc).toMatch(/width:\s*1\.6em; height:\s*1\.6em; min-width:\s*32px; min-height:\s*32px/);
+    expect(disc).toMatch(/border-radius:\s*50%/);
+    expect(disc).toMatch(/background:\s*var\(--card\)/);
+    expect(rule('.carousel-arrow-disc svg')).toMatch(/width:\s*1em; height:\s*1em; min-width:\s*18px; min-height:\s*18px/);
+    expect(rule('.carousel-arrow:active .carousel-arrow-disc')).toMatch(/background:\s*var\(--strong\)/);
+    // The arrows are not .icon-button, so the card themes' bordered square look can't reach them.
+    expect(css).not.toContain('.stage--card .carousel-arrow {');
+    expect(rule('.carousel-arrow:active')).toMatch(/background:\s*transparent/);
   });
   it('gives each dot a 44px hit area and lets stacked slides take the taller height', () => {
     expect(rule('.carousel-dot')).toMatch(/min-width:\s*44px; min-height:\s*44px/);

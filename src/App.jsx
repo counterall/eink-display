@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { ArrowRightLeft, Settings as SettingsIcon, ZoomIn, ZoomOut } from 'lucide-react';
-import { THEMES, THEME_COLORS, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, clampZoom, cityById, cityDate, cityName, clock, dateKey, dateParts, flipParts, normalizeSettings, readStored, toggleTheme, weatherUpdateSummary, writeStored } from './model';
+import { ArrowRightLeft, Settings as SettingsIcon } from 'lucide-react';
+import { THEMES, THEME_COLORS, cityById, cityDate, cityName, clock, dateKey, dateParts, flipParts, normalizeSettings, readStored, toggleTheme, weatherUpdateSummary, writeStored } from './model';
 import { lunarDateName, solarTermName } from './solarTerms';
 import { flipTimeFontSize, primaryTimeFontSize } from './layout';
 import { APP_TEXT, BREAK_TEXT, pick } from './i18n';
@@ -48,8 +48,10 @@ export function stageClass(viewport, theme) {
   if (theme !== 'light') classes.push(`theme--${theme}`);
   return classes.join(' ');
 }
-// The zoom actually shown: the saved zoom, capped by what fits the current layout.
-export const effectiveZoom = (saved, limit) => (limit === null ? saved : Math.min(saved, limit));
+// Automatic fit (issue #25 replaced the user zoom): while anything overflows, the page shrinks
+// in 10% steps from 100% down to FIT_MIN. It never grows past 100%.
+export const FIT_MIN = 70, FIT_STEP = 10;
+export const nextFitScale = (scale) => Math.max(FIT_MIN, scale - FIT_STEP);
 
 export function stageOverflows(stage) {
   const viewport = stage.querySelector('.carousel-viewport');
@@ -72,21 +74,20 @@ export default function App() {
   const [settings, setSettings] = useState(() => normalizeSettings(readStored(SETTINGS_KEY)));
   const [now, setNow] = useState(new Date());
   const [showSettings, setShowSettings] = useState(false);
-  // Largest zoom that fit this layout; reset whenever the available space or content shape changes.
-  // It caps the saved zoom without changing it, so turning a tablet to portrait and back (or any
-  // other layout change) never leaves the page smaller for good.
-  const [zoomLimit, setZoomLimit] = useState(null);
-  const zoom = effectiveZoom(settings.zoom, zoomLimit);
-  const viewport = useViewport(settings.showFeeds, zoom);
-  const zoomBy = (step) => setSettings((old) => ({ ...old, zoom: clampZoom(effectiveZoom(old.zoom, zoomLimit) + step) }));
+  // Largest scale that fit this layout, in percent. It restarts at 100% whenever the available
+  // space or content shape changes, so turning a tablet to portrait and back (or any other
+  // layout change) never leaves the page smaller for good.
+  const [fitScale, setFitScale] = useState(100);
+  const layout = useViewport(settings.showFeeds);
+  const viewport = { ...layout, style: { ...layout.style, fontSize: layout.style.fontSize * fitScale / 100 } };
   const stageRef = useRef(null);
   const layoutKey = [viewport.width, viewport.height, viewport.mode, settings.language, settings.format, settings.theme, settings.clockStyle].join('|');
-  useEffect(() => { setZoomLimit(null); }, [layoutKey]);
-  // Runs before paint, so an oversized zoom is never shown (and never leaves the controls off-screen).
+  useEffect(() => { setFitScale(100); }, [layoutKey]);
+  // Runs before paint, so an overflowing layout is never shown (and never leaves the controls off-screen).
   useLayoutEffect(() => {
-    if (zoom <= ZOOM_MIN || !stageRef.current) return;
+    if (fitScale <= FIT_MIN || !stageRef.current) return;
     if (!stageOverflows(stageRef.current)) return;
-    setZoomLimit(clampZoom(zoom - ZOOM_STEP));
+    setFitScale(nextFitScale(fitScale));
   });
   const { entries, status } = useWeather(settings.primary, settings.secondary, now);
   const t = pick(APP_TEXT, settings.language);
@@ -149,8 +150,8 @@ export default function App() {
           <CityHeading city={primary} entry={entries[primary.id]} now={now} language={settings.language} format={settings.format} label={t.primary} primary t={t} />
           <div className="primary-time">
             {flip
-              ? <LiveFlipClock city={primary} cityLabel={cityName(primary, settings.language)} format={settings.format} fontSize={flipTimeFontSize(viewport.width, viewport.height, viewport.mode, zoom)} />
-              : <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, viewport.mode, zoom)} />}
+              ? <LiveFlipClock city={primary} cityLabel={cityName(primary, settings.language)} format={settings.format} fontSize={flipTimeFontSize(viewport.width, viewport.height, viewport.mode) * fitScale / 100} />
+              : <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, viewport.mode) * fitScale / 100} />}
           </div>
         </div>
         <div className="clock-tiles">
@@ -173,8 +174,6 @@ export default function App() {
           <div className="actions">
             <IconButton icon={ArrowRightLeft} label={t.swap} onClick={() => setSettings((old) => ({ ...old, primary: old.secondary, secondary: old.primary }))} />
             <IconButton icon={SettingsIcon} label={t.settings} onClick={() => setShowSettings(true)} />
-            <IconButton icon={ZoomOut} label={t.zoomOut} title={`${t.zoomOut} · ${zoom}%`} disabled={zoom <= ZOOM_MIN} onClick={() => zoomBy(-ZOOM_STEP)} />
-            <IconButton icon={ZoomIn} label={t.zoomIn} title={`${t.zoomIn} · ${zoom}%`} disabled={zoom >= Math.min(ZOOM_MAX, zoomLimit === null ? ZOOM_MAX : zoomLimit)} onClick={() => zoomBy(ZOOM_STEP)} />
             <div className="weather-status" aria-live="polite"><span className="updated-time" title={t.updateNote}>{t.updated} {updatedTime}</span>{updateNotice && <small className="update-notice">{updateNotice}</small>}</div>
           </div>
         </footer>

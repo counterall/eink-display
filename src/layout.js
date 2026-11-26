@@ -24,35 +24,31 @@ export function layoutMode(width, height, showFeeds = true) {
   return height > width ? 'stacked' : 'split';
 }
 
-export function viewportLayout(rawWidth, rawHeight, showFeeds = true, zoom = 100) {
+export function viewportLayout(rawWidth, rawHeight, showFeeds = true) {
   const width = Number.isFinite(rawWidth) && rawWidth > 0 ? rawWidth : 1;
   const height = Number.isFinite(rawHeight) && rawHeight > 0 ? rawHeight : 1;
   const mode = layoutMode(width, height, showFeeds);
   const reference = mode === 'stacked' ? STACKED : height > width ? PORTRAIT : LANDSCAPE;
   const scale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.min(width / reference.width, height / reference.height)));
-  const fontSize = (showFeeds ? BASE_FONT : FULLSCREEN_FONT) * scale * zoom / 100;
+  const fontSize = (showFeeds ? BASE_FONT : FULLSCREEN_FONT) * scale;
   return { width, height, mode, style: { width, height, fontSize } };
 }
 
 // Main clock size for the classic look. Roboto Condensed HH:MM is about 2.38em wide (digits
 // .503em, colon .264em + .1em margin), so 18% of the page width fits the split column (issue #15).
 // Stacked portrait has the whole width but must leave about half the height to Trending.
-// The wider Arial fallback can overflow; the zoom check in App then steps the zoom down.
-export function primaryTimeFontSize(width, height, mode = 'split', zoom = 100) {
-  let size;
-  if (mode === 'fullscreen') size = Math.min(width * .25, height * (width < 650 ? .27 : .33));
-  else if (mode === 'stacked') size = Math.min(width * .3, height * .1);
-  else size = Math.min(width * .18, height * .30);
-  return size * zoom / 100;
+// The wider Arial fallback can overflow; the automatic fit in App then shrinks the page.
+export function primaryTimeFontSize(width, height, mode = 'split') {
+  if (mode === 'fullscreen') return Math.min(width * .25, height * (width < 650 ? .27 : .33));
+  if (mode === 'stacked') return Math.min(width * .3, height * .1);
+  return Math.min(width * .18, height * .30);
 }
 
 // The flip look puts three fixed-width cards (hours | minutes | seconds) where the classic
 // clock puts HH:MM, so it needs a smaller font: about 4em of cards must fit the column.
 // Card height (1.2em) stays close to the classic digit height (.8em of primaryTimeFontSize).
-export function flipTimeFontSize(width, height, mode = 'split', zoom = 100) {
-  let size;
-  if (mode === 'fullscreen') size = Math.min(width * .2, height * (width < 650 ? .18 : .23));
-  else if (mode === 'stacked') size = Math.min(width * .2, height * .07);
-  else size = Math.min(width * .108, height * .19);
-  return size * zoom / 100;
+export function flipTimeFontSize(width, height, mode = 'split') {
+  if (mode === 'fullscreen') return Math.min(width * .2, height * (width < 650 ? .18 : .23));
+  if (mode === 'stacked') return Math.min(width * .2, height * .07);
+  return Math.min(width * .108, height * .19);
 }
