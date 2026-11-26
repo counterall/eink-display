@@ -155,6 +155,8 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .settings-panel .filled-button { border-color: var(--strong); border-radius: .6em; }
 /* Glass fields: a white border would vanish on white glass, so outlines use the accent colour. */
 .settings-panel select { background: var(--glass-field); border: 1.25px solid var(--glass-field-line); border-radius: .6em; }
+/* Some browsers take the open list colour from the select: keep it solid. */
+.settings-panel option { color: var(--fg); background: var(--card); }
 .break-actions button:not(.filled-button) { background: var(--glass-field); border: 1.25px solid var(--glass-button-line); border-radius: .6em; }
 .break-actions button:not(.filled-button):active { color: var(--on-strong); background: var(--strong); }
 .settings-panel button:focus-visible, .settings-panel select:focus-visible, .settings-panel a:focus-visible { outline-style: solid; }

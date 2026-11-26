@@ -198,6 +198,14 @@ describe('glass dialogs (issue #33)', () => {
   });
   it('leaves the resting pill as it was', () => {
     expect(rule('.break-layer--resting')).toMatch(/background:\s*none/);
-    expect(rule('.break-layer--resting .break-panel--pill')).toMatch(/background:\s*var\(--glass\)/);
+    const pill = rule('.break-layer--resting .break-panel--pill');
+    expect(pill).toMatch(/background:\s*var\(--glass\)/);
+    expect(pill).toMatch(/(^|[^-])backdrop-filter:\s*blur\(8px\) saturate\(160%\)/);
+    expect(pill).toMatch(/border-radius:\s*1\.4em/);
+    expect(pill).toMatch(/padding:\s*\.5em 2\.8em \.85em/);
+    expect(rule('.break-panel--pill .break-close')).toMatch(/top:\s*\.15em; right:\s*\.15em; width:\s*2em; height:\s*2em/);
+    expect(rule('.break-layer--resting .break-panel--pill .break-close:active')).toMatch(/background:\s*transparent/);
+    // The pill rule must come after the panel rule it overrides.
+    expect(css.indexOf('.break-layer--resting .break-panel--pill {')).toBeGreaterThan(css.indexOf('.settings-panel {'));
   });
 });
