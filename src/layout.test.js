@@ -39,7 +39,7 @@ describe('responsive base size', () => {
     expect(viewportLayout(1024, 768).style.fontSize).toBeCloseTo(24 * 1024 / 1448);
   });
   it('uses a taller reference when Trending is stacked under the clock', () => {
-    expect(viewportLayout(768, 1024).style.fontSize).toBeCloseTo(24 * 1024 / 1600);
+    expect(viewportLayout(768, 1024).style.fontSize).toBeCloseTo(24 * 1024 / 1720);
     expect(viewportLayout(768, 1024, false).style.fontSize).toBeCloseTo(29 * 768 / 1200);
   });
   it('makes fullscreen typography larger than the split layout', () => {

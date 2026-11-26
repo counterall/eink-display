@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import App, { SETTINGS_KEY, stageOverflows } from './App';
+import App, { SETTINGS_KEY, effectiveZoom, stageOverflows } from './App';
 import Settings from './Settings';
 import { APP_TEXT } from './i18n';
 import { normalizeSettings } from './model';
@@ -50,7 +50,7 @@ describe('app shell', () => {
     vi.stubGlobal('window', { innerWidth: 768, innerHeight: 1024, devicePixelRatio: 2 });
     const markup = render({ rotation: 'cw' });
     expect(markup).not.toContain('rotate(');
-    expect(markup).toMatch(/<main class="stage stage--stacked" style="width:768px;height:1024px;font-size:15\.36px"/);
+    expect(markup).toMatch(/<main class="stage stage--stacked" style="width:768px;height:1024px;font-size:14\.28\d*px"/);
     expect(markup).toContain('class="feeds-panel"');
     expect(render({ showFeeds: false })).toContain('class="stage stage--fullscreen"');
   });
@@ -99,6 +99,14 @@ describe('settings dialog', () => {
     expect(zh).toContain('主题<select><option value="light">浅色</option><option value="dark">深色</option><option value="sky">天蓝</option><option value="sage" selected="">鼠尾草绿</option><option value="lavender">薰衣草紫</option><option value="mint">薄荷绿</option></select>');
     const en = renderToStaticMarkup(<Settings settings={normalizeSettings({ language: 'en' })} setSettings={() => {}} close={() => {}} viewport={viewportLayout(1448, 1072)} t={APP_TEXT.en} />);
     expect(en).toContain('Theme<select><option value="light" selected="">Light</option><option value="dark">Dark</option><option value="sky">Sky</option><option value="sage">Sage</option><option value="lavender">Lavender</option><option value="mint">Mint</option></select>');
+  });
+});
+
+describe('zoom auto-fit', () => {
+  it('caps the saved zoom without changing it, so a layout that fits again gets it back', () => {
+    expect(effectiveZoom(120, null)).toBe(120);
+    expect(effectiveZoom(120, 90)).toBe(90);
+    expect(effectiveZoom(80, 90)).toBe(80);
   });
 });
 

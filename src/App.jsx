@@ -40,6 +40,9 @@ export function stageClass(viewport, theme) {
   if (theme !== 'light') classes.push(`theme--${theme}`);
   return classes.join(' ');
 }
+// The zoom actually shown: the saved zoom, capped by what fits the current layout.
+export const effectiveZoom = (saved, limit) => (limit === null ? saved : Math.min(saved, limit));
+
 export function stageOverflows(stage) {
   if (overflows(stage.getBoundingClientRect(), stage.querySelectorAll('.dashboard *'))) return true;
   // Flip cards are wider than the classic digits; keep them out of the Trending column.
@@ -59,20 +62,21 @@ export default function App() {
   const [settings, setSettings] = useState(() => normalizeSettings(readStored(SETTINGS_KEY)));
   const [now, setNow] = useState(new Date());
   const [showSettings, setShowSettings] = useState(false);
-  const viewport = useViewport(settings.showFeeds, settings.zoom);
-  const zoomBy = (step) => setSettings((old) => ({ ...old, zoom: clampZoom(old.zoom + step) }));
   // Largest zoom that fit this layout; reset whenever the available space or content shape changes.
+  // It caps the saved zoom without changing it, so turning a tablet to portrait and back (or any
+  // other layout change) never leaves the page smaller for good.
   const [zoomLimit, setZoomLimit] = useState(null);
+  const zoom = effectiveZoom(settings.zoom, zoomLimit);
+  const viewport = useViewport(settings.showFeeds, zoom);
+  const zoomBy = (step) => setSettings((old) => ({ ...old, zoom: clampZoom(effectiveZoom(old.zoom, zoomLimit) + step) }));
   const stageRef = useRef(null);
   const layoutKey = [viewport.width, viewport.height, viewport.mode, settings.language, settings.format, settings.theme, settings.clockStyle].join('|');
   useEffect(() => { setZoomLimit(null); }, [layoutKey]);
   // Runs before paint, so an oversized zoom is never shown (and never leaves the controls off-screen).
   useLayoutEffect(() => {
-    if (settings.zoom <= ZOOM_MIN || !stageRef.current) return;
+    if (zoom <= ZOOM_MIN || !stageRef.current) return;
     if (!stageOverflows(stageRef.current)) return;
-    const fitted = clampZoom(settings.zoom - ZOOM_STEP);
-    setZoomLimit(fitted);
-    setSettings((old) => ({ ...old, zoom: Math.min(old.zoom, fitted) }));
+    setZoomLimit(clampZoom(zoom - ZOOM_STEP));
   });
   const { entries, status } = useWeather(settings.primary, settings.secondary, now);
   const t = pick(APP_TEXT, settings.language);
@@ -135,8 +139,8 @@ export default function App() {
           <CityHeading city={primary} entry={entries[primary.id]} now={now} language={settings.language} format={settings.format} label={t.primary} primary t={t} />
           <div className="primary-time">
             {flip
-              ? <LiveFlipClock city={primary} cityLabel={cityName(primary, settings.language)} format={settings.format} fontSize={flipTimeFontSize(viewport.width, viewport.height, viewport.mode, settings.zoom)} />
-              : <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, viewport.mode, settings.zoom)} />}
+              ? <LiveFlipClock city={primary} cityLabel={cityName(primary, settings.language)} format={settings.format} fontSize={flipTimeFontSize(viewport.width, viewport.height, viewport.mode, zoom)} />
+              : <DigitalClock city={cityName(primary, settings.language)} time={primaryTime} fontSize={primaryTimeFontSize(viewport.width, viewport.height, viewport.mode, zoom)} />}
           </div>
         </div>
         <div className="clock-tiles">
@@ -159,8 +163,8 @@ export default function App() {
           <div className="actions">
             <IconButton icon={ArrowRightLeft} label={t.swap} onClick={() => setSettings((old) => ({ ...old, primary: old.secondary, secondary: old.primary }))} />
             <IconButton icon={SettingsIcon} label={t.settings} onClick={() => setShowSettings(true)} />
-            <IconButton icon={ZoomOut} label={t.zoomOut} title={`${t.zoomOut} · ${settings.zoom}%`} disabled={settings.zoom <= ZOOM_MIN} onClick={() => zoomBy(-ZOOM_STEP)} />
-            <IconButton icon={ZoomIn} label={t.zoomIn} title={`${t.zoomIn} · ${settings.zoom}%`} disabled={settings.zoom >= Math.min(ZOOM_MAX, zoomLimit === null ? ZOOM_MAX : zoomLimit)} onClick={() => zoomBy(ZOOM_STEP)} />
+            <IconButton icon={ZoomOut} label={t.zoomOut} title={`${t.zoomOut} · ${zoom}%`} disabled={zoom <= ZOOM_MIN} onClick={() => zoomBy(-ZOOM_STEP)} />
+            <IconButton icon={ZoomIn} label={t.zoomIn} title={`${t.zoomIn} · ${zoom}%`} disabled={zoom >= Math.min(ZOOM_MAX, zoomLimit === null ? ZOOM_MAX : zoomLimit)} onClick={() => zoomBy(ZOOM_STEP)} />
             <div className="weather-status" aria-live="polite"><span className="updated-time" title={t.updateNote}>{t.updated} {updatedTime}</span>{updateNotice && <small className="update-notice">{updateNotice}</small>}</div>
           </div>
         </footer>

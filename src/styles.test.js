@@ -30,7 +30,7 @@ describe('theme variables (issue #21)', () => {
     return match ? match[1] : null;
   };
   const variables = (text) => Object.fromEntries([...text.matchAll(/(--[\w-]+):\s*([^;]+);/g)].map(([, name, value]) => [name, value.trim()]));
-  const light = variables(css.match(/\n:root \{\n([^}]*)\}/)[1]);
+  const light = variables(css.match(/\n:root, \.stage \{\n([^}]*)\}/)[1]);
   it('defines the same variables for every theme, light on :root', () => {
     expect(Object.keys(light).length).toBeGreaterThan(8);
     for (const theme of ['dark', 'sky', 'sage', 'lavender', 'mint']) {
@@ -46,8 +46,11 @@ describe('theme variables (issue #21)', () => {
   });
   it('has no per-theme selector lists any more: colours live only in the variable blocks', () => {
     expect(css).not.toMatch(/\.stage\.theme--/);
-    const outside = css.replace(/(?:^|\n)(?::root|\.theme--\w+) \{[^}]*\}/g, '');
+    const outside = css.replace(/(?:^|\n)(?::root, \.stage|\.theme--\w+) \{[^}]*\}/g, '');
     expect(outside).not.toMatch(/#[0-9a-f]{3,6}\b|rgba?\(/i);
+  });
+  it('keeps the pressed break close button readable (white on the filled background)', () => {
+    expect(rule('.break-panel .break-close:active')).toMatch(/color:\s*var\(--on-strong\)/);
   });
   it('animates the flip cards, but not with reduced motion', () => {
     expect(rule('.flip-flap--top.flip-flap--turn')).toMatch(/animation:\s*flip-fold/);

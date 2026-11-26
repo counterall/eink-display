@@ -125,6 +125,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .break-panel h2 { display: flex; align-items: center; }
 .break-icon { color: var(--accent); width: 1.1em; height: 1.1em; margin-left: .4em; }
 .break-panel .break-close { color: var(--accent); position: absolute; top: .4em; right: .4em; display: inline-flex; align-items: center; justify-content: center; width: 2.6em; height: 2.6em; min-width: 44px; min-height: 44px; padding: 0; border: 0; }
+.break-panel .break-close:active { color: var(--on-strong); }
 .break-close svg { width: 1.5em; height: 1.5em; }
 .break-field { display: block; padding-top: 1.1em; font-size: .9em; }
 .break-field select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; border: 1px solid var(--rule); background: var(--card); }
@@ -196,8 +197,9 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
    --bg page, --fg text, --muted secondary text, --accent icons and links, --card cards and
    controls, --rule borders and rules, --strong filled buttons, bars, focus and pressed buttons,
    --on-strong text on --strong, --overlay behind dialogs, --flip-card / --flip-digits the
-   flip cards. */
-:root {
+   flip cards. The light block is also on .stage, so a stage without a theme class is light even
+   in the frame before App removes the old theme class from <html>. */
+:root, .stage {
   --bg: #fff; --fg: #111; --muted: #111; --accent: #111; --card: #fff; --rule: #111;
   --strong: #111; --on-strong: #fff; --overlay: rgba(255,255,255,.95);
   --flip-card: #222; --flip-digits: #f2f2f2;

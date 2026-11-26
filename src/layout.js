@@ -1,6 +1,6 @@
 // Responsive sizing for desktop and tablet browsers. Everything in the page is sized in `em`
 // from one base font size, scaled from the viewport against a reference size for its layout
-// (1448 × 1072 landscape, 1200 × 1448 portrait, 1072 × 1600 stacked; 24px with the right column,
+// (1448 × 1072 landscape, 1200 × 1448 portrait, 1072 × 1720 stacked; 24px with the right column,
 // 29px fullscreen). The base can grow on large screens up to twice the reference and shrinks down
 // to a third of it.
 //
@@ -14,7 +14,7 @@ export const LANDSCAPE = { width: 1448, height: 1072 };
 export const PORTRAIT = { width: 1200, height: 1448 };
 // Stacked portrait holds the clock panel and all of Trending in one column, so it needs more
 // height per em than the other layouts.
-export const STACKED = { width: 1072, height: 1600 };
+export const STACKED = { width: 1072, height: 1720 };
 export const BASE_FONT = 24;
 export const FULLSCREEN_FONT = 29;
 const MIN_SCALE = 1 / 3, MAX_SCALE = 2;

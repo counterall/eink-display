@@ -23,6 +23,13 @@ describe('fetchJSON', () => {
     expect(calls[0].options.signal.aborted).toBe(true);
     await settled;
   });
+  it('also times out a body that stalls after the headers arrive', async () => {
+    vi.useFakeTimers();
+    stubFetch(null, 200, 'hangBody');
+    const settled = expect(fetchJSON('/slow-body.json', 15000)).rejects.toThrow('Request timeout');
+    await vi.advanceTimersByTimeAsync(15000);
+    await settled;
+  });
   it('clears the timer once the response arrives', async () => {
     vi.useFakeTimers();
     const calls = stubFetch({});
