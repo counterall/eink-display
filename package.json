@@ -11,8 +11,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "refresh:trending": "node scripts/refresh-trending.mjs",
     "test": "vitest run",
-    "lint:css": "stylelint \"src/**/*.css\"",
-    "check:legacy": "node scripts/check-legacy.mjs"
+    "lint:css": "stylelint \"src/**/*.css\""
   },
   "dependencies": {
     "@fontsource/roboto-condensed": "^5.3.0",
@@ -22,20 +21,22 @@
     "react-dom": "^18.3.1"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"],
-    "ignoredBuiltDependencies": ["core-js"]
+    "onlyBuiltDependencies": ["esbuild"]
   },
   "devDependencies": {
-    "@vitejs/plugin-legacy": "^6.1.1",
     "@vitejs/plugin-react": "^4.4.1",
-    "acorn": "^8.19.0",
-    "acorn-walk": "^8.3.5",
     "cheerio": "^1.2.0",
     "stylelint": "^18.0.0",
     "stylelint-no-unsupported-browser-features": "^8.1.2",
-    "terser": "^5.39.0",
     "vite": "^6.3.5",
     "vitest": "^4.1.12"
   },
-  "browserslist": ["Safari >= 9", "Chrome >= 49"]
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Edge versions",
+    "last 2 Firefox versions",
+    "Firefox ESR",
+    "last 2 Safari versions",
+    "last 2 iOS versions"
+  ]
 }

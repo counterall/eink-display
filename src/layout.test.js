@@ -1,72 +1,65 @@
 import { describe, expect, it } from 'vitest';
-import { KINDLE_REFERENCE, flipTimeFontSize, primaryTimeFontSize, viewportLayout } from './layout';
+import { flipTimeFontSize, layoutMode, primaryTimeFontSize, viewportLayout } from './layout';
 
-describe('1072 × 1448 Kindle layout', () => {
-  it.each([[70, .7], [100, 1], [130, 1.3], [150, 1.5]])('applies %s%% zoom to base and clock typography without changing dimensions', (zoom, factor) => {
-    for (const showFeeds of [true, false]) {
-      const base = viewportLayout(1072, 1448, 'cw', showFeeds);
-      const zoomed = viewportLayout(1072, 1448, 'cw', showFeeds, zoom);
-      expect(zoomed.style.fontSize).toBeCloseTo(base.style.fontSize * factor);
-      expect(zoomed.style.width).toBe(base.style.width);
-      expect(zoomed.style.transform).toBe(base.style.transform);
-      expect(primaryTimeFontSize(1448, 1072, showFeeds, zoom)).toBeCloseTo(primaryTimeFontSize(1448, 1072, showFeeds) * factor);
+// Common desktop and tablet CSS viewports (issue #21).
+const DESKTOPS = [[1280, 800], [1366, 768], [1440, 900], [1536, 864], [1920, 1080], [2560, 1440]];
+const TABLETS_LANDSCAPE = [[1024, 768], [1180, 820], [1194, 834], [1366, 1024], [1280, 800]];
+const TABLETS_PORTRAIT = [[768, 1024], [820, 1180], [834, 1194], [1024, 1366], [800, 1280]];
+
+describe('responsive base size', () => {
+  it('keeps the old 24px base at 1448 × 1072, with no rotation', () => {
+    const layout = viewportLayout(1448, 1072);
+    expect(layout).toMatchObject({ width: 1448, height: 1072, mode: 'split' });
+    expect(layout.style).toEqual({ width: 1448, height: 1072, fontSize: 24 });
+  });
+  it('never rotates: the stage is the viewport in every orientation', () => {
+    for (const [w, h] of [...DESKTOPS, ...TABLETS_PORTRAIT]) {
+      for (const showFeeds of [true, false]) {
+        const { style } = viewportLayout(w, h, showFeeds);
+        expect(style.width).toBe(w);
+        expect(style.height).toBe(h);
+        expect(style).not.toHaveProperty('transform');
+      }
     }
   });
-  it('enlarges fullscreen typography without changing rotation or viewport dimensions', () => {
-    const split = viewportLayout(1072, 1448, 'cw', true);
-    const full = viewportLayout(1072, 1448, 'cw', false);
-    expect(full.width).toBe(split.width);
-    expect(full.height).toBe(split.height);
-    expect(full.style.transform).toBe(split.style.transform);
-    expect(full.style.fontSize).toBe(29);
-    expect(full.style.fontSize).toBeGreaterThan(split.style.fontSize);
+  it('picks split for landscape, stacked for portrait, fullscreen without the right column', () => {
+    expect(layoutMode(1920, 1080, true)).toBe('split');
+    expect(layoutMode(768, 1024, true)).toBe('stacked');
+    expect(layoutMode(768, 1024, false)).toBe('fullscreen');
+    expect(layoutMode(1920, 1080, false)).toBe('fullscreen');
+    expect(viewportLayout(834, 1194).mode).toBe('stacked');
   });
-  it.each([[1448, 1072], [724, 536], [483, 357], [1121, 743]])('makes the primary clock larger in fullscreen at %s × %s', (width, height) => {
-    expect(primaryTimeFontSize(width, height, false)).toBeGreaterThan(primaryTimeFontSize(width, height, true));
-    expect(viewportLayout(width, height, 'none', false).style.fontSize).toBeGreaterThan(viewportLayout(width, height, 'none', true).style.fontSize);
+  it('grows on large desktops instead of staying at 24px, up to twice the reference', () => {
+    expect(viewportLayout(2560, 1440).style.fontSize).toBeCloseTo(24 * 1440 / 1072);
+    expect(viewportLayout(2560, 1440).style.fontSize).toBeGreaterThan(viewportLayout(1920, 1080).style.fontSize);
+    expect(viewportLayout(7680, 4320).style.fontSize).toBe(48);
   });
-  it('uses the native landscape size as its typography reference', () => {
-    const layout = viewportLayout(1448, 1072);
-    expect(layout.width).toBe(KINDLE_REFERENCE.width);
-    expect(layout.height).toBe(KINDLE_REFERENCE.height);
-    expect(layout.style.fontSize).toBe(24);
-    expect(layout.style.transform).toBe('none');
+  it('scales down for smaller desktops and tablets', () => {
+    expect(viewportLayout(1280, 800).style.fontSize).toBeCloseTo(24 * 800 / 1072);
+    expect(viewportLayout(1024, 768).style.fontSize).toBeCloseTo(24 * 1024 / 1448);
   });
-  it('automatically rotates the portrait browser without changing its aspect ratio', () => {
-    const layout = viewportLayout(1072, 1448);
-    expect(layout.width).toBe(1448);
-    expect(layout.height).toBe(1072);
-    expect(layout.style).toMatchObject({ left: 1072, top: 0, transform: 'rotate(90deg)', fontSize: 24 });
+  it('uses a taller reference when Trending is stacked under the clock', () => {
+    expect(viewportLayout(768, 1024).style.fontSize).toBeCloseTo(24 * 1024 / 1720);
+    expect(viewportLayout(768, 1024, false).style.fontSize).toBeCloseTo(29 * 768 / 1200);
   });
-  it('supports counterclockwise placement', () => {
-    expect(viewportLayout(1072, 1448, 'ccw').style).toMatchObject({ width: 1448, height: 1072, left: 0, top: 1448, transform: 'rotate(-90deg)' });
+  it('makes fullscreen typography larger than the split layout', () => {
+    for (const [w, h] of [[1448, 1072], [724, 536], [1121, 743], ...DESKTOPS]) {
+      expect(viewportLayout(w, h, false).style.fontSize).toBeGreaterThan(viewportLayout(w, h, true).style.fontSize);
+      expect(primaryTimeFontSize(w, h, 'fullscreen')).toBeGreaterThan(primaryTimeFontSize(w, h, 'split'));
+    }
+    expect(viewportLayout(1448, 1072, false).style.fontSize).toBe(29);
   });
-  it('supports explicitly clockwise placement', () => {
-    expect(viewportLayout(1072, 1448, 'cw').style).toMatchObject({ width: 1448, height: 1072, left: 1072, top: 0, transform: 'rotate(90deg)' });
-  });
-  it('respects no-rotation mode', () => {
-    expect(viewportLayout(1072, 1448, 'none').style).toMatchObject({ width: 1072, height: 1448, left: 0, top: 0, transform: 'none' });
-  });
-  it.each([2, 3])('scales correctly when the CSS viewport is physical resolution / %s', (ratio) => {
-    const layout = viewportLayout(1072 / ratio, 1448 / ratio);
-    expect(layout.width).toBeCloseTo(1448 / ratio);
-    expect(layout.height).toBeCloseTo(1072 / ratio);
-    expect(layout.style.fontSize).toBeCloseTo(24 / ratio);
-  });
-  it('fits a shorter viewport when browser chrome takes some height', () => {
-    const layout = viewportLayout(1072, 1320);
-    expect(layout.width).toBe(1320);
-    expect(layout.height).toBe(1072);
-    expect(layout.style.fontSize).toBeCloseTo(24 * 1320 / 1448);
-  });
-  it('scales down for the smaller preview without hard-coding the native size', () => {
-    const layout = viewportLayout(600, 800);
-    expect(layout.style.fontSize).toBeCloseTo(24 * 800 / 1448);
-    expect(layout.style.width).toBe(800);
-    expect(layout.style.height).toBe(600);
-  });
-  it('caps desktop typography rather than growing without a limit', () => {
-    expect(viewportLayout(3840, 2160).style.fontSize).toBe(24);
+  it.each([[70, .7], [100, 1], [130, 1.3], [150, 1.5]])('applies %s%% zoom to base and clock typography without changing dimensions', (zoom, factor) => {
+    for (const showFeeds of [true, false]) {
+      for (const [w, h] of [[1448, 1072], [768, 1024]]) {
+        const base = viewportLayout(w, h, showFeeds);
+        const zoomed = viewportLayout(w, h, showFeeds, zoom);
+        expect(zoomed.style.fontSize).toBeCloseTo(base.style.fontSize * factor);
+        expect(zoomed.style.width).toBe(base.style.width);
+        expect(primaryTimeFontSize(w, h, base.mode, zoom)).toBeCloseTo(primaryTimeFontSize(w, h, base.mode) * factor);
+        expect(flipTimeFontSize(w, h, base.mode, zoom)).toBeCloseTo(flipTimeFontSize(w, h, base.mode) * factor);
+      }
+    }
   });
   it.each([[0, 0], [NaN, undefined]])('does not produce NaN dimensions for an unavailable viewport %s × %s', (width, height) => {
     const layout = viewportLayout(width, height);
@@ -76,45 +69,60 @@ describe('1072 × 1448 Kindle layout', () => {
   });
 });
 
-describe('flip clock sizing', () => {
-  // A card is 1.25em wide and the cards sit .12em apart (see styles.css).
-  const width = (fontSize, cards) => fontSize * (cards * 1.25 + (cards - 1) * .12);
-  it.each([[1448, 1072], [1121, 743], [724, 536], [600, 400]])('fits three cards in the left column at %s × %s', (w, h) => {
-    const layout = viewportLayout(w, h, 'none', true);
-    const base = layout.style.fontSize;
-    const column = w / 2 - (2.3 + 1.4) * base; // dashboard padding + clock-panel padding (compact uses less)
-    expect(width(flipTimeFontSize(w, h, true), 3)).toBeLessThanOrEqual(column);
+// Width arithmetic from styles.css: dashboard padding 2.3em per side (1.6em when compact,
+// under 650px wide), clock panel padding-right 1.4em in split mode.
+const compact = (w) => w < 650;
+const pagePadding = (w) => 2 * (compact(w) ? 1.6 : 2.3);
+function clockColumn(w, h, showFeeds) {
+  const { mode, style: { fontSize: base } } = viewportLayout(w, h, showFeeds);
+  if (mode === 'split') return w / 2 - (pagePadding(w) / 2 + (compact(w) ? 1.2 : 1.4)) * base;
+  return w - pagePadding(w) * base;
+}
+// A card is 1.25em wide and the cards sit .12em apart (see styles.css).
+const cardsWidth = (fontSize, cards) => fontSize * (cards * 1.25 + (cards - 1) * .12);
+
+describe('clock sizing fits the column', () => {
+  const sizes = [[1448, 1072], [1121, 743], [724, 536], [600, 400], ...DESKTOPS, ...TABLETS_LANDSCAPE, ...TABLETS_PORTRAIT];
+  it.each(sizes)('fits three flip cards and the classic HH:MM in the clock column at %s × %s', (w, h) => {
+    for (const showFeeds of [true, false]) {
+      const { mode } = viewportLayout(w, h, showFeeds);
+      const column = clockColumn(w, h, showFeeds);
+      expect(cardsWidth(flipTimeFontSize(w, h, mode), 3)).toBeLessThanOrEqual(column);
+      expect(primaryTimeFontSize(w, h, mode) * 2.38).toBeLessThanOrEqual(column);
+    }
   });
-  it.each([[1448, 1072], [1121, 743], [724, 536]])('fits three cards across the fullscreen page at %s × %s', (w, h) => {
-    const base = viewportLayout(w, h, 'none', false).style.fontSize;
-    expect(width(flipTimeFontSize(w, h, false), 3)).toBeLessThanOrEqual(w - 2 * 2.3 * base);
-    expect(flipTimeFontSize(w, h, false)).toBeGreaterThan(flipTimeFontSize(w, h, true));
+  it.each(sizes)('fits the tile time and the 今天 / MM-DD label in a half-width tile at %s × %s', (w, h) => {
+    for (const showFeeds of [true, false]) {
+      const { mode, style: { fontSize: base } } = viewportLayout(w, h, showFeeds);
+      const full = mode === 'fullscreen';
+      const tile = clockColumn(w, h, showFeeds) / 2 - (full ? 1.6 : 1.1) * base; // .second-clock padding-right
+      const cards = cardsWidth((full ? 3.8 : 3.1) * base, 2);
+      // Classic 12-hour: Roboto Condensed HH:MM (2.38em) + AM/PM (.3em text, .35em margin, at the digit size).
+      const classic = (full ? 4.4 : 3.3) * base * (2.38 + .3 * (1.2 + .35));
+      const label = (full ? 1 : .8) * base * (.6 + 2.6); // margin + "11-25" in Arial (wider than 今天)
+      expect(cards + label).toBeLessThanOrEqual(tile);
+      expect(classic + label).toBeLessThanOrEqual(tile);
+    }
   });
-  it('grows the main cards now that the tiles free height (issue #15)', () => {
-    expect(flipTimeFontSize(1448, 1072, true)).toBeGreaterThan(1448 * .105);
-    expect(flipTimeFontSize(1448, 1072, false)).toBeGreaterThan(1072 * .205);
-    expect(primaryTimeFontSize(1448, 1072, false)).toBeGreaterThan(1072 * .31);
-    expect(primaryTimeFontSize(1448, 1072, true)).toBeGreaterThan(1448 * .17);
+  it('keeps the issue #15 sizes in the landscape split and fullscreen layouts', () => {
+    expect(flipTimeFontSize(1448, 1072, 'split')).toBeGreaterThan(1448 * .105);
+    expect(flipTimeFontSize(1448, 1072, 'fullscreen')).toBeGreaterThan(1072 * .205);
+    expect(primaryTimeFontSize(1448, 1072, 'fullscreen')).toBeGreaterThan(1072 * .31);
+    expect(primaryTimeFontSize(1448, 1072, 'split')).toBeGreaterThan(1448 * .17);
   });
-  it.each([[1448, 1072, true], [600, 400, true], [1448, 1072, false]])('fits the tile time and the 今天 / MM-DD label in a half-width tile at %s × %s (feeds %s)', (w, h, showFeeds) => {
-    const base = viewportLayout(w, h, 'none', showFeeds).style.fontSize;
-    const column = showFeeds ? w / 2 - (2.3 + 1.4) * base : w - 2 * 2.3 * base;
-    const tile = column / 2 - (showFeeds ? 1.1 : 1.6) * base; // .second-clock padding-right
-    const cards = width((showFeeds ? 3.1 : 3.8) * base, 2);
-    // Classic 12-hour: Roboto Condensed HH:MM (2.38em) + AM/PM (.3em text, .35em margin, at the digit size).
-    const classic = (showFeeds ? 3.3 : 4.4) * base * (2.38 + .3 * (1.2 + .35));
-    const label = (showFeeds ? .8 : 1) * base * (.6 + 2.6); // margin + "11-25" in Arial (wider than 今天)
-    expect(cards + label).toBeLessThanOrEqual(tile);
-    expect(classic + label).toBeLessThanOrEqual(tile);
+  it('keeps the flip card height close to the classic clock height', () => {
+    for (const [w, h, mode] of [[1448, 1072, 'split'], [768, 1024, 'stacked'], [1920, 1080, 'fullscreen']]) {
+      // Classic digits use line-height .8; a flip card is 1.2em tall.
+      const classic = primaryTimeFontSize(w, h, mode) * .8;
+      const flip = flipTimeFontSize(w, h, mode) * 1.2;
+      expect(flip).toBeGreaterThan(classic * .8);
+      expect(flip).toBeLessThan(classic * 1.1);
+    }
   });
-  it('scales with zoom like the classic clock', () => {
-    expect(flipTimeFontSize(1448, 1072, true, 130)).toBeCloseTo(flipTimeFontSize(1448, 1072, true) * 1.3);
-  });
-  it('keeps the card height close to the classic clock height', () => {
-    // Classic digits use line-height .8; a flip card is 1.2em tall.
-    const classic = primaryTimeFontSize(1448, 1072, true) * .8;
-    const flip = flipTimeFontSize(1448, 1072, true) * 1.2;
-    expect(flip).toBeGreaterThan(classic * .8);
-    expect(flip).toBeLessThan(classic * 1.1);
+  it('keeps the stacked main clock clearly larger than the tile clocks', () => {
+    for (const [w, h] of TABLETS_PORTRAIT) {
+      const base = viewportLayout(w, h).style.fontSize;
+      expect(primaryTimeFontSize(w, h, 'stacked')).toBeGreaterThan(3.3 * base * 1.5);
+    }
   });
 });

@@ -25,7 +25,7 @@ describe('hourly loop anchored on when the window was last closed', () => {
     expect(breakDue(startedAt, closedAt, ms('2026-11-06T10:41:16Z'))).toBe(false);
     expect(breakDue(startedAt, closedAt, ms('2026-11-06T10:41:17Z'))).toBe(true);
   });
-  it('stays due until handled, e.g. after the Kindle wakes up', () => {
+  it('stays due until handled, e.g. after the device wakes up', () => {
     expect(breakDue(startedAt, null, ms('2026-11-06T11:50Z'))).toBe(true);
   });
   it('ignores a window closed before today’s session began', () => {

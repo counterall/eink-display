@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CITIES, DEFAULT_SETTINGS, cityById, cityDate, clock, currentWeather, flipParts, dateKey, dateParts, forecastDay, normalizeSettings, numberText, THEMES, THEME_COLORS, LIGHT_THEMES, toggleTheme, withTheme, readStored, refreshSlot, sunTime, validWeather, weatherDescription, writeStored } from './model';
-import { fetchWeather, weatherURL } from './weather';
+import { WEATHER_TIMEOUT_MS, fetchWeather, weatherURL } from './weather';
+import { stubFetch } from '../tests/fetch-stub';
 
 const helsinki = cityById('helsinki');
 const xian = cityById('xian');
@@ -22,6 +23,29 @@ describe('city clocks', () => {
     expect(clock(cityDate(helsinki, new Date('2026-03-29T01:00:00Z')), '24').digits).toBe('04:00');
     expect(clock(cityDate(helsinki, new Date('2026-10-25T00:59:00Z')), '24').digits).toBe('03:59');
     expect(clock(cityDate(helsinki, new Date('2026-10-25T01:00:00Z')), '24').digits).toBe('03:00');
+  });
+  it('changes UK daylight saving at the precise UTC boundary', () => {
+    const london = cityById('london');
+    expect(clock(cityDate(london, new Date('2026-03-29T00:59:00Z')), '24').digits).toBe('00:59');
+    expect(clock(cityDate(london, new Date('2026-03-29T01:00:00Z')), '24').digits).toBe('02:00');
+  });
+  it('follows a non-EU daylight-saving rule from the IANA zone', () => {
+    // None of the presets is outside the EU and observes DST, so use an ad-hoc city.
+    const newYork = { id: 'nyc', zone: 'America/New_York' };
+    expect(clock(cityDate(newYork, new Date('2026-03-08T06:59:00Z')), '24').digits).toBe('01:59');
+    expect(clock(cityDate(newYork, new Date('2026-03-08T07:00:00Z')), '24').digits).toBe('03:00');
+    expect(clock(cityDate(newYork, new Date('2026-11-01T05:59:00Z')), '24').digits).toBe('01:59');
+    expect(clock(cityDate(newYork, new Date('2026-11-01T06:00:00Z')), '24').digits).toBe('01:00');
+  });
+  it('gives every preset an IANA zone instead of a fixed offset', () => {
+    expect(CITIES.map((city) => city.zone)).toEqual(['Europe/Helsinki', 'Asia/Shanghai', 'Europe/London', 'Europe/Oslo', 'Asia/Tokyo']);
+    for (const city of CITIES) {
+      expect(city).not.toHaveProperty('offset');
+      expect(city).not.toHaveProperty('dst');
+    }
+  });
+  it('keeps seconds and milliseconds of the instant', () => {
+    expect(cityDate(cityById('osaka'), new Date('2026-11-06T23:59:58.250Z')).toISOString()).toBe('2026-11-07T08:59:58.250Z');
   });
   it('supports all five preset timezones', () => {
     const now = new Date('2026-07-06T12:00:00Z');
@@ -128,11 +152,14 @@ describe('settings and cache resilience', () => {
   });
   it('rejects corrupt settings and duplicate cities', () => {
     expect(normalizeSettings(null)).toEqual(DEFAULT_SETTINGS);
-    const settings = normalizeSettings({ primary: 'osaka', secondary: 'osaka', language: 'fr', format: '99', rotation: 'bad' });
+    const settings = normalizeSettings({ primary: 'osaka', secondary: 'osaka', language: 'fr', format: '99' });
     expect(settings.primary).toBe('osaka');
     expect(settings.secondary).not.toBe('osaka');
     expect(settings.language).toBe('zh');
-    expect(normalizeSettings({ language: 'en', format: '12', rotation: 'ccw' }).rotation).toBe('ccw');
+  });
+  it('drops the removed rotation setting from old saved settings', () => {
+    expect(DEFAULT_SETTINGS).not.toHaveProperty('rotation');
+    expect(normalizeSettings({ language: 'en', format: '12', rotation: 'ccw' })).toEqual({ ...DEFAULT_SETTINGS, language: 'en', format: '12' });
   });
   it('keeps running when browser storage is unavailable', () => {
     vi.stubGlobal('localStorage', { getItem: () => { throw new Error('disabled'); }, setItem: () => { throw new Error('full'); } });
@@ -194,28 +221,28 @@ describe('weather API', () => {
     expect(url.searchParams.get('current')).toBe('temperature_2m,weather_code');
     expect(url.searchParams.has('apikey')).toBe(false);
   });
-  function xhr(response, status = 200, event = 'onload') {
-    vi.stubGlobal('XMLHttpRequest', class {
-      open() {}
-      send() { this.status = status; this.responseText = JSON.stringify(response); this[event](); }
-    });
-  }
   it('validates and timestamps successful responses', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-11-06T12:00Z'));
-    xhr(fixture());
+    const calls = stubFetch(fixture());
     const entry = await fetchWeather(helsinki);
     expect(entry.data).toEqual(fixture());
     expect(entry.slot).toBe('2026-11-06-14');
+    expect(calls[0].url).toBe(weatherURL(helsinki));
+    expect(calls[0].options.signal).toBeInstanceOf(AbortSignal);
   });
   it('rejects HTTP errors, timeouts and malformed data', async () => {
-    xhr({}, 429);
+    stubFetch({}, 429);
     await expect(fetchWeather(helsinki)).rejects.toThrow('HTTP 429');
-    xhr({}, 200, 'ontimeout');
-    await expect(fetchWeather(helsinki)).rejects.toThrow('Request timeout');
-    xhr({});
+    vi.useFakeTimers();
+    stubFetch({}, 200, 'hang');
+    const slow = expect(fetchWeather(helsinki)).rejects.toThrow('Request timeout');
+    await vi.advanceTimersByTimeAsync(WEATHER_TIMEOUT_MS);
+    await slow;
+    vi.useRealTimers();
+    stubFetch({});
     await expect(fetchWeather(helsinki)).rejects.toThrow('Incomplete weather data');
-    xhr({ daily: fixture().daily });
+    stubFetch({ daily: fixture().daily });
     await expect(fetchWeather(helsinki)).rejects.toThrow('Incomplete weather data');
   });
 });

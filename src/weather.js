@@ -1,3 +1,4 @@
+import { fetchJSON } from './http';
 import { currentWeather, refreshSlot, validWeather } from './model';
 
 export function weatherURL(city) {
@@ -10,20 +11,10 @@ export function weatherURL(city) {
   return `https://api.open-meteo.com/v1/forecast?${params.join('&')}`;
 }
 
+export const WEATHER_TIMEOUT_MS = 20000;
+
 export async function fetchWeather(city) {
-  // XHR supplies an actual timeout even on devices without AbortController.
-  const data = await new Promise((resolve, reject) => {
-    const request = new XMLHttpRequest();
-    request.open('GET', weatherURL(city), true);
-    request.timeout = 20000;
-    request.onload = () => {
-      if (request.status < 200 || request.status >= 300) return reject(new Error(`HTTP ${request.status}`));
-      try { resolve(JSON.parse(request.responseText)); } catch { reject(new Error('Invalid JSON')); }
-    };
-    request.onerror = () => reject(new Error('Network error'));
-    request.ontimeout = () => reject(new Error('Request timeout'));
-    request.send();
-  });
+  const data = await fetchJSON(weatherURL(city), WEATHER_TIMEOUT_MS);
   if (!validWeather(data) || !currentWeather(data)) {
     throw new Error('Incomplete weather data');
   }

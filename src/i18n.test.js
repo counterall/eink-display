@@ -8,6 +8,12 @@ describe('translations', () => {
       for (const value of Object.values(table[language])) expect(typeof value === 'string' && value.length > 0).toBe(true);
     }
   });
+  it('has no rotation or Kindle-reference strings any more (issue #21)', () => {
+    for (const language of ['zh', 'en']) {
+      for (const key of ['rotation', 'auto', 'none', 'cw', 'ccw', 'displayReference', 'layout']) expect(APP_TEXT[language]).not.toHaveProperty(key);
+      expect(JSON.stringify(APP_TEXT[language])).not.toMatch(/Kindle/i);
+    }
+  });
   it('falls back to English for unknown languages', () => {
     expect(pick(WORKDAY_TEXT, 'zh')).toBe(WORKDAY_TEXT.zh);
     expect(pick(WORKDAY_TEXT, 'fi')).toBe(WORKDAY_TEXT.en);

@@ -13,8 +13,9 @@ export function nextBreakAt(startedAt, closedAt) {
   return due < workEndAt(startedAt) ? due : null;
 }
 
-// Once due, the reminder stays due until handled, so a sleeping Kindle still
-// sees it after waking, but never outside the running work session.
+// Once due, the reminder stays due until handled, so a laptop or tablet that
+// slept through it still shows it after waking, but never outside the running
+// work session.
 export function breakDue(startedAt, closedAt, nowMs) {
   const due = nextBreakAt(startedAt, closedAt);
   return due !== null && nowMs >= due && workActive(startedAt, nowMs);
