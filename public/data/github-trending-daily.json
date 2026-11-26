@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=daily",
   "period": "daily",
-  "generatedAt": "2026-11-26T09:06:20.366Z",
+  "generatedAt": "2026-11-26T09:21:22.802Z",
   "repositories": [
     {
       "rank": 1,
@@ -11,7 +11,7 @@
       "url": "https://github.com/elementalsouls/Claude-BugHunter",
       "description": "A Claude Code skill bundle for bug hunting and external red-team work - 85 skills, 16 slash commands, 681 disclosed-report patterns curated across 24 core vulnerability classes, plus enterprise identity + infrastructure attack matrices.",
       "language": "Python",
-      "stars": 23560,
+      "stars": 23590,
       "dailyStars": 1652
     },
     {
@@ -21,7 +21,7 @@
       "url": "https://github.com/obra/superpowers",
       "description": "An agentic skills framework & software development methodology that works.",
       "language": "Shell",
-      "stars": 326944,
+      "stars": 326946,
       "dailyStars": 903
     },
     {
@@ -31,7 +31,7 @@
       "url": "https://github.com/HKUDS/CLI-Anything",
       "description": "\"CLI-Anything: Making ALL Software Agent-Native\" -- CLI-Hub: https://clianything.cc/",
       "language": "Python",
-      "stars": 65959,
+      "stars": 65971,
       "dailyStars": 1106
     },
     {
@@ -41,7 +41,7 @@
       "url": "https://github.com/jingyaogong/minimind",
       "description": "🧠 两小时从 0 训出你的 64M 大模型。Train your own 64M LLM from scratch in 2 hours.",
       "language": "Python",
-      "stars": 71309,
+      "stars": 71316,
       "dailyStars": 826
     },
     {
@@ -51,7 +51,7 @@
       "url": "https://github.com/cursor/plugins",
       "description": "Cursor plugin specification and official plugins",
       "language": "TypeScript",
-      "stars": 19631,
+      "stars": 19636,
       "dailyStars": 416
     }
   ]
