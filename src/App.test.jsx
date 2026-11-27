@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import App, { FIT_MIN, SETTINGS_KEY, nextFitScale, stageOverflows } from './App';
+import App, { FIT_MIN, SETTINGS_KEY, breakLayers, nextFitScale, stageOverflows } from './App';
+import { PILL_CLOSE_FALLBACK_MS, PILL_CLOSE_MS, closingPill } from './useClosingPill';
 import Settings from './Settings';
 import { APP_TEXT } from './i18n';
 import { normalizeSettings } from './model';
@@ -266,5 +267,40 @@ describe('Trending carousel in the app (issue #23)', () => {
     expect(zh).toMatch(/右侧资讯栏<select>.*?<\/select><\/label><label>轮播间隔<select><option value="10">10 分钟<\/option><option value="30" selected="">30 分钟<\/option><option value="60">1 小时<\/option><\/select><\/label>/);
     expect(settings({ language: 'en' })).toContain('Carousel interval<select><option value="10" selected="">10 min</option><option value="30">30 min</option><option value="60">1 hour</option></select>');
     expect(settings({ showFeeds: false })).not.toContain('轮播间隔');
+  });
+});
+
+describe('break layers (issue #37)', () => {
+  it('pauses the carousel for the prompt pill but blocks the page only for the welcome window', () => {
+    expect(breakLayers('prompt', false)).toEqual({ open: true, blocking: false, pausing: true });
+    expect(breakLayers('running', false)).toEqual({ open: true, blocking: false, pausing: false });
+    expect(breakLayers('welcome', false)).toEqual({ open: true, blocking: true, pausing: true });
+    expect(breakLayers(null, false)).toEqual({ open: false, blocking: false, pausing: false });
+    // Settings replaces any break window while it is open.
+    expect(breakLayers('prompt', true)).toEqual({ open: false, blocking: false, pausing: false });
+  });
+});
+
+describe('closing pill (issue #37)', () => {
+  const prompt = { mode: 'prompt', endsAt: null, duration: null };
+  const resting = { mode: 'running', endsAt: 123, duration: 10 };
+  const motion = { reducedMotion: false, hidden: false };
+  it('keeps the last pill to slide away when it goes away', () => {
+    expect(closingPill(prompt, null, motion)).toBe(prompt);
+    expect(closingPill(resting, null, motion)).toBe(resting);
+  });
+  it('does not animate a pill turning into another one, or nothing closing', () => {
+    expect(closingPill(prompt, resting, motion)).toBeNull();
+    expect(closingPill(null, prompt, motion)).toBeNull();
+    expect(closingPill(null, null, motion)).toBeNull();
+  });
+  it('closes at once with reduced motion or in a hidden tab', () => {
+    expect(closingPill(prompt, null, { reducedMotion: true, hidden: false })).toBeNull();
+    expect(closingPill(resting, null, { reducedMotion: false, hidden: true })).toBeNull();
+  });
+  it('unmounts by a fallback timer a little after the 250 ms animation', () => {
+    expect(PILL_CLOSE_MS).toBe(250);
+    expect(PILL_CLOSE_FALLBACK_MS).toBeGreaterThan(PILL_CLOSE_MS);
+    expect(PILL_CLOSE_FALLBACK_MS).toBeLessThanOrEqual(400);
   });
 });
