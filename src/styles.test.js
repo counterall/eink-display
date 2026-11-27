@@ -110,14 +110,14 @@ describe('overlay stacking (issue #27)', () => {
 
 describe('resting break pill (issue #29)', () => {
   it('drops the dimming overlay and lets clicks through to the page, except on the pill', () => {
-    const layer = rule('.break-layer--resting');
+    const layer = rule('.break-layer--pill');
     expect(layer).toMatch(/background:\s*none/);
     expect(layer).toMatch(/pointer-events:\s*none/);
     expect(layer).toMatch(/align-items:\s*flex-start/);
-    expect(rule('.break-layer--resting .break-panel--pill')).toMatch(/pointer-events:\s*auto/);
+    expect(rule('.break-layer--pill .break-panel--pill')).toMatch(/pointer-events:\s*auto/);
   });
   it('is frosted glass with rounded ends, from per-theme glass colours', () => {
-    const pill = rule('.break-layer--resting .break-panel--pill');
+    const pill = rule('.break-layer--pill .break-panel--pill');
     expect(pill).toMatch(/background:\s*var\(--glass\)/);
     expect(pill).toMatch(/-webkit-backdrop-filter:\s*blur\(8px\) saturate\(160%\)/);
     expect(pill).toMatch(/(^|[^-])backdrop-filter:\s*blur\(8px\) saturate\(160%\)/);
@@ -131,11 +131,11 @@ describe('resting break pill (issue #29)', () => {
     expect(alpha('.theme--dark')).toBe(0.28);
   });
   it('gives the pill close button no background of its own, even when pressed (issue #31)', () => {
-    const close = rule('.break-layer--resting .break-panel--pill .break-close');
+    const close = rule('.break-layer--pill .break-panel--pill .break-close');
     expect(close).toMatch(/background:\s*transparent/);
     expect(close).toMatch(/border:\s*0/);
     expect(close).toMatch(/color:\s*var\(--accent\)/);
-    const pressed = rule('.break-layer--resting .break-panel--pill .break-close:active');
+    const pressed = rule('.break-layer--pill .break-panel--pill .break-close:active');
     expect(pressed).toMatch(/background:\s*transparent/);
     expect(pressed).toMatch(/color:\s*var\(--accent\)/);
   });
@@ -197,16 +197,16 @@ describe('glass dialogs (issue #33)', () => {
     expect(close).toMatch(/min-width:\s*44px; min-height:\s*44px/);
   });
   it('leaves the resting pill as it was', () => {
-    expect(rule('.break-layer--resting')).toMatch(/background:\s*none/);
-    const pill = rule('.break-layer--resting .break-panel--pill');
+    expect(rule('.break-layer--pill')).toMatch(/background:\s*none/);
+    const pill = rule('.break-layer--pill .break-panel--pill');
     expect(pill).toMatch(/background:\s*var\(--glass\)/);
     expect(pill).toMatch(/(^|[^-])backdrop-filter:\s*blur\(8px\) saturate\(160%\)/);
     expect(pill).toMatch(/border-radius:\s*1\.4em/);
     expect(pill).toMatch(/padding:\s*\.5em 2\.8em \.85em/);
     expect(rule('.break-panel--pill .break-close')).toMatch(/top:\s*\.15em; right:\s*\.15em; width:\s*2em; height:\s*2em/);
-    expect(rule('.break-layer--resting .break-panel--pill .break-close:active')).toMatch(/background:\s*transparent/);
+    expect(rule('.break-layer--pill .break-panel--pill .break-close:active')).toMatch(/background:\s*transparent/);
     // The pill rule must come after the panel rule it overrides.
-    expect(css.indexOf('.break-layer--resting .break-panel--pill {')).toBeGreaterThan(css.indexOf('.settings-panel {'));
+    expect(css.indexOf('.break-layer--pill .break-panel--pill {')).toBeGreaterThan(css.indexOf('.settings-panel {'));
   });
 });
 
@@ -243,5 +243,52 @@ describe('carousel edge and settings fit (issue #35)', () => {
     expect(rule('.settings-panel header')).toMatch(/padding-bottom:\s*1em/);
     expect(rule('.settings-panel footer')).toMatch(/margin-top:\s*1em/);
     expect(rule('.settings-scroll')).toMatch(/padding:\s*1\.2em 1\.8em/);
+  });
+});
+
+describe('break prompt pill and slide animations (issue #37)', () => {
+  const themes = ['dark', 'sky', 'sage', 'lavender', 'mint'];
+  it('lays the prompt out in one row that wraps under the title when narrow', () => {
+    const row = rule('.break-panel--prompt');
+    expect(row).toMatch(/display:\s*flex/);
+    expect(row).toMatch(/flex-wrap:\s*wrap/);
+    expect(row).toMatch(/align-items:\s*center/);
+    expect(rule('.break-prompt-controls')).toMatch(/display:\s*flex/);
+  });
+  it('draws the length chips and Maybe later as glass fields, the selected chip in the accent', () => {
+    const chip = rule('.break-panel--pill .break-chip');
+    expect(chip).toMatch(/background:\s*var\(--glass-field\)/);
+    expect(chip).toMatch(/border:\s*1\.25px solid var\(--glass-field-line\)/);
+    expect(chip).toMatch(/min-height:\s*44px/);
+    const selected = rule(".break-panel--pill .break-chip[aria-pressed='true']");
+    expect(selected).toMatch(/border-color:\s*var\(--accent\)/);
+    expect(selected).toMatch(/background:\s*var\(--glass-chip\)/);
+    for (const vars of [light, ...themes.map((theme) => variables(block(`.theme--${theme}`)))]) {
+      expect(vars['--glass-chip']).toMatch(/^rgba\(/);
+    }
+    expect(rule('.break-actions button:not(.filled-button)')).toMatch(/background:\s*var\(--glass-field\)/);
+  });
+  it('slides the pills down in and up out over 250 ms', () => {
+    expect(rule('.break-layer--pill .break-panel--pill')).toMatch(/animation:\s*pill-in 250ms ease-out/);
+    const closing = rule('.break-layer--pill .break-panel--closing');
+    expect(closing).toMatch(/animation:\s*pill-out 250ms ease-in forwards/);
+    expect(closing).toMatch(/pointer-events:\s*none/);
+    expect(css).toMatch(/@keyframes pill-in \{ from \{ opacity: 0; transform: translateY\(-[^)]+\); \} to \{ opacity: 1; transform: none; \} \}/);
+    expect(css).toMatch(/@keyframes pill-out \{ from \{ opacity: 1; transform: none; \} to \{ opacity: 0; transform: translateY\(-[^)]+\); \} \}/);
+  });
+  it('shows and hides the pills instantly with reduced motion', () => {
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{ \.break-layer--pill \.break-panel--pill, \.break-layer--pill \.break-panel--closing \{ animation: none; \} \}/);
+  });
+});
+
+describe('prompt pill close button (issue #37)', () => {
+  it('centres the ✕ vertically in the one-row pill, beating the countdown pill’s top offset', () => {
+    expect(rule('.break-panel--pill.break-panel--prompt .break-close')).toMatch(/top:\s*50%; transform:\s*translateY\(-50%\)/);
+  });
+});
+
+describe('prompt pill spacing (issue #37)', () => {
+  it('reserves room for the 44px ✕ at any base font size, so it never covers Let’s go', () => {
+    expect(rule('.break-layer--pill .break-panel--prompt')).toMatch(/padding:\s*\.5em max\(2\.8em, calc\(\.4em \+ 44px\)\) \.5em 1\.2em/);
   });
 });

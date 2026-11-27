@@ -17,6 +17,7 @@ import DisplayModeToggle from './DisplayModeToggle';
 import Settings from './Settings';
 import BreakDialog from './BreakDialog';
 import useBreakReminder from './useBreakReminder';
+import useClosingPill from './useClosingPill';
 import { normalizeWorkState, workStartAt } from './workday';
 
 export const SETTINGS_KEY = 'kindle-settings-v1';
@@ -72,6 +73,14 @@ export function stageOverflows(stage) {
   return Boolean(card && carded && overflows(card.getBoundingClientRect(), stage.querySelectorAll('.feeds-panel *')));
 }
 
+// What an open break window does to the page. Settings replaces it while open. The prompt and
+// resting pills (issues #29, #37) leave the page usable; the prompt still pauses the carousel. Only
+// the "new day" welcome is a blocking centred dialog.
+export function breakLayers(mode, showSettings) {
+  const open = !showSettings && mode !== null;
+  return { open, blocking: open && mode === 'welcome', pausing: open && mode !== 'running' };
+}
+
 export default function App() {
   const [settings, setSettings] = useState(() => normalizeSettings(readStored(SETTINGS_KEY)));
   const [now, setNow] = useState(new Date());
@@ -102,9 +111,12 @@ export default function App() {
   const startWork = () => { const clicked = new Date(); setNow(clicked); setWork({ startedAt: workStartAt(clicked.getTime()) }); setWelcome(true); };
   const breakReminder = useBreakReminder(settings.breakReminder, work.startedAt, now, { enabled: settings.breakNotification, title: pick(BREAK_TEXT, settings.language).notification });
   const breakMode = welcome ? 'welcome' : breakReminder.mode;
-  const breakOpen = !showSettings && breakMode !== null;
-  // The resting pill leaves the page usable; only the prompt and welcome dialogs cover it.
-  const breakBlocking = breakOpen && breakMode !== 'running';
+  const { open: breakOpen, blocking: breakBlocking, pausing: breakPausing } = breakLayers(breakMode, showSettings);
+  // A top pill (prompt or countdown) slides away after it is closed (issue #37). Settings hiding it
+  // or the welcome window covering it are not closes.
+  const pill = !welcome && breakReminder.mode !== null ? { mode: breakReminder.mode, endsAt: breakReminder.endsAt, duration: breakReminder.duration } : null;
+  const closingPill = useClosingPill(pill);
+  const closing = !breakOpen && !showSettings ? closingPill.closing : null;
   const primaryDate = cityDate(primary, now), secondaryDate = cityDate(secondary, now);
   const primaryTime = clock(primaryDate, settings.format), secondaryTime = clock(secondaryDate, settings.format);
   const flip = settings.clockStyle === 'flip';
@@ -182,10 +194,11 @@ export default function App() {
           </div>
         </footer>
       </section>
-      {settings.showFeeds && <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingCarousel language={settings.language} city={primary} now={now} interval={settings.carouselInterval} paused={showSettings || breakBlocking} /></aside>}
+      {settings.showFeeds && <aside className="feeds-panel" aria-label={t.feedsArea}><TrendingCarousel language={settings.language} city={primary} now={now} interval={settings.carouselInterval} paused={showSettings || breakPausing} /></aside>}
     </div>
     {!showSettings && !breakBlocking && <DisplayModeToggle theme={settings.theme} language={settings.language} onToggle={() => setSettings(toggleTheme)} />}
     {showSettings && <Settings settings={settings} setSettings={setSettings} close={(options) => { setShowSettings(false); if (options && options.breakNow) breakReminder.openNow(); }} viewport={viewport} t={t} />}
-    {breakOpen && <BreakDialog mode={breakMode} endsAt={breakReminder.endsAt} duration={breakReminder.duration} clockStyle={settings.clockStyle} language={settings.language} onDismiss={() => { if (welcome) setWelcome(false); breakReminder.dismiss(); }} onStart={breakReminder.start} />}
+    {breakOpen ? <BreakDialog mode={breakMode} endsAt={breakReminder.endsAt} duration={breakReminder.duration} clockStyle={settings.clockStyle} language={settings.language} onDismiss={() => { if (welcome) setWelcome(false); breakReminder.dismiss(); }} onStart={breakReminder.start} />
+      : closing && <BreakDialog closing mode={closing.mode} endsAt={closing.endsAt} duration={closing.duration} clockStyle={settings.clockStyle} language={settings.language} onDismiss={() => {}} onStart={() => {}} onClosed={closingPill.finish} />}
   </main>;
 }

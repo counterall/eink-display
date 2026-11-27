@@ -175,13 +175,24 @@ describe('break dialog', () => {
   afterEach(() => { vi.useRealTimers(); });
   const render = (props) => renderToStaticMarkup(<BreakDialog language="zh" onDismiss={() => {}} onStart={() => {}} {...props} />);
   const resting = (left, props = {}) => render({ mode: 'running', endsAt: NOW + left, duration: 10, ...props });
-  it('prompts with the coffee title, three durations and both actions', () => {
+  it('prompts in one row: coffee title, three length chips (10 selected), both actions, close (issue #37)', () => {
     const markup = render({ mode: 'prompt' });
     expect(markup).toContain('Take a break');
     expect(markup).toContain('lucide-coffee');
-    expect(markup).toMatch(/<option value="10" selected="">10分钟<\/option><option value="15">15分钟<\/option><option value="30">30分钟<\/option>/);
+    expect(markup).not.toContain('<select');
+    expect(markup).toContain('role="group" aria-label="休息时间"');
+    const chips = [...markup.matchAll(/<button type="button" class="break-chip" aria-pressed="(true|false)">([^<]*)<\/button>/g)].map(([, pressed, text]) => [text, pressed]);
+    expect(chips).toEqual([['10分钟', 'true'], ['15分钟', 'false'], ['30分钟', 'false']]);
+    expect(markup.indexOf('Take a break')).toBeLessThan(markup.indexOf('break-chip'));
+    expect(markup.indexOf('break-chip')).toBeLessThan(markup.indexOf('下次吧'));
     expect(markup.indexOf('下次吧')).toBeLessThan(markup.indexOf('开始吧'));
+    expect(markup).toMatch(/class="filled-button"[^>]*>开始吧/);
     expect(markup).toContain('class="break-close"');
+  });
+  it('slides the closing pill away: a closing class, no other change', () => {
+    expect(render({ mode: 'prompt', closing: true })).toContain('class="settings-panel break-panel break-panel--pill break-panel--prompt break-panel--closing"');
+    expect(resting(60000, { closing: true })).toContain('break-panel--closing');
+    expect(render({ mode: 'prompt' })).not.toContain('break-panel--closing');
   });
   it('replaces the prompt with a resting pill: only mm:ss, the bar and the close button', () => {
     const markup = resting(14 * 60000 + 30500, { duration: 15 });
@@ -197,14 +208,20 @@ describe('break dialog', () => {
     expect(markup).toContain('class="break-close"');
     expect(markup).toContain('aria-label="关闭"');
   });
-  it('is a non-blocking pill: its own layer without the dimming overlay, not modal', () => {
+  it('is a non-blocking pill, resting and prompting alike: its own layer without the dimming overlay, not modal', () => {
     const markup = resting(9 * 60000);
-    expect(markup).toContain('class="settings-layer break-layer break-layer--resting"');
-    expect(markup).toContain('class="settings-panel break-panel break-panel--pill"');
+    expect(markup).toContain('class="settings-layer break-layer break-layer--pill"');
+    expect(markup).toContain('class="settings-panel break-panel break-panel--pill break-panel--resting"');
     expect(markup).not.toContain('aria-modal="true"');
-    expect(render({ mode: 'prompt' })).toContain('aria-modal="true"');
-    expect(render({ mode: 'prompt' })).not.toContain('break-layer--resting');
-    expect(render({ mode: 'welcome' })).not.toContain('break-panel--pill');
+    const prompt = render({ mode: 'prompt' });
+    expect(prompt).toContain('class="settings-layer break-layer break-layer--pill"');
+    expect(prompt).toContain('class="settings-panel break-panel break-panel--pill break-panel--prompt"');
+    expect(prompt).toContain('aria-modal="false"');
+    expect(prompt).toContain('aria-labelledby="break-title"');
+    const welcome = render({ mode: 'welcome' });
+    expect(welcome).not.toContain('break-panel--pill');
+    expect(welcome).not.toContain('break-layer--pill');
+    expect(welcome).toContain('aria-modal="true"');
   });
   it('uses flip cards for mm:ss when the flip clock style is on', () => {
     const markup = resting(9 * 60000 + 59000, { clockStyle: 'flip' });
@@ -272,15 +289,19 @@ describe('break reminder in the app', () => {
     expect(running).toMatch(/aria-valuenow="3".*style="width:3\.33/);
     expect(renderApp({ breakReminder: true }, { closedAt: ms('2026-11-06T09:45Z'), endsAt: Date.now() - 1 })).not.toContain('break-panel');
   });
-  it('keeps the page usable while resting: theme toggle shown, only blocking dialogs hide it', () => {
+  it('keeps the page usable while resting or prompting: theme toggle shown, dashboard not hidden (issue #37)', () => {
     const resting = renderApp({ breakReminder: true }, { closedAt: ms('2026-11-06T09:00Z'), endsAt: Date.now() + 5 * 60000, duration: 10 });
-    expect(resting).toContain('break-layer--resting');
+    expect(resting).toContain('break-panel--resting');
     expect(resting).toContain('class="theme-toggle"');
     expect(resting).toContain('<div class="dashboard">');
     const prompt = renderApp({ breakReminder: true });
-    expect(prompt).toContain('Take a break');
-    expect(prompt).not.toContain('class="theme-toggle"');
-    expect(prompt).toContain('<div class="dashboard" aria-hidden="true">');
+    expect(prompt).toContain('break-panel--prompt');
+    expect(prompt).toContain('class="theme-toggle"');
+    expect(prompt).toContain('<div class="dashboard">');
+  });
+  it('does not flash the prompt in the moment a break ends, before its end is recorded (issue #37)', () => {
+    // The last window closed over an hour ago, but the break that just ended restarts the hour.
+    expect(renderApp({ breakReminder: true }, { closedAt: ms('2026-11-06T09:00Z'), endsAt: Date.now() - 1, duration: 10 })).not.toContain('break-panel');
   });
   it('does not prompt after the eight-hour session is over', () => {
     vi.setSystemTime(new Date('2026-11-06T16:30:00Z')); // 18:30, session ended 18:00

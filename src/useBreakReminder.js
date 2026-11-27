@@ -65,7 +65,10 @@ export default function useBreakReminder(enabled, startedAt, now, notification =
 
   // A one-off prompt requested from settings, independent of the hourly schedule.
   const [forced, setForced] = useState(false);
-  const prompt = !running && ((enabled && forced) || due);
+  // A break that has just ended but isn't recorded yet (the effect above does that) shows nothing,
+  // not a one-render prompt: the countdown pill slides away, it doesn't turn into the prompt.
+  const ended = state.endsAt !== null && !running;
+  const prompt = !running && !ended && ((enabled && forced) || due);
   const close = () => { setForced(false); setState((old) => ({ ...old, closedAt: Date.now(), endsAt: null })); };
 
   return {
