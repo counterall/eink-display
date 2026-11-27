@@ -188,8 +188,6 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 .settings-panel .break-close:active { background: var(--strong); color: var(--on-strong); }
 .settings-panel .settings-close { top: .9em; right: .9em; }
 .break-close svg { width: 1.5em; height: 1.5em; }
-.break-field { display: block; padding-top: 1.1em; font-size: .9em; }
-.break-field select { display: block; width: 100%; margin-top: .5em; min-height: 2.7em; padding: .4em; }
 .break-actions { margin-top: 1.4em; }
 .break-actions button { min-width: 7em; }
 .break-running { text-align: center; padding: 1.4em 2em .8em; }
@@ -240,7 +238,7 @@ button:focus-visible, select:focus-visible, a:focus-visible { outline: 2px dashe
 /* The prompt pill is one row: title, length chips, Maybe later, Let's go (✕ pinned right). When
    that doesn't fit, the controls wrap as a group under the title. */
 .break-panel--prompt { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; }
-.break-layer--pill .break-panel--prompt { padding: .5em 2.8em .5em 1.2em; }
+.break-layer--pill .break-panel--prompt { padding: .5em max(2.8em, calc(.4em + 44px)) .5em 1.2em; }
 .break-panel--prompt .break-pill-title { display: flex; align-items: center; margin: 0 .9em 0 0; font-size: 1.15em; white-space: nowrap; }
 .break-prompt-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; min-width: 0; max-width: 100%; }
 .break-chips { display: flex; flex-wrap: wrap; justify-content: center; margin-right: .9em; }

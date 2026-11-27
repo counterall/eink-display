@@ -286,3 +286,9 @@ describe('prompt pill close button (issue #37)', () => {
     expect(rule('.break-panel--pill.break-panel--prompt .break-close')).toMatch(/top:\s*50%; transform:\s*translateY\(-50%\)/);
   });
 });
+
+describe('prompt pill spacing (issue #37)', () => {
+  it('reserves room for the 44px ✕ at any base font size, so it never covers Let’s go', () => {
+    expect(rule('.break-layer--pill .break-panel--prompt')).toMatch(/padding:\s*\.5em max\(2\.8em, calc\(\.4em \+ 44px\)\) \.5em 1\.2em/);
+  });
+});
