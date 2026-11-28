@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "https://github.com/trending?since=daily",
   "period": "daily",
-  "generatedAt": "2026-11-27T09:08:32.561Z",
+  "generatedAt": "2026-11-28T06:26:37.973Z",
   "repositories": [
     {
       "rank": 1,
@@ -11,8 +11,8 @@
       "url": "https://github.com/elementalsouls/Claude-BugHunter",
       "description": "A Claude Code skill bundle for bug hunting and external red-team work - 85 skills, 16 slash commands, 681 disclosed-report patterns curated across 24 core vulnerability classes, plus enterprise identity + infrastructure attack matrices.",
       "language": "Python",
-      "stars": 25173,
-      "dailyStars": 1597
+      "stars": 26392,
+      "dailyStars": 1608
     },
     {
       "rank": 2,
@@ -21,8 +21,8 @@
       "url": "https://github.com/obra/superpowers",
       "description": "An agentic skills framework & software development methodology that works.",
       "language": "Shell",
-      "stars": 327810,
-      "dailyStars": 854
+      "stars": 328495,
+      "dailyStars": 922
     },
     {
       "rank": 3,
@@ -31,8 +31,8 @@
       "url": "https://github.com/HKUDS/CLI-Anything",
       "description": "\"CLI-Anything: Making ALL Software Agent-Native\" -- CLI-Hub: https://clianything.cc/",
       "language": "Python",
-      "stars": 66623,
-      "dailyStars": 746
+      "stars": 67114,
+      "dailyStars": 666
     },
     {
       "rank": 4,
@@ -41,8 +41,8 @@
       "url": "https://github.com/jingyaogong/minimind",
       "description": "🧠 两小时从 0 训出你的 64M 大模型。Train your own 64M LLM from scratch in 2 hours.",
       "language": "Python",
-      "stars": 71947,
-      "dailyStars": 702
+      "stars": 72308,
+      "dailyStars": 660
     },
     {
       "rank": 5,
@@ -51,8 +51,8 @@
       "url": "https://github.com/cursor/plugins",
       "description": "Cursor plugin specification and official plugins",
       "language": "TypeScript",
-      "stars": 19874,
-      "dailyStars": 270
+      "stars": 20049,
+      "dailyStars": 243
     }
   ]
 }
